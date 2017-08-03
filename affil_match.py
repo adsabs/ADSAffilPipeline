@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # affil_match -- M. Templeton
 #
 # Takes /proj/ads/abstracts/ast/update/AFFILS/Affiliations_all_clean.tsv
@@ -17,12 +19,20 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 
 
-inst_file='Affiliations_all_clean.tsv'
-f=open(inst_file,'rU')
-affil_frame=pd.read_csv(f,sep='\t',names=['Affcode','Affil'],dtype=str)
-f.close()
+learn_file='Affiliations_all_clean.tsv'
+
+try:
+    f=open(learn_file,'rU')
+except IOError:
+    print("%s cannot be opened.  Exiting."%(learn_file))
+    quit()
+else:
+    affil_frame=pd.read_csv(f,sep='\t',names=['Affcode','Affil'],dtype=str)
+    f.close()
+
 affil_codes=affil_frame['Affcode'].unique()
 
+# empty data frame to which affiliation id + words/ngrams will be appended
 tdf=pd.DataFrame(index=[],columns=[])
 
 for id in affil_codes:
@@ -30,7 +40,7 @@ for id in affil_codes:
     try:
         mdf=affil_frame.loc[affil_frame.Affcode==id]
     except TypeError:
-        dummy=0
+        print("I got a type error for id: %s"%(id))
     else:
         wgl=(mdf.Affil.tolist())
         ltxt=''
