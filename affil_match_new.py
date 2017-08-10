@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# amx (affil_match) -- M. Templeton
+# affil_match_new -- M. Templeton, August 10, 2017
 #
 # Takes /proj/ads/abstracts/ast/update/AFFILS/Affiliations_all_clean.tsv
 # as an input dictionary.  Tries to figure out unresolved references in
@@ -32,7 +32,7 @@ def read_data(lf,colnames):
     else:
         df=pd.read_csv(f,sep='\t',names=colnames,dtype=str)
         f.close()
-    print("Done read_data: %s\n"%lf)
+    print("Done read_data: %s"%lf)
     return(df)
 
 
@@ -46,38 +46,27 @@ def combine_dictionary(df):
 # being condensed into a single, long-string (ltxt) or into a list of
 # unique words (words; original method, not recommended).
 #
-# Note this step takes a long time to execute, and I suspect it's a problem
-# with the code that's appending the row [id,ltxt] to tdf.  Is there a 
-# better/faster way to add rows to a Pandas DataFrame?
+# Note this step takes a long time to execute, because of the join.  The
+# string variable 'ltxt' is very long for most records, and I think I am
+# using the most efficient method for concatenating records in the Affil
+# column.
 
     affil_codes=df['Affcode'].unique()
-    tdf=pd.DataFrame(index=[],columns=['Affcode','Affil'])
+    data=[]
     for id in affil_codes:
-        all_words=[]
-        try:
-            mdf=affil_frame.loc[affil_frame.Affcode==id]
-        except TypeError:
-            print("I got a type error for id: %s"%(id))
-        else:
-            wgl=(mdf.Affil.tolist())
-            ltxt=''
-            for g in wgl:
-                try:
-                    ltxt+=' '+g
-                except TypeError:
-                    dummy=0
-                else:
-                    dummy=0
-            all_words=ltxt.split()
-            words=' '.join(list(set(all_words))).replace(",","").strip().rstrip()
-            tdf.loc[tdf.shape[0]]=[id,ltxt]  #change ltxt to words if you want
+        mdf=affil_frame.loc[affil_frame.Affcode==id]
+        ltxt=' '.join(mdf.Affil.astype('U',errors='ignore').values.tolist())
+        data.append({'Affcode':id,'Affil':ltxt})
+    tdf=pd.DataFrame.from_dict(data,dtype=str)
     print("Done combine_dictionary.")
     return(tdf)
 
 
+
 def column_to_list(df,colname):
-    col_list=df[colname].values.astype('U').tolist()
+    col_list=df[colname].astype('U',errors='ignore').values.tolist()
     return col_list
+
 
 
 def learn_dictionary(df):
@@ -85,7 +74,7 @@ def learn_dictionary(df):
 # This function creates the framework that sklearn is using to learn the
 # characteristics of the text.  The transforms are first created using the
 # input data here, and then the resulting models are applied to the data
-# to be matched (see match_entries below).  
+# to be matched (see match_entries below).
 #
 # There is code here to use either word- or n-gram-based matching.  I have
 # been using word based and I think it works ok.
@@ -95,11 +84,15 @@ def learn_dictionary(df):
 # use with caution here.
 #
 # This stage, and match_entries, currently take **enormous** amounts of RAM
-# to the point that a machine with 24G wired may even start swapping.  These
-# are supposed to use sparse-matrix solvers, so I wonder if the data frames
-# are being formed without zeroes and it's really trying to solve a matrix
-# as huge as these are....  Either way, if this crashes, it does so either
-# here or in match_entries.
+# to the point that a machine with 24G wired may even start swapping.
+# What does it is the application of TfidTransformer in the line
+#
+#        cvf=tft.fit_transform(ac)
+#
+# These are supposed to use sparse-matrix solvers, so I wonder if this is
+# just an indication of how large the matrix is. Regardless, this is a known
+# issue related to the method being used.  The only other option is using
+# some kind of incremental learning method.
 
     alist=column_to_list(df,'Affil')
 
@@ -144,7 +137,7 @@ def print_results(df,printcol):
 
 
 
-def match_entries(df,crit,cv,tft,clf):
+def match_entries(df,crit,cv,tft,clf,colnames):
 
 # This is where the transforms created in learn_dictionary are applied
 # to the data being matched.  Again, this may take an enormous amount of
@@ -163,29 +156,37 @@ def match_entries(df,crit,cv,tft,clf):
     ntf=tft.transform(ncv)
     predicted=clf.predict(ntf)
     probs=clf.predict_proba(ntf)
-    pzero=probs.mean()
-    pstd=probs.std()
-    probs=abs((probs-pzero)/pstd)
+
+#!This should be split into two functions, where the code below should
+#!be in its own function, like "analyze_stats".  It's more than likely
+#!this may be automated separately to do some kind of comparison of
+#!different crit values.
 
     match_aflist=[]
+    fs=open('statprint.dat','w')
     for p in probs:
+        pzero=p.mean()
+        pstd=p.std()
+        p=abs((p-pzero)/pstd)
+        fs.write("\n\n%.6e,%.6e\n"%(pzero,pstd))
+        for x in p:
+            fs.write("%.6e,"%x)
         match_aflist.append(dict_frame.Affcode[p>crit].tolist())
 
     match_frame['Affcodes']=match_aflist
     print("Done matching.  Writing results...")
 
-    print_results(match_frame,['RawAffil','Affil','BibCode'])
+    print_results(match_frame,colnames)
     return
 
 
 
 # BEGIN MAIN
 
-# user set params -- get via cmd line arguments, move to a function?
-
+# user set params -- get via cmd line arguments, no editing of code to run!
 learn_file='Affiliations_all_clean.tsv'
 target_file='affils.ast.20170614_1156.srcu'
-minsigma=50.0
+minsigma=40.0
 
 # Read the input file to be learned
 affil_frame=read_data(learn_file,['Affcode','Affil'])
@@ -197,12 +198,13 @@ dict_frame=combine_dictionary(affil_frame)
 (cvec,transf,cveclfitr,affil_list)=learn_dictionary(dict_frame)
 
 # Read the file with data to be matched
-match_frame=read_data(target_file,['RawAffil','Affil','BibCode'])
+match_columns=['RawAffil','Affil','BibCode']
+match_frame=read_data(target_file,match_columns)
 
 # Create an array from match_frame containing the affiliations to be matched
 match_namelist=column_to_list(match_frame,'Affil')
 
 # Match, and print out the matches and non-matches separately
-match_entries(match_namelist,minsigma,cvec,transf,cveclfitr)
+match_entries(match_namelist,minsigma,cvec,transf,cveclfitr,match_columns)
 
 print("Done!")
