@@ -54,7 +54,11 @@ def combine_dictionary(df):
     affil_codes=df['Affcode'].unique()
     data=[]
     for id in affil_codes:
+<<<<<<< HEAD
+        mdf=affil_frame.loc[affil_frame.Affcode==id]
+=======
         mdf=df.loc[df.Affcode==id]
+>>>>>>> 38e89f2b10420361c8020cc4f91cb9dc9df27834
         ltxt=' '.join(mdf.Affil.astype('U',errors='ignore').values.tolist())
         data.append({'Affcode':id,'Affil':ltxt})
     tdf=pd.DataFrame.from_dict(data,dtype=str)
@@ -97,7 +101,10 @@ def learn_dictionary(df):
     alist=column_to_list(df,'Affil')
 
     cv=CountVectorizer(analyzer='word',decode_error='ignore')
+<<<<<<< HEAD
+=======
 #   cv=CountVectorizer(ngram_range=(2,2),analyzer='word',decode_error='ignore')
+>>>>>>> 38e89f2b10420361c8020cc4f91cb9dc9df27834
 #   cv=CountVectorizer(analyzer='char_wb',ngram_range=(2,6),
 #                      decode_error='ignore')
 
@@ -138,7 +145,11 @@ def print_results(df,printcol):
 
 
 
+<<<<<<< HEAD
+def match_entries(df,crit,cv,tft,clf,colnames):
+=======
 def match_entries(dict_frame,match_frame,crit,cv,tft,clf,colnames):
+>>>>>>> 38e89f2b10420361c8020cc4f91cb9dc9df27834
 
 # This is where the transforms created in learn_dictionary are applied
 # to the data being matched.  Again, this may take an enormous amount of
@@ -153,8 +164,11 @@ def match_entries(dict_frame,match_frame,crit,cv,tft,clf,colnames):
 # matches.  Lower sigma, more matches, with more false positives, and
 # vice versa.
 
+<<<<<<< HEAD
+=======
     match_namelist=column_to_list(match_frame,'Affil')
 
+>>>>>>> 38e89f2b10420361c8020cc4f91cb9dc9df27834
     ncv=cv.transform(match_namelist)
     ntf=tft.transform(ncv)
     predicted=clf.predict(ntf)
@@ -166,6 +180,16 @@ def match_entries(dict_frame,match_frame,crit,cv,tft,clf,colnames):
 #!different crit values.
 
     match_aflist=[]
+<<<<<<< HEAD
+    fs=open('statprint.dat','w')
+    for p in probs:
+        pzero=p.mean()
+        pstd=p.std()
+        p=abs((p-pzero)/pstd)
+        fs.write("\n\n%.6e,%.6e\n"%(pzero,pstd))
+        for x in p:
+            fs.write("%.6e,"%x)
+=======
 #   fs=open('statprint.dat','w')
     for p in probs:
         pzero=p.mean()
@@ -175,6 +199,7 @@ def match_entries(dict_frame,match_frame,crit,cv,tft,clf,colnames):
 #       fs.write("\n\n%.6e,%.6e\n"%(pzero,pstd))
 #       for x in p:
 #           fs.write("%.6e\n"%x)
+>>>>>>> 38e89f2b10420361c8020cc4f91cb9dc9df27834
         match_aflist.append(dict_frame.Affcode[p>crit].tolist())
 
     match_frame['Affcodes']=match_aflist
@@ -185,6 +210,35 @@ def match_entries(dict_frame,match_frame,crit,cv,tft,clf,colnames):
 
 
 
+<<<<<<< HEAD
+# BEGIN MAIN
+
+# user set params -- get via cmd line arguments, no editing of code to run!
+learn_file='Affiliations_all_clean.tsv'
+target_file='affils.ast.20170614_1156.srcu'
+minsigma=40.0
+
+# Read the input file to be learned
+affil_frame=read_data(learn_file,['Affcode','Affil'])
+
+# Turn the input data into a dictionary-like dataframe
+dict_frame=combine_dictionary(affil_frame)
+
+# Model the dictionary using sklearn...
+(cvec,transf,cveclfitr,affil_list)=learn_dictionary(dict_frame)
+
+# Read the file with data to be matched
+match_columns=['RawAffil','Affil','BibCode']
+match_frame=read_data(target_file,match_columns)
+
+# Create an array from match_frame containing the affiliations to be matched
+match_namelist=column_to_list(match_frame,'Affil')
+
+# Match, and print out the matches and non-matches separately
+match_entries(match_namelist,minsigma,cvec,transf,cveclfitr,match_columns)
+
+print("Done!")
+=======
 
 def get_options():
     import argparse
@@ -228,3 +282,4 @@ def main():
 if __name__ == '__main__':
     main()
     print("Done!")
+>>>>>>> 38e89f2b10420361c8020cc4f91cb9dc9df27834
