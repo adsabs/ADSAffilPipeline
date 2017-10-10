@@ -191,7 +191,7 @@ def parents_children():
     infile='ids_canonical_2017Sep15.tsv'
     f=open(infile,'rU')
 
-    children=dict()
+    children=dict([])
     parents=dict()
     canonical=dict()
     clist=[]
@@ -206,12 +206,13 @@ def parents_children():
                 children[str(p)]=[str(c)]
             else:
                 children[str(p)].append(str(c))
-            try:
-                parents[str(c)]
-            except KeyError:
-                parents[str(c)]=[str(p)]
-            else:
-                parents[str(c)].append(str(p))
+#           try:
+#               parents[str(c)]
+#           except KeyError:
+#               parents[str(c)]=[str(p)]
+#           else:
+#               parents[str(c)].append(str(p))
+            parents[str(c)]=str(p)
         canonical[str(c)]=cn
     f.close()
 

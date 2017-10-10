@@ -70,8 +70,7 @@ def learn_dictionary(df):
 
     alist=column_to_list(df,'Affil')
 
-    cv=CountVectorizer(analyzer='word',decode_error='replace',
-                       max_df=1.0)
+    cv=CountVectorizer(analyzer='word', decode_error='replace')
     ac=cv.fit_transform(alist)
     tft=TfidfTransformer()
     cvf=tft.fit_transform(ac)
