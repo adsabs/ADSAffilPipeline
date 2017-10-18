@@ -134,7 +134,7 @@ def print_output(prob_min,match_frame):
             parent="ERROR:Bad Key!"
         else:
             b=canonical[ta].strip()
-            parent=parents_children(ta)
+            parent=get_parent(ta,parents)
         if (ts >= 2.*prob_min):
             matched_affils.write("%s\t%s\t%s\t%s\t%s\t%f16.10\n"%(ta,parent,b,bib,seq,ts))
         else:
