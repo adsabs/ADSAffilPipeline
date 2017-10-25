@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 PC_INFILE = 'config/parent_child_facet_inst.tsv'
-DICT_INFILE = 'config/dictionary.dat'
+DICT_INFILE = 'config/learning_model.dat'
 
 OUTPUT_FILE = 'matches.txt'
 

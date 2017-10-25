@@ -5,7 +5,7 @@
 # beta testing for the production code
 #----------------------------------------------------------------------------
 
-from config.config import *
+from config import *
 import warnings
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
@@ -89,7 +89,7 @@ def match_entries(dict_frame,match_frame,cv,tft,clf,colnames):
 
 
 def parents_children(infile):
-    f=open(infile,encoding='ascii',errors='replace')
+    f=open(infile,'rU')
 
     children=dict([])
     parents=dict()
