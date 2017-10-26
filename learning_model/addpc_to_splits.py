@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import glob
+from math import sqrt
 
 def file_len(fname):
     with open(fname) as f:
@@ -21,7 +22,7 @@ files=glob.glob("[A123456789]/*")
 for f in files:
     nlines=file_len(f)
     if(nlines >2):
-        nlines=5*int(nlines)
+        nlines=10+int(sqrt(nlines))
     else:
         nlines=10
 

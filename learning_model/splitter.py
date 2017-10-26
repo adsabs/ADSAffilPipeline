@@ -2,7 +2,7 @@
 
 import os
 
-f=open('Affiliations_all_CSG.tsv','r')
+f=open('affils_ascii.tsv','r')
 
 affils=dict([])
 
