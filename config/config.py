@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 PC_INFILE = 'config/parent_child_facet_inst.tsv'
-DICT_INFILE = 'config/learning_model.dat'
+LM_INFILE = 'config/learning_model.dat'
 
 OUTPUT_FILE = 'matches.txt'
 
-DICT_COL_CODE = 'Affcode'
-DICT_COL_AFFL = 'Affil'
-DICT_COLS = [DICT_COL_CODE,DICT_COL_AFFL]
+LM_COL_CODE = 'Affcode'
+LM_COL_AFFL = 'Affil'
+LM_COLS = [LM_COL_CODE,LM_COL_AFFL]
 
 MATCH_COL_BIB = 'bibcode'
 MATCH_COL_AFFL = 'Affil'

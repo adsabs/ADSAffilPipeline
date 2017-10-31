@@ -1,0 +1,7 @@
+ABCD	Harvard-Smithsonian Center for Astrophysics CfA Harvard University Cambridge Massachusetts
+BCDE	University of Delaware UD Newark DE
+CDEF	New Mexico State University NMSU Las Cruces NM 88003
+DEFG	Toys 'R' Us, The Mall, like, oh my gawd!
+EFGH	Charcoal Pit, Concord Pike, Wilmington, DE
+FGHI	Massachusetts Audubon Society Mass Audubon 208 Old South Road, Lincoln, MA
+GHIJ	X-Division Los Alamos National Laboratory National Nuclear Security Administration New Mexico 87545

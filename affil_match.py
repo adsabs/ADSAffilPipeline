@@ -5,40 +5,37 @@
 # beta testing for the production code
 #----------------------------------------------------------------------------
 
-from config import *
 import warnings
+
 import pandas as pd
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import SGDClassifier
+
+from config import *
 
 
 
 def read_data(lf,colnames):
 
 # Reads in tab-delimited files into pandas data frames.  Note this is
-# used for both the input dictionary and the data being analyzed, and
+# used for both the input learning model and the data being analyzed, and
 # requires that you give it the column names in advance.
 
-    try:
-        f=open(lf,'rU')
-    except IOError:
-        print("%s cannot be opened.  Exiting."%(lf))
-        quit()
-    else:
-        df=pd.read_csv(f,sep='\t',names=colnames)
-        f.close()
+    with open(lf,'rU') as f:
+        df=pd.read_csv(f,sep='\t',names=colnames,dtype=object)
+    f.close()
     return(df)
-
 
 
 def column_to_list(df,colname):
     col_list=df[colname].astype('U',errors='ignore').values.tolist()
-    return col_list
+    return(col_list)
 
 
 
-def learn_dictionary(df):
+def learning_model(df):
 
 # This function creates the framework that sklearn is using to learn the
 # characteristics of the text.  The transforms are first created using the
@@ -46,7 +43,7 @@ def learn_dictionary(df):
 # to be matched (see match_entries below).
 #
 
-    alist=column_to_list(df,DICT_COL_AFFL)
+    alist=column_to_list(df,LM_COL_AFFL)
 
     cv=CountVectorizer(analyzer=CV_PARAM_ANALYZER,
                        decode_error=CV_PARAM_DECERR)
@@ -59,9 +56,9 @@ def learn_dictionary(df):
 
 
 
-def match_entries(dict_frame,match_frame,cv,tft,clf,colnames):
+def match_entries(learning_frame,match_frame,cv,tft,clf,colnames):
 
-# This is where the transforms created in learn_dictionary are applied
+# This is where the transforms created in learning_model are applied
 # to the data being matched, and the best guesses are written to
 # match_frame.
 
@@ -77,14 +74,13 @@ def match_entries(dict_frame,match_frame,cv,tft,clf,colnames):
     match_afscore=[]
 
     for p,ip in zip(probs,predicted):
-#       match_aflist.append(dict_frame.Affcode[ip])
-        match_aflist.append(dict_frame[DICT_COL_CODE][ip])
+        match_aflist.append(learning_frame[LM_COL_CODE][ip])
         match_afscore.append(p.max())
 
     match_frame['Affcodes']=match_aflist
     match_frame['Affscore']=match_afscore
 
-    return match_frame
+    return(match_frame)
     
 
 
@@ -110,24 +106,28 @@ def parents_children(infile):
         canonical[c]=cn
     f.close()
 
-    return children,parents,canonical
+    return(children,parents,canonical)
 
 def get_parent(affil,parents):
     try:
         parents[affil]
     except KeyError:
-        return affil
+        return(affil)
     else:
-        return get_parent(parents[affil],parents)
+        return(get_parent(parents[affil],parents))
 
 
 def print_output(prob_min,match_frame):
+
     bibcode_string=column_to_list(match_frame,MATCH_COL_BIB)
     sequence_string=column_to_list(match_frame,MATCH_COL_AISQ)
     test_answers=column_to_list(match_frame,'Affcodes')
     test_scores=match_frame['Affscore'].tolist()
-    matched_affils=open(OUTPUT_FILE,'w')
+
     (children,parents,canonical)=parents_children(PC_INFILE)
+
+    matched_affils=open(OUTPUT_FILE,'w')
+
     for ta,bib,seq,ts in zip(test_answers,bibcode_string,sequence_string,test_scores):
         try:
             canonical[ta]
@@ -140,6 +140,7 @@ def print_output(prob_min,match_frame):
         ts=int(100*ts/prob_min)/100.
         matched_affils.write("%s\t%s\t%s\t%s\t%s\n"%(ta,parent,bib,seq,ts))
     matched_affils.close()
+
     return
 
 
@@ -150,7 +151,7 @@ def get_options():
     parser.add_argument('testfile',type=str,nargs=1,help='file name of'
                         +' data to be tested')
     args=parser.parse_args()
-    return args.testfile[0]
+    return(args.testfile[0])
 
 
 
@@ -162,18 +163,15 @@ def main():
 #   get user inputs for filenames
     target_file=get_options()
 
-#   read the dictionary data
-    dict_frame=read_data(DICT_INFILE,DICT_COLS)
-
-#   transform dictionary using sklearn
-    (cvec,transf,cveclfitr,affil_list)=learn_dictionary(dict_frame)
-
-
-#   read the target data
+#   read the learning model and target data
+    learning_frame=read_data(LM_INFILE,LM_COLS)
     match_frame=read_data(target_file,MATCH_COLS)
 
+#   transform learning model using sklearn
+    (cvec,transf,cveclfitr,affil_list)=learning_model(learning_frame)
+
 #   classify and output
-    print_output((1./len(dict_frame)),match_entries(dict_frame,match_frame,cvec,transf,cveclfitr,MATCH_COLS))
+    print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,MATCH_COLS))
 
 
 
