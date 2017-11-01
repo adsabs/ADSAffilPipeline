@@ -54,4 +54,18 @@ To execute the code:
 user% python affil_match.py test/tiny_target.txt
 ```
 
-Execution of the example should take less than a second, and produce a file called **matches.txt**
+Execution of the example should take less than a second, and produce a file called **matches.txt**, shown below:
+
+```
+5972	5972	2017ABCD...17..128T	5/0	5.73
+61814	8264	2017OPQR...19...43P	37/0	3.52
+```
+
+In order, the columns are: 
+* Primary matching ID
+* ID of parent if it exists, or self
+* Input bibcode
+* Author number in list (1st == 0) / Affiliation number per author if multiple (1 affiliation == 0)
+* Match score: float with minimum value of 1.00 (max dependent on input learning model)
+
+The primary matching IDs are obtained from the first column of the best match in test/tiny_learner.txt, while the parent ID comes from config/parent_child_facet_inst.tsv (both are defined in config.py: LM_INFILE and PC_INFILE, respectively).
