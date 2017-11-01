@@ -68,4 +68,4 @@ In order, the columns are:
 * Author number in list (1st == 0) / Affiliation number per author if multiple (1 affiliation == 0)
 * Match score: float with minimum value of 1.00 (max dependent on input learning model)
 
-The primary matching IDs are obtained from the first column of the best match in test/tiny_learner.txt, while the parent ID comes from config/parent_child_facet_inst.tsv (both are defined in config.py: LM_INFILE and PC_INFILE, respectively).
+The primary matching IDs are obtained from the LM_COL_CODE column of the best match in test/tiny_learner.txt, while the parent ID comes from config/parent_child_facet_inst.tsv (LM_INFILE and PC_INFILE, respectively).
