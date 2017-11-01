@@ -59,6 +59,7 @@ Execution of the example should take less than a second, and produce a file call
 ```
 5972	5972	2017ABCD...17..128T	5/0	5.73
 61814	8264	2017OPQR...19...43P	37/0	3.52
+61814	8264	1948XYU.....1..999L	0/0	1.0
 ```
 
 In order, the columns are: 
@@ -68,4 +69,12 @@ In order, the columns are:
 * Author number in list (1st == 0) / Affiliation number per author if multiple (1 affiliation == 0)
 * Match score: float with minimum value of 1.00 (max dependent on input learning model)
 
-The primary matching IDs are obtained from the LM_COL_CODE column of the best match in test/tiny_learner.txt, while the parent ID comes from config/parent_child_facet_inst.tsv (LM_INFILE and PC_INFILE, respectively).
+The primary matching IDs are obtained from the LM_COL_CODE column of the best match in test/tiny_learner.txt, while the parent ID comes from config/parent_child_facet_inst.tsv (LM_INFILE and PC_INFILE, respectively).  Note that the third result yields the same (and in this case incorrect) guess as another input test affiliation (61814), but its score is low (1.0) compared to the score (3.52) for the input affiliation that is a valid match.
+
+# Scoring
+
+The output scores are determined in part by the number of possible affiliations in the learning model, and is normalized by that number.  The scores are essentially relative likelihood that a given record is a match.  For example, if a learning model has 1000 affiliations, the raw score could be 0.00578, which is then normalized by (1/N(affils)), or 5.78.  A match with a score less than 1.25 is almost certainly wrong; a score of 1.00 technically means that any entry in the learning model is an equally good match.  Conversely a score of 5.0 is likely to be an extremely good (but not necessarily correct!) match.
+
+The possibility exists for low-scoring matches to be right, and for high-scoring matches to be wrong.  It is a limitation of the method that cannot be overcome *except* by pruning the learning model to remove potential ambiguities.  As an example, consider an affiliation string given in a paper as **ALMA**.  That is likely to match a dictionary entry for the Atacama Large Millimeter Array, assuming it includes the acronym "ALMA" among the matching words.  However, it may also match an entry for "Alma College", a small liberal-arts institution in Michigan, United States.  The easiest solution for preventing exceptions like this are to remove the less-likely of two or more ambiguous entries, i.e. edit the learning model to remove "Alma College" as a possible entry.  This is less than ideal, but should provide us with more unambiguously correct answers (assuming more papers come from authors at Atacama than from Alma College).
+
+
