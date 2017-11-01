@@ -118,7 +118,7 @@ A suggested way of selecting how matches are dealt with based on score is:
 
 Again, you will see examples where things with Score > 2.5 are wrong and Score < 1.5 are right.  The only solution to this is to validate, clean, and prune the input learning model as thoroughly as possible.
 
-(Further discussion of the learning model is outside the scope of this README.)
+(Further discussion of the learning model is outside the scope of this README; it will be discussed extensively elsewhere.)
 
 # Production Example
 
