@@ -8,6 +8,8 @@ Use scikit-learn to assign affiiations using machine learning based on an input 
 
 # Introduction
 
+For a discussion and tutorial on the machine learning method applied here, see http://scikit-learn.org/stable/tutorial/text_analytics/working_with_text_data.html
+
 A basic description of what this code does is: 
 
 * input unknown affiliation metadata
