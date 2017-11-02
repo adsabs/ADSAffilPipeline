@@ -2,6 +2,7 @@
 
 PC_INFILE = 'config/parent_child_facet_inst.tsv'
 LM_INFILE = 'test/tiny_learner.txt'
+#LM_INFILE = 'config/learning_model.dat'
 
 OUTPUT_FILE = 'matches.txt'
 
