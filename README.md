@@ -69,8 +69,8 @@ Now consider the following learning model, test/tiny_learner.txt:
 and target data, test/tiny_target.txt:
 
 ```
-2017ABCD...17..128T	University of Delaware	Tucker, Orenthal	5/0
-2017OPQR...19...43P	CfA, Cambridge, MA 02138	Poda, D.	37/0
+2017ABCD...17..128D	University of Delaware	Doe, Jane	5/0
+2017OPQR...19...43S	CfA, Cambridge, MA 02138	Smith, M.	37/0
 1948XYU.....1..999L	Miskatonic U.	Lovecraft, H.P.	0/0
 ```
 
