@@ -59,13 +59,10 @@ SGDC_PARAM_ALPHA = 1.e-4
 
 Now consider the following learning model, test/tiny_learner.txt:
 ```
-61814	Harvard-Smithsonian Center for Astrophysics CfA Harvard University Cambridge Massachusetts
 5972	University of Delaware UD Newark DE
-4423	New Mexico State University NMSU Las Cruces NM 88003
-DEFG	Orange Julius, The Mall, like, oh my gawd!
-EFGH	Charcoal Pit, Concord Pike, Wilmington, DE
-FGHI	Massachusetts Audubon Society Mass Audubon 208 South Great Road, Lincoln, MA
-5112	X-Division Los Alamos National Laboratory National Nuclear Security Administration New Mexico 87545
+14671	Cal State Northridge California CSU Northridge California State University Northridge CSUN CSUN Northridge Cal State CSU Northridge
+61814	Harvard-Smithsonian Center for Astrophysics CfA Harvard University Cambridge Massachusetts
+242727	Steward Observatory University of Arizona Steward Tucson Cherry UA AZ Obs Steward Obsv Arizona Tucson University Arizona 85721
 ```
 and target data, test/tiny_target.txt:
 
@@ -90,9 +87,9 @@ user@host% python affil_match.py test/tiny_target.txt
 Execution of the example should take about a second, and produce a file called **matches.txt**, shown below:
 
 ```
-5972	5972	2017ABCD...17..128T	5/0	5.73
-61814	8264	2017OPQR...19...43P	37/0	3.52
-61814	8264	1948XYU.....1..999L	0/0	1.0
+5972	5972	2017ABCD...17..128T	5/0	3.65
+61814	8264	2017OPQR...19...43P	37/0	2.95
+5972	5972	1948XYU.....1..999L	0/0	1.0
 ```
 
 In order, the tab-delimited columns are: 
@@ -102,7 +99,7 @@ In order, the tab-delimited columns are:
 * Author number in list (1st == 0) / Affiliation number per author if multiple (1 affiliation == 0)
 * Match score: float with minimum value of 1.00 (max dependent on input learning model)
 
-The primary matching IDs are obtained from the LM_COL_CODE column of the best match in test/tiny_learner.txt, while the parent ID comes from config/parent_child_facet_inst.tsv (LM_INFILE and PC_INFILE, respectively).  Note that the third result yields the same (and in this case incorrect) guess as another input test affiliation (61814), but its score is low (1.0) compared to the score (3.52) for the input affiliation that is a valid match.  It could've returned any of the others as a (bad) match, but happened to return Harvard-Smithsonian CfA in this case.
+The primary matching IDs are obtained from the LM_COL_CODE column of the best match in test/tiny_learner.txt, while the parent ID comes from config/parent_child_facet_inst.tsv (LM_INFILE and PC_INFILE, respectively).  Note that the third result yields the same (and in this case incorrect) guess as another input test affiliation (5972), but its score is low (1.0) compared to the score (3.65) for the input affiliation that is a valid match.  It could've returned any of the others as a (bad) match, but happened to return the first ID in the dictionary in this case.
 
 # Scoring
 
