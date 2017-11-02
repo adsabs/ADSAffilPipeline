@@ -1,0 +1,11 @@
+1) Go to Solr:
+
+http://adsabs.harvard.edu/solr/collection1/select?fl=bibcode,author,aff&indent=on&q=year:2017%20and%20-aff:%22-%22&rows=500000&wt=json
+
+2) Save as solr.json
+
+3) run solr_json.py solr.json
+
+4) run make_random_infile.py
+
+5) move the file "test_data" to wherever you plan to run affil_match.py
