@@ -87,11 +87,11 @@ class TestGetParent(unittest.TestCase):
             out=app.get_parent()
 
 
-class TestGetOptions(unittest.TestCase):
-
-    def test_noopts(self):
-        with self.assertRaises(SystemExit):
-            variable=app.get_arguments()
+#class TestGetOptions(unittest.TestCase):
+#
+#    def test_noopts(self):
+#        with self.assertRaises(SystemExit):
+#            variable=app.get_arguments()
 
 
 

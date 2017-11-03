@@ -16,7 +16,6 @@ from sklearn.linear_model import SGDClassifier
 from config import *
 
 
-
 def read_data(lf,colnames):
 
 # Reads in tab-delimited files into pandas data frames.  Note this is
@@ -50,7 +49,7 @@ def learning_model(df):
     ac=cv.fit_transform(alist)
     tft=TfidfTransformer()
     cvf=tft.fit_transform(ac)
-    clf=SGDClassifier(loss=SGDC_PARAM_LOSS, penalty=SGDC_PARAM_PENALTY,
+    clf=SGDClassifier(random_state=None,loss=SGDC_PARAM_LOSS, penalty=SGDC_PARAM_PENALTY,
                       alpha=SGDC_PARAM_ALPHA).fit(cvf,df.index)
     return(cv,tft,clf,alist)
 
@@ -117,7 +116,7 @@ def get_parent(affil,parents):
         return(get_parent(parents[affil],parents))
 
 
-def print_output(prob_min,match_frame):
+def print_output(prob_min,match_frame,outfile):
 
     bibcode_string=column_to_list(match_frame,MATCH_COL_BIB)
     sequence_string=column_to_list(match_frame,MATCH_COL_AISQ)
@@ -126,7 +125,7 @@ def print_output(prob_min,match_frame):
 
     (children,parents,canonical)=parents_children(PC_INFILE)
 
-    matched_affils=open(OUTPUT_FILE,'w')
+    matched_affils=open(outfile,'w')
 
     for ta,bib,seq,ts in zip(test_answers,bibcode_string,sequence_string,test_scores):
         try:
