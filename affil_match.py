@@ -145,35 +145,3 @@ def print_output(prob_min,match_frame):
 
 
 
-def get_options():
-    import argparse
-    parser=argparse.ArgumentParser(description='Affil matching w/sklearn')
-    parser.add_argument('testfile',type=str,nargs=1,help='file name of'
-                        +' data to be tested')
-    args=parser.parse_args()
-    return(args.testfile[0])
-
-
-
-def main():
-
-#   because sklearn is throwing an annoying FutureWarning in python3
-    warnings.filterwarnings("ignore", category=FutureWarning)
-
-#   get user inputs for filenames
-    target_file=get_options()
-
-#   read the learning model and target data
-    learning_frame=read_data(LM_INFILE,LM_COLS)
-    match_frame=read_data(target_file,MATCH_COLS)
-
-#   transform learning model using sklearn
-    (cvec,transf,cveclfitr,affil_list)=learning_model(learning_frame)
-
-#   classify and output
-    print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,MATCH_COLS))
-
-
-
-if __name__ == '__main__':
-    main()
