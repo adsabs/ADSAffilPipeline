@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-import am_test as app
+import run as app
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
@@ -91,7 +91,7 @@ class TestGetOptions(unittest.TestCase):
 
     def test_noopts(self):
         with self.assertRaises(SystemExit):
-            variable=app.get_options()
+            variable=app.get_arguments()
 
 
 
