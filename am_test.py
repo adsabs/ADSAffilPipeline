@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import SGDClassifier
 
-from config import *
+import config
 
 
 
@@ -44,16 +44,18 @@ def learning_model(df):
 # to be matched (see match_entries below).
 #
 
-    alist=column_to_list(df,LM_COL_AFFL)
+    alist=column_to_list(df,config.LM_COL_AFFL)
 
-    cv=CountVectorizer(analyzer=CV_PARAM_ANALYZER,
-                       decode_error=CV_PARAM_DECERR)
+    cv=CountVectorizer(analyzer=config.CV_PARAM_ANALYZER,
+                       decode_error=config.CV_PARAM_DECERR)
     ac=cv.fit_transform(alist)
     tft=TfidfTransformer()
     cvf=tft.fit_transform(ac)
-    clf=SGDClassifier(loss=SGDC_PARAM_LOSS, 
-                      penalty=SGDC_PARAM_PENALTY,
-                      alpha=SGDC_PARAM_ALPHA).fit(cvf,df.index)
+    clf=SGDClassifier(n_jobs=SGDC_PARAM_CPU,
+                      random_state=config.SGDC_PARAM_RANDOM,
+                      loss=config.SGDC_PARAM_LOSS, 
+                      penalty=config.SGDC_PARAM_PENALTY,
+                      alpha=config.SGDC_PARAM_ALPHA).fit(cvf,df.index)
     return(cv,tft,clf,alist)
 
 
@@ -64,7 +66,7 @@ def match_entries(learning_frame,match_frame,cv,tft,clf,colnames):
 # to the data being matched, and the best guesses are written to
 # match_frame.
 
-    match_namelist=column_to_list(match_frame,MATCH_COL_AFFL)
+    match_namelist=column_to_list(match_frame,config.MATCH_COL_AFFL)
 
     ncv=cv.transform(match_namelist)
     ntf=tft.transform(ncv)
@@ -76,7 +78,7 @@ def match_entries(learning_frame,match_frame,cv,tft,clf,colnames):
     match_afscore=[]
 
     for p,ip in zip(probs,predicted):
-        match_aflist.append(learning_frame[LM_COL_CODE][ip])
+        match_aflist.append(learning_frame[config.LM_COL_CODE][ip])
         match_afscore.append(p.max())
 
     match_frame['Affcodes']=match_aflist
@@ -121,15 +123,15 @@ def get_parent(affil,parents):
 
 def print_output(prob_min,match_frame):
 
-    affil_string=column_to_list(match_frame,MATCH_COL_AFFL)
-    bibcode_string=column_to_list(match_frame,MATCH_COL_BIB)
-    sequence_string=column_to_list(match_frame,MATCH_COL_AISQ)
+    affil_string=column_to_list(match_frame,config.MATCH_COL_AFFL)
+    bibcode_string=column_to_list(match_frame,config.MATCH_COL_BIB)
+    sequence_string=column_to_list(match_frame,config.MATCH_COL_AISQ)
     test_answers=column_to_list(match_frame,'Affcodes')
     test_scores=match_frame['Affscore'].tolist()
 
-    (children,parents,canonical)=parents_children(PC_INFILE)
+    (children,parents,canonical)=parents_children(config.PC_INFILE)
 
-    matched_affils=open(OUTPUT_FILE,'w')
+    matched_affils=open(config.OUTPUT_FILE,'w')
 
     for a,ta,bib,seq,ts in zip(affil_string,test_answers,bibcode_string,sequence_string,test_scores):
         try:
@@ -151,36 +153,3 @@ def print_output(prob_min,match_frame):
 
 
 
-def get_options():
-    import argparse
-    parser=argparse.ArgumentParser(description='Affil matching w/sklearn')
-    parser.add_argument('testfile',type=str,nargs=1,help='file name of'
-                        +' data to be tested')
-    args=parser.parse_args()
-    return(args.testfile[0])
-
-
-
-def main():
-
-#   because sklearn is throwing an annoying FutureWarning in python3
-    warnings.filterwarnings("ignore", category=FutureWarning)
-
-#   get user inputs for filenames
-    target_file=get_options()
-
-#   read the learning model and target data
-    learning_frame=read_data(LM_INFILE,LM_COLS)
-    match_frame=read_data(target_file,MATCH_COLS)
-
-#   transform learning model using sklearn
-    (cvec,transf,cveclfitr,affil_list)=learning_model(learning_frame)
-
-
-#   classify and output
-    print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,MATCH_COLS))
-
-
-
-if __name__ == '__main__':
-    main()

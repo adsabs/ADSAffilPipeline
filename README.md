@@ -36,9 +36,9 @@ The code to be used for production is currently *affil_match.py*, and it is curr
 #!/usr/bin/env python
 
 PC_INFILE = 'config/parent_child_facet_inst.tsv'
-LM_INFILE = 'test/tiny_learner.txt'
+LM_INFILE = 'config/learning_model.dat'
 
-OUTPUT_FILE = 'matches.txt'
+OUTPUT_FILE = 'aff_match_OUT.txt'
 
 LM_COL_CODE = 'Affcode'
 LM_COL_AFFL = 'Affil'
@@ -56,6 +56,9 @@ CV_PARAM_DECERR = 'replace'
 SGDC_PARAM_LOSS = 'log'
 SGDC_PARAM_PENALTY = 'elasticnet'
 SGDC_PARAM_ALPHA = 1.e-4
+SGDC_PARAM_RANDOM = None
+SGDC_PARAM_CPU=-1
+
 ```
 (Modifying config.py will discussed later.)
 

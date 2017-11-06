@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from affil_match import *
-from config import *
+import config
 
 def get_arguments():
 
@@ -14,7 +14,7 @@ def get_arguments():
                         dest='filename',
                         action='store',
                         required=True,
-                        help='File of affil records to be IDed')
+                        help='Name of file with affil records to be IDed')
 
     parser.add_argument('-o',
                         '--outfile',
@@ -22,11 +22,30 @@ def get_arguments():
                         action='store',
                         help='Name of file to write IDs to')
 
+    parser.add_argument('-l',
+                        '--learner',
+                        dest='learner',
+                        action='store',
+                        help='Name of file with learning model data')
+
+
+    parser.add_argument('-t',
+                        '--family-tree',
+                        dest='parentchild',
+                        action='store',
+                        help='Name of file with parent-children data')
+
     parser.add_argument('-r',
                         '--random-seed',
                         dest='random',
                         action='store',
                         help='Integer for classifier random seed (omit to use np.random)')
+
+    parser.add_argument('-n',
+                        '--num-threads',
+                        dest='cpu',
+                        action='store',
+                        help='Integer number of allowed threads (-1 == system maximum)')
 
     args=parser.parse_args()
     return args
@@ -34,40 +53,37 @@ def get_arguments():
 def main():
 
 
+
 #   because sklearn is throwing an annoying FutureWarning in python3
     warnings.filterwarnings("ignore", category=FutureWarning)
-
 
     args = get_arguments()
     infile=args.filename
 
-
-# This is wonky.  Ideally it'd be great if you could instead send args.outfile
-# to the existing definition within the scope of config, affil_match -- this
-# isn't that.
-#
-# You'll really have a problem if you add a switch to tell it whether or
-# not to use a random seed for classification....
-#
     if args.outfile:
-        outfile=args.outfile
-    else:
-        outfile='OUTPUT_FILE'
+        config.OUTPUT_FILE = args.outfile
 
-    print (MATCH_COLS)
-    print (outfile)
+    if args.learner:
+        config.LM_INFILE = args.learner
+
+    if args.parentchild:
+        config.PC_INFILE = args.parentchild
+
+    if args.random:
+        config.SGDC_RANDOM_SEED = args.random
+
+    if args.cpu:
+        config.SGDC_PARAM_CPU = args.cpu
 
 #   read the learning model and target data
-    learning_frame=read_data(LM_INFILE,LM_COLS)
-    match_frame=read_data(infile,MATCH_COLS)
-
-    print(LM_INFILE,LM_COLS)
+    learning_frame=read_data(config.LM_INFILE,config.LM_COLS)
+    match_frame=read_data(infile,config.MATCH_COLS)
 
 #   transform learning model using sklearn
     (cvec,transf,cveclfitr,affil_list)=learning_model(learning_frame)
 
 #   classify and output
-    print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,MATCH_COLS),outfile)
+    print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS))
 
 
 if __name__ == '__main__':

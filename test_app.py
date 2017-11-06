@@ -87,11 +87,22 @@ class TestGetParent(unittest.TestCase):
             out=app.get_parent()
 
 
-#class TestGetOptions(unittest.TestCase):
+class TestGetOptions(unittest.TestCase):
+
+    def test_noopts(self):
+        with self.assertRaises(SystemExit):
+            variable=app.get_arguments()
+
+
+#no idea how to do this... argv needs to be a parser object instead of str?
+#class TestMain(unittest.TestCase):
 #
-#    def test_noopts(self):
-#        with self.assertRaises(SystemExit):
-#            variable=app.get_arguments()
+#    def test_randomseed(self):
+#        import filecmp
+#        
+#        unittest.main(argv='-f test/test_data -o out.1 -r 1')
+#        unittest.main(argv='-f test/test_data -o out.2 -r 1')
+#        self.assertTrue(filecmp('out.1','out.2'))
 
 
 
