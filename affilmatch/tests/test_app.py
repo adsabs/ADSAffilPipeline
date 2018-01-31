@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
 import unittest
+import os
 import run as app
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
+TEST_DATA=os.path.abspath('test_data')
 class TestReadData(unittest.TestCase):
 
     def test_normal(self):
-        infile = "test/test_dict.txt"
+        infile = "test_data/gtest_dict.txt"
         incols = ['A','B']
         outdf=pd.DataFrame({'A':pd.Series(['1000','2000'],index=[0,1]),
                            'B':pd.Series(['hello nice day goodbye',
@@ -18,7 +20,7 @@ class TestReadData(unittest.TestCase):
         assert_frame_equal(indf,outdf)
 
     def test_nocolumns(self):
-        infile="test/test_dict.txt"
+        infile="test_data/gtest_dict.txt"
         with self.assertRaises(NameError):
             indf=app.read_data(infile,incols)
 
@@ -31,7 +33,7 @@ class TestReadData(unittest.TestCase):
 
     def test_lockedfile(self):
         incols=['A','B']
-        infile="test/locked_file.txt"
+        infile="test_data/glocked_file.txt"
         with self.assertRaises(IOError):
             app.read_data(infile,incols)
 
