@@ -1,0 +1,4 @@
+[run]
+# This is for ADSMasterPipeline, change as needed
+source = ADSWorker
+omit = ADSWorker/tests*

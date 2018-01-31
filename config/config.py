@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-PC_INFILE = 'config/parent_child_facet_inst.tsv'
+PC_INFILE = 'config/pc_facet_ascii.tsv'
 LM_INFILE = 'config/learning_model.dat'
 
 OUTPUT_FILE = 'aff_match_OUT.txt'

@@ -1,6 +1,9 @@
 # affil_match
 Use scikit-learn to assign affiiations using machine learning based on an input model of affiliation ids and characteristics.
 
+
+NOTE: see the readme for ADSMasterPipeline for a style example for this file.
+
 # Requirements
 * Python 2.7+
 * External Modules: pandas, sklearn (and their dependencies)

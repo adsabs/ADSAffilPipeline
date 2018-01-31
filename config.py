@@ -1,13 +1,34 @@
 #!/usr/bin/env python
 
-PC_INFILE = 'config/parent_child_facet_inst.tsv'
-LM_INFILE = 'config/learning_model.dat'
+#ADD Documentation to make it clear what these variables are!
 
+# These infiles are input model data. 
+# * LM specifies the file that maps institutional IDs to words that you
+#   may see.
+# * PC specifies relationship between parent IDs (e.g. University of CA),
+#   and child IDs (UC Berkeley, IGPP, UCLA, etc.)
+LM_INFILE = 'config/learning_model.dat'
+PC_INFILE = 'config/pc_facet_ascii.tsv'
+
+
+
+# This is the file where your output goes
 OUTPUT_FILE = 'aff_match_OUT.txt'
 
+
+
+# These are column headings used in the learning model file.  These are used
+# in the case where the structure of a learning model file may be different,
+# than a simple two column format with 'Affcode' and 'Affil' in that order.
+# In that case, the input file should have a column with the same name as
+# LM_COL_CODE, LM_COL_AFFL, and an array that defines where those columns
+# are relative to the whole document (e.g. ['foo','bar',LM_COL_AFFL,'baz',
+# 'LM_COL_CODE','lol']
 LM_COL_CODE = 'Affcode'
 LM_COL_AFFL = 'Affil'
 LM_COLS = [LM_COL_CODE,LM_COL_AFFL]
+
+
 
 MATCH_COL_BIB = 'bibcode'
 MATCH_COL_AFFL = 'Affil'
