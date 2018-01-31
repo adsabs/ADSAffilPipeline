@@ -143,6 +143,3 @@ def print_output(prob_min,match_frame):
     matched_affils.close()
 
     return
-
-
-

@@ -150,3 +150,7 @@ python solr_json.py
 python make_random_infile.py
 ```
 * Move the file "test_data" to wherever you plan to run affil_match from
+
+# Maintainer
+
+Matthew Templeton, NASA ADS
