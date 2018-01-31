@@ -136,7 +136,7 @@ To see a real-life application, do the following:
 user@host% python run.py -f test/test_data
 ```
 
-Results will be in matches.txt; I recommend sorting this file using sort -n -r -k 5 -t '[TAB]'.  Note: if you would like to see this file with the actual affiliation strings instead of just IDs, use *am_test.py* instead of *affil_match.py*.  The results should be otherwise identical.  On my late-2015 iMac (4-core, 24GB RAM), execution takes about 90 seconds of real time, and shows cpu utilization of about 260% (as determined by ```time```).
+Results will be in matches.txt; I recommend sorting this file using sort -n -r -k 5 -t '[TAB]'.  On my late-2015 iMac (4-core, 24GB RAM), execution takes about 90 seconds of real time, and shows cpu utilization of about 260% (as determined by ```time```).
 
 # Generating test data from Solr
 
