@@ -15,8 +15,6 @@ from sklearn.linear_model import SGDClassifier
 
 import config
 
-
-
 def read_data(lf,colnames):
 
 # Reads in tab-delimited files into pandas data frames.  Note this is
@@ -27,7 +25,6 @@ def read_data(lf,colnames):
         df=pd.read_csv(f,sep='\t',names=colnames,dtype=object)
     f.close()
     return(df)
-
 
 
 def column_to_list(df,colname):
@@ -51,7 +48,7 @@ def learning_model(df):
     ac=cv.fit_transform(alist)
     tft=TfidfTransformer()
     cvf=tft.fit_transform(ac)
-    clf=SGDClassifier(n_jobs=SGDC_PARAM_CPU,
+    clf=SGDClassifier(n_jobs=config.SGDC_PARAM_CPU,
                       random_state=config.SGDC_PARAM_RANDOM,
                       loss=config.SGDC_PARAM_LOSS, 
                       penalty=config.SGDC_PARAM_PENALTY,
@@ -123,7 +120,6 @@ def get_parent(affil,parents):
 
 def print_output(prob_min,match_frame):
 
-    affil_string=column_to_list(match_frame,config.MATCH_COL_AFFL)
     bibcode_string=column_to_list(match_frame,config.MATCH_COL_BIB)
     sequence_string=column_to_list(match_frame,config.MATCH_COL_AISQ)
     test_answers=column_to_list(match_frame,'Affcodes')
@@ -133,7 +129,7 @@ def print_output(prob_min,match_frame):
 
     matched_affils=open(config.OUTPUT_FILE,'w')
 
-    for a,ta,bib,seq,ts in zip(affil_string,test_answers,bibcode_string,sequence_string,test_scores):
+    for ta,bib,seq,ts in zip(test_answers,bibcode_string,sequence_string,test_scores):
         try:
             canonical[ta]
         except KeyError:
@@ -143,13 +139,7 @@ def print_output(prob_min,match_frame):
             b=canonical[ta].strip()
             parent=get_parent(ta,parents)
         ts=int(100*ts/prob_min)/100.
-        try:
-            matched_affils.write("%s\t%s\t%s\t*****%s\t%s\n"%(ta,parent,a,b,ts))
-        except UnicodeDecodeError:
-            print ta,bib,seq,a
+        matched_affils.write("%s\t%s\t%s\t%s\t%s\n"%(ta,parent,bib,seq,ts))
     matched_affils.close()
 
     return
-
-
-

@@ -3,6 +3,9 @@
 import unittest
 import run as app
 import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.linear_model import SGDClassifier
 from pandas.util.testing import assert_frame_equal
 
 class TestReadData(unittest.TestCase):
@@ -62,7 +65,29 @@ class TestColToList(unittest.TestCase):
         with self.assertRaises(KeyError):
             outlist=app.column_to_list(testdf,'C')
         
-        
+
+class TestLearningModel(unittest.TestCase):
+
+    def test_returntypes(self):
+        infile = "test/tiny_learner.txt"
+        incols = ['Affcode','Affil']
+        df = app.read_data(infile,incols)
+        a,b,c,d = app.learning_model(df)
+        self.assertEqual(type(d),list)
+        self.assertEqual(type(c),SGDClassifier)
+        self.assertEqual(type(b),TfidfTransformer)
+        self.assertEqual(type(a),CountVectorizer)
+
+
+class TestParentsChildren(unittest.TestCase):
+
+    def test_getparent(self):
+        infile = "test/tiny_pc.txt"
+        a,b,c = app.parents_children(infile)
+        affil = '61814'
+        self.assertEqual(app.get_parent(affil,b),'0001')
+
+
 class TestGetParent(unittest.TestCase):
 
     def test_badaffil(self):
@@ -87,12 +112,9 @@ class TestGetParent(unittest.TestCase):
             out=app.get_parent()
 
 
+
 class TestGetOptions(unittest.TestCase):
 
     def test_noopts(self):
         with self.assertRaises(SystemExit):
             variable=app.get_arguments()
-
-
-if __name__ == '__main__':
-    unittest.main()

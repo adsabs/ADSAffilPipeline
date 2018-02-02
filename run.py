@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from affil_match import *
+from affilmatch.affil_match import *
 import config
 
 def get_arguments():
