@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
+
+# export JOBLIB_MULTIPROCESSING=0
+
 from affilmatch.affil_match import *
+import pandas as pd
 import config
 
 def get_arguments():
@@ -77,13 +81,20 @@ def main():
 
 #   read the learning model and target data
     learning_frame=read_data(config.LM_INFILE,config.LM_COLS)
-    match_frame=read_data(infile,config.MATCH_COLS)
+    # match_frame=read_data(infile,config.MATCH_COLS)
+    match_frame = pd.DataFrame([{'bibcode': '2017ABCD...17..128D',
+                                 'Affil': 'University Delaware',
+                                 'Author': 'Doe, Jane',
+                                 'sequence': '5/3'}])
 
 #   transform learning model using sklearn
     (cvec,transf,cveclfitr,affil_list)=learning_model(learning_frame)
 
 #   classify and output
-    print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS))
+    matched = match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS)
+    matched = matched.to_dict()
+    print matched['Affcodes'][0]
+    # print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS))
 
 
 if __name__ == '__main__':

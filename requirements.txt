@@ -1,3 +1,4 @@
+git+https://github.com/adsabs/ADSPipelineUtils.git@v1.0.1
 pandas==0.22.0
 scipy==1.0.0
 sklearn==0.0

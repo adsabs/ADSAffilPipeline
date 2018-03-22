@@ -40,7 +40,6 @@ def learning_model(df):
 # input data here, and then the resulting models are applied to the data
 # to be matched (see match_entries below).
 #
-
     alist=column_to_list(df,config.LM_COL_AFFL)
 
     cv=CountVectorizer(analyzer=config.CV_PARAM_ANALYZER,
@@ -48,11 +47,21 @@ def learning_model(df):
     ac=cv.fit_transform(alist)
     tft=TfidfTransformer()
     cvf=tft.fit_transform(ac)
-    clf=SGDClassifier(n_jobs=config.SGDC_PARAM_CPU,
+
+    sgd=SGDClassifier(n_jobs=config.SGDC_PARAM_CPU,
                       random_state=config.SGDC_PARAM_RANDOM,
                       loss=config.SGDC_PARAM_LOSS, 
                       penalty=config.SGDC_PARAM_PENALTY,
-                      alpha=config.SGDC_PARAM_ALPHA).fit(cvf,df.index)
+                      max_iter = 2,
+                      alpha=config.SGDC_PARAM_ALPHA)
+    clf=sgd.fit(cvf,df.index)
+
+    #clf=SGDClassifier(n_jobs=config.SGDC_PARAM_CPU,
+    #                  random_state=config.SGDC_PARAM_RANDOM,
+    #                  loss=config.SGDC_PARAM_LOSS, 
+    #                  penalty=config.SGDC_PARAM_PENALTY,
+    #                  max_iter = 2,
+    #                  alpha=config.SGDC_PARAM_ALPHA).fit(cvf,df.index)
     return(cv,tft,clf,alist)
 
 
@@ -73,14 +82,16 @@ def match_entries(learning_frame,match_frame,cv,tft,clf,colnames):
 
     match_aflist=[]
     match_afscore=[]
-
+    match_afname = []
     for p,ip in zip(probs,predicted):
         match_aflist.append(learning_frame[config.LM_COL_CODE][ip])
+        match_afname.append(learning_frame[config.LM_COL_AFFL][ip])
         match_afscore.append(p.max())
 
     match_frame['Affcodes']=match_aflist
     match_frame['Affscore']=match_afscore
-
+    match_frame['Affnames']=match_afname
+    
     return(match_frame)
     
 
