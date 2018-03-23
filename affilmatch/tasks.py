@@ -18,22 +18,35 @@ logger = app.logger
 logger.info('top of tasks.py, app initialized')
 
 app.conf.CELERY_QUEUES = (
-    Queue('augment-affiliation', app.exchange, routing_key='autment-affiliation'),
+    Queue('affiliation', app.exchange, routing_key='affiliation'),
     Queue('output-results', app.exchange, routing_key='output-results'),
 )
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-# init learning model for worker
-# read the learning model and target data
-logger.info('ready to read learning_frame')
-learning_frame = read_data(config.LM_INFILE,config.LM_COLS)
-logger.info('done reading learning_frame, ready to create learning_model')
+# give thread time to build classifier during initialization
+from celery.concurrency import asynpool
+asynpool.PROC_ALIVE_TIMEOUT = 100.0
 
-import pdb
-pdb.set_trace()
-(cvec,transf,cveclfitr,affil_list) = learning_model(learning_frame)
-logger.info('created learning_model, ready to start worker')
+from celery.signals import worker_init
+
+# some global variables to hold scikit objects
+#  they are computed in init function and used by worker
+learning_frame = None
+cvec = None
+transf = None
+cveclfitr = None
+affil_list = None
+
+@worker_init.connect
+def init_learning_model(signal, sender, **kw):
+    # init learning model for worker
+    # build the learning model from various files
+    logger.info('ready to read learning_frame')
+    global learning_frame, cvec, transf, cveclfitr, affil_list
+    learning_frame = read_data(config.LM_INFILE,config.LM_COLS)
+    (cvec, transf, cveclfitr, affil_list) = learning_model(learning_frame)
+    logger.info('created learning_model, ready to start worker')
 
 # ============================= TASKS ============================================= #
 
@@ -47,22 +60,16 @@ def fix_multiprocessing(**_):
   except AttributeError:
     current_process()._config = {'semprefix': '/mp'}
 
-@app.task(queue='augment_affiliation')
+    
+@app.task(queue='affiliation')
 def task_augment_affiliation(message):
     """message should hold bibcode, affiliation number, affiliation string triples"""
     #   classify and output
-
     logger.info('in task_augment_affiliation with %s' % message)
-    # transform learning model using sklearn
-
-
-    match_frame = pd.DataFrame([{'bibcode': '2017ABCD...17..128D',
-                                 'Affil': 'University Delaware',
-                                 'Author': 'Doe, Jane',
-                                 'sequence': '5/3'}])
+    match_frame = pd.DataFrame(to_dataframe(message))
     e = match_entries(learning_frame, match_frame, cvec, transf, cveclfitr, config.MATCH_COLS)
-    answers=column_to_list(match_frame,'Affcodes')
-    scores=match_frame['Affscore'].tolist()
+    answers = column_to_list(match_frame,'Affcodes')
+    scores = match_frame['Affscore'].tolist()
     logger.info('match returned answers %s and scores %s' % (answers, scores))
 
 
@@ -70,3 +77,11 @@ def task_augment_affiliation(message):
 def task_output_results(message):
     logger.debug('Will forward this nonbib record: %s', msg)
     app.forward_message(msg)
+
+def to_dataframe(message):
+    """convert protobuf to scikit dataframe"""
+    return pd.DataFrame([{'bibcode': message.bibcode,
+                         'Affil': message.affiliation,
+                         'Author': message.author,
+                          'sequence': message.sequence}])
+
