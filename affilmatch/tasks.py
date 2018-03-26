@@ -6,6 +6,7 @@ import os
 import config
 import affilmatch.app as app_module
 from affilmatch.affil_match import *
+from adsmsg.augmentrecord import AugmentAffiliationResponseRecord
 import pandas as pd
 
 
@@ -63,25 +64,50 @@ def fix_multiprocessing(**_):
     
 @app.task(queue='affiliation')
 def task_augment_affiliation(message):
-    """message should hold bibcode, affiliation number, affiliation string triples"""
-    #   classify and output
+    """message should hold bibcode, affiliation number, affiliation string triples
+    
+    compute response and send it on
+    """
+
     logger.info('in task_augment_affiliation with %s' % message)
     match_frame = pd.DataFrame(to_dataframe(message))
     e = match_entries(learning_frame, match_frame, cvec, transf, cveclfitr, config.MATCH_COLS)
+
     answers = column_to_list(match_frame,'Affcodes')
     scores = match_frame['Affscore'].tolist()
     logger.info('match returned answers %s and scores %s' % (answers, scores))
+    if len(answers) > 0:
+        matched = e.to_dict()
+        answer_id = matched['Affcodes'][0]
+        answer = matched['Affil'][0]
+        response = to_response(message, answer, answer_id)
+        task_output_results(response)
+        logger.info('send affiliation to master %s and %s' % (answer, answer_id))
+    else:
+        longer.warn('did not find affiliation for bibcode %s with input affiliation string %s',
+                    (message.bibcode, message.affiliation))
 
 
 @app.task(queue='output-results')
 def task_output_results(message):
-    logger.debug('Will forward this nonbib record: %s', msg)
-    app.forward_message(msg)
+    logger.debug('forward affiliation response to master record: %s', message)
+    app.forward_message(message)
 
 def to_dataframe(message):
-    """convert protobuf to scikit dataframe"""
+    """convert request protobuf to scikit dataframe"""
     return pd.DataFrame([{'bibcode': message.bibcode,
                          'Affil': message.affiliation,
                          'Author': message.author,
-                          'sequence': message.sequence}])
+                         'sequence': message.sequence}])
 
+
+def to_response(request, answer, answer_id):
+    """generate response protobuf to send to master pipeline"""
+    d = {'bibcode': request.bibcode,
+         'affiliation': request.affiliation,
+         'author': request.author,
+         'sequence': request.sequence,
+         'canonical_affiliation': answer,
+         'canonical_affiliation_id': answer_id}
+    response = AugmentAffiliationResponseRecord(**d)
+    return response
