@@ -6,7 +6,7 @@
 from affilmatch.affil_match import *
 import pandas as pd
 import config
-from adsmsg.augmentrecord import AugmentAffiliationRequestRecord
+from adsmsg.augmentrecord import AugmentAffiliationRequestRecord, AugmentAffiliationRequestRecordList
 from affilmatch.tasks import task_augment_affiliation
 
 def get_arguments():
@@ -68,7 +68,11 @@ def diagnose():
                   'author': 'Stephen McDonald',
                   'sequence': '1/2'}
     a = AugmentAffiliationRequestRecord(**d)
-    task_augment_affiliation.delay(a)        
+    #task_augment_affiliation.delay(a)  # use to send just one request
+    al = AugmentAffiliationRequestRecordList()  # send multiple requests
+    al.affiliation_requests.add(**d)
+    al.affiliation_requests.add(**d)
+    task_augment_affiliation.delay(al)
 
 
 def main():
@@ -80,7 +84,7 @@ def main():
         diagnose()
         return
 
-    if not args.fielname:
+    if not args.filename:
         print 'please use --filename'
         return
     
