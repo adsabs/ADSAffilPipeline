@@ -13,7 +13,7 @@ import pandas as pd
 # ============================= INITIALIZATION ==================================== #
 
 proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
-app = app_module.ADSAugmentCelery('ads-augment', proj_home=proj_home)
+app = app_module.ADSAugmentPipelineCelery('ads-augment', proj_home=proj_home)
 logger = app.logger
 
 logger.info('top of tasks.py, app initialized')
@@ -41,8 +41,9 @@ affil_list = None
 
 @worker_init.connect
 def init_learning_model(signal, sender, **kw):
-    # init learning model for worker
-    # build the learning model from various files
+    """ init learning model for worker
+
+    build the learning model from various files"""
     logger.info('ready to read learning_frame')
     global learning_frame, cvec, transf, cveclfitr, affil_list
     learning_frame = read_data(config.LM_INFILE,config.LM_COLS)
@@ -66,10 +67,8 @@ def fix_multiprocessing(**_):
 def task_augment_affiliation(message):
     """message should hold bibcode, affiliation number, affiliation string triples
     
-    compute response and send it on
+    compute response and send it on to master
     """
-
-    logger.info('in task_augment_affiliation with %s' % message)
     match_frame = pd.DataFrame(to_dataframe(message))
     e = match_entries(learning_frame, match_frame, cvec, transf, cveclfitr, config.MATCH_COLS)
 
@@ -81,7 +80,7 @@ def task_augment_affiliation(message):
         answer_id = matched['Affcodes'][0]
         answer = matched['Affil'][0]
         response = to_response(message, answer, answer_id)
-        task_output_results(response)
+        task_output_results.delay(response)
         logger.info('send affiliation to master %s and %s' % (answer, answer_id))
     else:
         logger.warn('did not find affiliation for bibcode %s with input affiliation string %s',
@@ -90,9 +89,10 @@ def task_augment_affiliation(message):
 
 @app.task(queue='output-results')
 def task_output_results(message):
-    logger.debug('forward affiliation response to master record: %s', message)
-    app.forward_message(message)
+    logger.debug('did not forward affiliation response to master record: %s', message)
+    # app.forward_message(message)
 
+    
 def to_dataframe(message):
     """convert request protobuf to scikit dataframe"""
     message_type = app.get_msg_type(message)

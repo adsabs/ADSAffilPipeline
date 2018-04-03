@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-
-# export JOBLIB_MULTIPROCESSING=0
+# Celery workers can not use multiprocessing
+# so before: celery -A affilmatch.tasks worker -l info -c 1
+# one must: export JOBLIB_MULTIPROCESSING=0
 
 from affilmatch.affil_match import *
 import pandas as pd
@@ -68,11 +69,10 @@ def diagnose():
                   'author': 'Stephen McDonald',
                   'sequence': '1/2'}
     a = AugmentAffiliationRequestRecord(**d)
-    #task_augment_affiliation.delay(a)  # use to send just one request
-    al = AugmentAffiliationRequestRecordList()  # send multiple requests
-    al.affiliation_requests.add(**d)
-    al.affiliation_requests.add(**d)
-    task_augment_affiliation.delay(al)
+    task_augment_affiliation.delay(a)  # use to send just one request
+    #al = AugmentAffiliationRequestRecordList()  # send multiple requests
+    #al.affiliation_requests.add(**d)
+    #al.affiliation_requests.add(**d)
 
 
 def main():

@@ -2,7 +2,7 @@ from adsputils import ADSCelery
 import os
 from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationRequestRecordList, AugmentAffiliationResponseRecord, AugmentAffiliationResponseRecordList
 
-class ADSAugmentCelery(ADSCelery):
+class ADSAugmentPipelineCelery(ADSCelery):
 
 
     def get_msg_type(self, msg):
