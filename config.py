@@ -2,18 +2,28 @@
 
 #ADD Documentation to make it clear what these variables are!
 
+# used by ADSPiplelineUtils to connect
+ACKS_LATE=True
+PREFETCH_MULTIPLIER=1
+CELERY_BROKER = 'pyamqp://guest@localhost:5682/augment_pipeline'
+CELERY_DEFAULT_EXCHANGE = 'ads-augment'
+CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
+OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
+OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
+
+
 # These infiles are input model data. 
 # * LM specifies the file that maps institutional IDs to words that you
 #   may see.
 # * PC specifies relationship between parent IDs (e.g. University of CA),
 #   and child IDs (UC Berkeley, IGPP, UCLA, etc.)
-LM_INFILE = 'config/learning_model.dat'
-PC_INFILE = 'config/pc_facet_ascii.tsv'
+LM_INFILE = 'lm/learning_model.dat'
+PC_INFILE = 'lm/pc_facet_ascii.tsv'
 
 
 
 # This is the file where your output goes
-OUTPUT_FILE = 'aff_match_OUT.txt'
+OUTPUT_FILE = 'aff_match_OUT2.txt'
 
 
 
