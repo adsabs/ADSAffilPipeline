@@ -1,2 +1,0 @@
-1000	hello nice day goodbye
-2000	yes no maybe definitely

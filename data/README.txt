@@ -1,0 +1,2 @@
+-rw-r--r--  1 mtempleton  staff  195677319 Oct 31 11:36 Affiliations_all_2018Oct03c.tsv
+-rw-r--r--  1 mtempleton  staff     393613 Oct 31 11:36 parent_child_facet_inst_2018Aug28.2tier
