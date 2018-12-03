@@ -8,11 +8,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.dialects.postgresql import JSONB,ENUM
 
-USERNAME = 'matthewt'
-PASSWORD = 'Plenary3Ester9Golly2'
+USERNAME = 'postgres'
+PASSWORD = 'postgres'
 
 engine = create_engine('postgres://'+USERNAME+':'+PASSWORD+'@localhost:' \
-                       '5432/matthewt')
+                       '5432/postgres')
 
 Session = sessionmaker(bind=engine)
 
