@@ -1,18 +1,22 @@
-#!/usr/bin/env python
-
-# Celery workers can not use multiprocessing
-# so before: celery -A affilmatch.tasks worker -l info -c 1
-# one must: export JOBLIB_MULTIPROCESSING=0
-
-from affilmatch.affil_match import *
-import pandas as pd
+from time import time
+import os
 import config
-from adsmsg.augmentrecord import AugmentAffiliationRequestRecord, AugmentAffiliationRequestRecordList
-from affilmatch.tasks import task_augment_affiliation
+import json
+import logging
+from ADSAffil import tasks
+from ADSAffil import utils
+from ADSAffil.curate import affil_strings as af
+from ADSAffil.curate import parent_child_facet as pcf
+from ADSAffil.models import *
+from adsputils import setup_logging, get_date
+
+global logger
+logger = setup_logging('run.py')
 
 def get_arguments():
 
     import argparse
+    logging.captureWarnings(True)
 
     parser=argparse.ArgumentParser(description='Command line options.')
 
@@ -20,108 +24,211 @@ def get_arguments():
                         '--filename',
                         dest='filename',
                         action='store',
-                        help='Name of file with affil records to be IDed')
-
-    parser.add_argument('-o',
-                        '--outfile',
-                        dest='outfile',
-                        action='store',
-                        help='Name of file to write IDs to')
-
-    parser.add_argument('-l',
-                        '--learner',
-                        dest='learner',
-                        action='store',
-                        help='Name of file with learning model data')
-
-
-    parser.add_argument('-t',
-                        '--family-tree',
-                        dest='parentchild',
-                        action='store',
-                        help='Name of file with parent-children data')
-
-    parser.add_argument('-r',
-                        '--random-seed',
-                        dest='random',
-                        action='store',
-                        help='Integer for classifier random seed (omit to use np.random)')
-
-    parser.add_argument('-n',
-                        '--num-threads',
-                        dest='cpu',
-                        action='store',
-                        help='Integer number of allowed threads (-1 == system maximum)')
+                        help='Input JSON file of solr records to augment')
 
     parser.add_argument('-d',
                         '--diagnose',
                         dest='diagnose',
-                        action='store_true', 
+                        action='store_true',
                         help='Queue hard coded request for affiliation')
+
+    parser.add_argument('-la',
+                        '--load-affildict',
+                        dest='load_affil_strings',
+                        action='store',
+                        nargs='?',
+                        const=config.AFFDICT_INFILE,
+                        type=str,
+                        help='Curation: Load the list of affiliation-affil id pairs into db')
+
+    parser.add_argument('-lc',
+                        '--load-canonical',
+                        dest='load_canonical_pc_facet',
+                        action='store',
+                        nargs='?',
+                        const=config.PC_INFILE,
+                        type=str,
+                        help='Curation: Load the list of canonical affil-parent-child facet data into db')
+
+    parser.add_argument('-cp',
+                        '--create-pickle',
+                        dest='pickle_filename',
+                        action='store',
+                        nargs='?',
+                        const=config.PICKLE_FILE,
+                        type=str,
+                        help='Curation: Write the records in the affil-dict db to a picklefile')
+
+    parser.add_argument('-m',
+                        '--machine-resolver',
+                        dest='resolve',
+                        action='store_true',
+                        help='Send unmatched strings to the machine learner')
+
+    parser.add_argument('-lu',
+                        '-load-unmatched',
+                        dest='unmatched',
+                        action='store',
+                        nargs='?',
+                        const=config.UNMATCHED_FILE,
+                        type=str,
+                        help='Curation: Load a list of unmatched strings for the machine learner.  Note: triggers -m.')
 
     args=parser.parse_args()
     return args
 
-def diagnose():
-    d = {'bibcode': '2003ASPC..295..361M',
-                  'status': 2,
-                  'affiliation': 'University of Deleware',
-                  'author': 'Stephen McDonald',
-                  'sequence': '1/2'}
-    a = AugmentAffiliationRequestRecord(**d)
-    task_augment_affiliation.delay(a)  # use to send just one request
-    #al = AugmentAffiliationRequestRecordList()  # send multiple requests
-    #al.affiliation_requests.add(**d)
-    #al.affiliation_requests.add(**d)
-
 
 def main():
-#   because sklearn is throwing an annoying FutureWarning in python3
-    warnings.filterwarnings("ignore", category=FutureWarning)
+
+    logging.captureWarnings(True)
 
     args = get_arguments()
-    if args.diagnose:
-        diagnose()
-        return
 
-    if not args.filename:
-        print 'please use --filename'
-        return
-    
-    infile=args.filename
+# OPTIONAL
+# load the dictionary of canonical pc facet info
+    if args.load_canonical_pc_facet:
+        try:
+            recs = pcf.load_simple(args.load_canonical_pc_facet)
+        except:
+            raise BaseException("Could not load affiliation string dictionary from file.")
+        else:
+            if len(recs) > 0:
+                logger.info('Inserting {0} canonical affiliations'.format(len(recs)))
+                tasks.task_db_canonical_id_list(recs)
 
-    if args.outfile:
-        config.OUTPUT_FILE = args.outfile
+# OPTIONAL
+# load the dictionary of string - affil_id matches
+    if args.load_affil_strings:
+        try:
+            recs = af.load_simple(args.load_affil_strings)
+        except:
+            raise BaseException("Could not load affiliation string dictionary from file.")
+        if len(recs) > 0:
+            logger.info('Inserting {0} unique strings'.format(len(recs)))
+            tasks.task_db_affil_string_dict(recs)
 
-    if args.learner:
-        config.LM_INFILE = args.learner
 
-    if args.parentchild:
-        config.PC_INFILE = args.parentchild
+# OPTIONAL
+# pickle the dictionary of affil strings pulled from the database
+    if args.pickle_filename:
+        aff_dict = tasks.task_db_readall_affstrings()
+        ad_pickle = {}
+        try:
+            for k,v in aff_dict.items():
+                knew = utils.normalize_string(k)
+                ad_pickle[knew] = v
+        except:
+            logger.error("Could not read Affil strings from postgres. Stopping.")
+            raise BaseException("Error reading Affil strings from db.")
+        try:
+            af.dump_affil_pickle(ad_pickle,args.pickle_filename)
+        except:
+            logger.error("Could not write pickle file. Stopping.")
+            raise BaseException("Error writing pickle file.")
 
-    if args.random:
-        config.SGDC_RANDOM_SEED = args.random
+# Get records to Augment:
+# args.filename is the JSON file containing Solr records to augment.
+# If the switch is not given, data will be assumed to arrive as
+# messages instead (and raise an error if there are none).
+    records = []
+    if args.filename:
+        if os.path.isfile(args.filename):
+            try:
+                with open(args.filename,'rU') as fp:
+                    jdata = json.load(fp)
+                    records = jdata['response']['docs']
+            except:
+                logger.error("Failed to read JSON file of records to augment. Stopping.")
+                raise BaseException("Error reading input JSON file.")
+        else:
+            logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
+            raise BaseException("The JSON file with the given filename doesn't exist.")
+    else:
+        pass
+#       print "I am expecting messages from master pipeline...."
+# code that receives messages from MP here....
 
-    if args.cpu:
-        config.SGDC_PARAM_CPU = args.cpu
+# records should not be an empty list [] here, but if so, quit.
 
-    # read the learning model and target data
-    learning_frame=read_data(config.LM_INFILE,config.LM_COLS)
-    # match_frame=read_data(infile,config.MATCH_COLS)
-    match_frame = pd.DataFrame([{'bibcode': '2017ABCD...17..128D',
-                                 'Affil': 'University Delaware',
-                                 'Author': 'Doe, Jane',
-                                 'sequence': '5/3'}])
+# only continue if you have records, no point otherwise.
+    if len(records) == 0 and not args.unmatched:
+        logger.warn("No records to process, stopping now.")
+    else:
+                
+# load data from databases
 
-    # transform learning model using sklearn
-    (cvec,transf,cveclfitr,affil_list)=learning_model(learning_frame)
+#       if not args.unmatched:
+#           if os.path.isfile(config.PICKLE_FILE):
+#               ad_pickle = utils.load_affil_dict()
+#           else:
+#               try:
+#                   aff_dict = tasks.task_db_readall_affstrings()
+#                   ad_pickle = {}
+#                   for (k,v) in aff_dict.items():
+#                       knew = utils.normalize_string(k)
+#                       ad_pickle[knew] = v
+#               except:
+#                   raise BaseException("Error loading affiliation data.")
 
-    # classify and output
-    matched = match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS)
-    matched = matched.to_dict()
-    print matched['Affcodes'][0]
-    # print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS))
+#       canon_dict = tasks.task_db_readall_canonical()
+
+        unmatched = {}
+
+        for rec in records:
+            unmatched.update(tasks.task_augment_affiliations(rec))
+            
+
+#testing: print output records
+# you need to add code to send these to MP instead....
+        if len(records) > 0:
+            with open(config.DIRECT_RECORDS,'w') as fo:
+                dout = {}
+                dout["docs"] = records
+                json.dump(dout,fo, sort_keys=True, indent=4)
+
+        if args.unmatched:
+            try:
+                with open(args.unmatched,'rU') as fi:
+                    for l in fi.readlines():
+                        unmatched[l.strip()] = u"0"
+            except:
+                logger.error("Failed to read unmatched strings from file.  No input.")
+            else:
+                args.resolve = True
+
+        if len(unmatched) > 0:
+            if args.resolve:
+                try:
+                    aff_dict = tasks.task_db_readall_affstrings()
+                except:
+                    logger.error("Failed to load aff_dict from postgres, stopping.")
+                    raise BaseException("Could not load aff_dict from db.")
+
+                try:
+                    lmod = tasks.task_make_learning_model(aff_dict)
+                except:
+                    logger.error("Failed to create learning model, stopping.")
+                    raise BaseException("Could not make learning model.")
+
+#               try:
+                tasks.task_resolve_unmatched(unmatched.keys(), lmod)
+#               except:
+#                   logger.error("Problem using learning model, failed.")
+#                   raise BaseException("Machine learning model failed.")
+            else:
+                try:
+                    output = unmatched.keys()
+                    if len(output) > 0:
+                        with open(config.UNMATCHED_FILE,'a') as fo:
+                            for l in output:
+                                fo.write(l+"\n")
+                except:
+                    logger.error("Failed to write unmatched strings to file.  No output.")
+        else:
+            logger.warn("No unmatched strings to resolve, stopping now.")
+
 
 
 if __name__ == '__main__':
     main()
+
