@@ -20,9 +20,9 @@ OUTPUT_QUEUE = 'update-record'
 PC_INFILE = 'data/parent_child.new'
 AFFDICT_INFILE = 'data/Affiliations_all.new'
 PICKLE_FILE = 'data/aff.pickle'
-OUTPUT_FILE = 'ml.out'
-UNMATCHED_FILE = 'unmatched.out'
-DIRECT_RECORDS = 'direct.json'
+OUTPUT_FILE = 'output/ml.out'
+UNMATCHED_FILE = 'output/unmatched.out'
+DIRECT_RECORDS = 'output/direct.json'
 
 # These are column headings used in the learning model file.  These are used
 # in the case where the structure of a learning model file may be different,
