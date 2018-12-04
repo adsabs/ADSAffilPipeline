@@ -2,19 +2,24 @@
 
 #ADD Documentation to make it clear what these variables are!
 
+# possible values: WARN, INFO, DEBUG
+LOGGING_LEVEL = 'DEBUG'
+
+
 # used by ADSPiplelineUtils to connect
 ACKS_LATE=True
 PREFETCH_MULTIPLIER=1
-CELERY_BROKER = 'pyamqp://guest@localhost:5682/augment_pipeline'
+CELERY_BROKER = 'pyamqp://'
 CELERY_DEFAULT_EXCHANGE = 'ads-augment'
 CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
 OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
+OUTPUT_QUEUE = 'update-record'
 
 # Affiliation configuration files
-PC_INFILE = '/Users/mtempleton/Projects/Github_repos/dev/Affil_New/data/parent_child.new'
-AFFDICT_INFILE = '/Users/mtempleton/Projects/Github_repos/dev/Affil_New/data/Affiliations_all.new'
-PICKLE_FILE = '/Users/mtempleton/Projects/Github_repos/dev/Affil_New/data/aff.pickle'
+PC_INFILE = 'data/parent_child.new'
+AFFDICT_INFILE = 'data/Affiliations_all.new'
+PICKLE_FILE = 'data/aff.pickle'
 OUTPUT_FILE = 'ml.out'
 UNMATCHED_FILE = 'unmatched.out'
 DIRECT_RECORDS = 'direct.json'
