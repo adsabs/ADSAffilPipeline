@@ -18,30 +18,30 @@ import json
 app = app_module.ADSAffilCelery('ads-augment', proj_home=os.path.realpath(os.path.join(os.path.dirname(__file__), '../')))
 
 app.conf.CELERY_QUEUES = (
-    Queue('load-affstrings', app.exchange, routing_key='load-affstrings'),
-    Queue('load-canonical', app.exchange, routing_key='load-canonical'),
-    Queue('read-affstrings', app.exchange, routing_key='read-affstrings'),
-    Queue('read-canonical', app.exchange, routing_key='read-canonical'),
-    Queue('match-affils', app.exchange, routing_key='match-affils'),
-    Queue('resolve-unmatched', app.exchange, routing_key='resolve-unmatched'),
-    Queue('augment-affils', app.exchange, routing_key='augment-affils')
+#   Queue('load-affstrings', app.exchange, routing_key='load-affstrings'),
+#   Queue('load-canonical', app.exchange, routing_key='load-canonical'),
+#   Queue('read-affstrings', app.exchange, routing_key='read-affstrings'),
+#   Queue('read-canonical', app.exchange, routing_key='read-canonical'),
+#   Queue('match-affils', app.exchange, routing_key='match-affils'),
+#   Queue('resolve-unmatched', app.exchange, routing_key='resolve-unmatched'),
+    Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation')
 )
 logger = app.logger
 
 
-@app.task(queue='augment-affils')
+@app.task(queue='augment-affiliation')
 def task_augment_affiliations(rec):
-#   try:
-    unmatched = app.augment_affiliations(rec)
-#   except:
-#       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
-#   else:
-    return unmatched
+    try:
+        unmatched = app.augment_affiliations(rec)
+    except:
+        raise BaseException("Error augmenting record %s:"%rec['bibcode'])
+    else:
+        return unmatched
 
 # Canonical parent-child facet info
 # Reading and populating the db of affiliation IDs, canonical and facet strings, and parent-child info
 
-@app.task(queue='load-canonical')
+#@app.task(queue='load-canonical')
 def task_db_canonical_id_list(recs):
     if len(recs) > 0:
         outrecs=[]
@@ -52,7 +52,7 @@ def task_db_canonical_id_list(recs):
 
 
 
-@app.task(queue='load-affstrings')
+#@app.task(queue='load-affstrings')
 def task_db_affil_string_dict(recs):
     if len(recs) > 0:
         outrecs = []
@@ -62,7 +62,7 @@ def task_db_affil_string_dict(recs):
         session.commit()
 
 
-@app.task(queue='read-affstrings')
+#@app.task(queue='read-affstrings')
 def task_db_readall_affstrings():
     dictionary = {}
     for record in session.query(AffStrings.aff_id,AffStrings.aff_string).order_by(AffStrings.aff_id):
@@ -77,7 +77,7 @@ def task_db_readall_affstrings():
 
 
 
-@app.task(queue='read-canonical')
+#@app.task(queue='read-canonical')
 def task_db_readall_canonical():
     dictionary = {}
     try:
@@ -89,13 +89,13 @@ def task_db_readall_canonical():
     return dictionary
 
 
-@app.task(queue='read-affstrings')
+#@app.task(queue='read-affstrings')
 def task_make_learning_model(aff_dict):
     learningmodel = mkl.make_learner(aff_dict)
     return learningmodel
 
 
-@app.task(queue='resolve-unmatched')
+#@app.task(queue='resolve-unmatched')
 def task_resolve_unmatched(stringdict,learningdict):
     try:
         e = lm.matcha(stringdict,learningdict)
@@ -106,7 +106,7 @@ def task_resolve_unmatched(stringdict,learningdict):
             logger.error("Machine learning matching failed.  No output.")
 
 
-@app.task(queue='resolve-unmatched')
+#@app.task(queue='resolve-unmatched')
 def task_output_unmatched(unmatched_strings):
     try:
         if len(unmatched_strings) > 0:
