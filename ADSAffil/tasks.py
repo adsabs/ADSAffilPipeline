@@ -19,7 +19,7 @@ import json
 app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(os.path.join(os.path.dirname(__file__), '../')))
 
 app.conf.CELERY_QUEUES = (
-    Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation')
+    Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
 )
 logger = app.logger
 
