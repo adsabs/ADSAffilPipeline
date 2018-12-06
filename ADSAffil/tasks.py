@@ -11,19 +11,14 @@ from ADSAffil.curate import affil_strings as af
 from ADSAffil.models import *
 from ADSAffil.learningmodel import affil_match as lm
 from ADSAffil.learningmodel import make_learner as mkl
+from adsmsg import BibRecord, DenormalizedRecord
 
 import ADSAffil.utils as utils
 import json
 
-app = app_module.ADSAffilCelery('ads-augment', proj_home=os.path.realpath(os.path.join(os.path.dirname(__file__), '../')))
+app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(os.path.join(os.path.dirname(__file__), '../')))
 
 app.conf.CELERY_QUEUES = (
-#   Queue('load-affstrings', app.exchange, routing_key='load-affstrings'),
-#   Queue('load-canonical', app.exchange, routing_key='load-canonical'),
-#   Queue('read-affstrings', app.exchange, routing_key='read-affstrings'),
-#   Queue('read-canonical', app.exchange, routing_key='read-canonical'),
-#   Queue('match-affils', app.exchange, routing_key='match-affils'),
-#   Queue('resolve-unmatched', app.exchange, routing_key='resolve-unmatched'),
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation')
 )
 logger = app.logger
