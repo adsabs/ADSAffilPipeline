@@ -7,10 +7,12 @@ LOGGING_LEVEL = 'DEBUG'
 
 
 # used by ADSPiplelineUtils to connect
+CELERY_INCLUDE = ['ADSAffil.tasks']
 ACKS_LATE=True
 PREFETCH_MULTIPLIER=1
 CELERY_BROKER = 'pyamqp://'
-CELERY_DEFAULT_EXCHANGE = 'ads-augment'
+
+CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
 CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
 OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
