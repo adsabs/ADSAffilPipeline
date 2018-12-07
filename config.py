@@ -19,8 +19,8 @@ OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 OUTPUT_QUEUE = 'update-record'
 
 # Affiliation configuration files
-PC_INFILE = 'data/parent_child.new'
-AFFDICT_INFILE = 'data/Affiliations_all.new'
+PC_INFILE = '/proj/ads_abstracts/config/affils/parent_child.new'
+AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/Affiliations_all.new'
 PICKLE_FILE = 'data/aff.pickle'
 OUTPUT_FILE = 'output/ml.out'
 UNMATCHED_FILE = 'output/unmatched.out'
