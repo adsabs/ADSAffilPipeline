@@ -107,3 +107,56 @@ class ADSAffilCelery(ADSCelery):
         rec["aff_facet_hier"] = aff_facet_hier
         return unmatched
 
+
+    def read_canonical_from_db(self):
+        dictionary = {}
+        with self.session_scope() as session:
+            for record in session.query(CanonicalAffil.aff_id,CanonicalAffil.canonical_name,CanonicalAffil.facet_name,CanonicalAffil.parents_list,CanonicalAffil.children_list):
+                (p,c) = record.parents_list['parents'],record.children_list['children']
+                dictionary[record.aff_id] = {'canonical_name':record.canonical_name,'facet_name':record.facet_name,'parents':p,'children':c}
+        return dictionary
+
+
+    def read_affilstrings_from_db(self):
+        with self.session_scope() as session:
+            dictionary = {}
+            for record in session.query(AffStrings.aff_id,AffStrings.aff_string).order_by(AffStrings.aff_id):
+                s = record.aff_string
+                a = record.aff_id
+                if s in dictionary:
+                    if dictionary[s] != a:
+                        logger.info("Not overwriting existing key pair {0}: {1} with {2}".format(s,dictionary[s],a))
+                else:
+                    dictionary[s] = a
+            return dictionary
+
+
+    def write_canonical_to_db(self, recs):
+        with self.session_scope() as session:
+            outrecs=[]
+            for r in recs:
+                outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
+            session.bulk_save_objects(outrecs)
+            session.commit()
+
+
+    def write_affilstrings_to_db(self, recs):
+        with self.session_scope() as session:
+            outrecs = []
+            for r in recs:
+                outrecs.append(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
+            session.bulk_save_objects(outrecs)
+            session.commit()
+
+
+
+
+
+
+
+
+
+
+
+
+

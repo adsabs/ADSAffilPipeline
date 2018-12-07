@@ -90,14 +90,3 @@ def load_affil_dict():
         raise BaseException("Failed to load pickle file.")
     else:
         return dictionary
-
-def load_canonical_dict():
-    try:
-        dictionary = {}
-        for record in session.query(CanonicalAffil.aff_id,CanonicalAffil.canonical_name,CanonicalAffil.facet_name,CanonicalAffil.parents_list,CanonicalAffil.children_list):
-            (p,c) = record.parents_list['parents'],record.children_list['children']
-            dictionary[record.aff_id] = {'canonical_name':record.canonical_name,'facet_name':record.facet_name,'parents':p,'children':c}
-    except:
-        raise BaseException("Failed to load canonical data.")
-    return dictionary
-

@@ -19,7 +19,9 @@ import json
 app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(os.path.join(os.path.dirname(__file__), '../')))
 
 app.conf.CELERY_QUEUES = (
-    Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
+    Queue('read-affdata', app.exchange, routing_key='read-affdata'),
+    Queue('write-affdata', app.exchange, routing_key='write-affdata'),
+    Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation')
 )
 logger = app.logger
 
@@ -33,57 +35,44 @@ def task_augment_affiliations(rec):
     else:
         return unmatched
 
-# Canonical parent-child facet info
-# Reading and populating the db of affiliation IDs, canonical and facet strings, and parent-child info
-
-#@app.task(queue='load-canonical')
-def task_db_canonical_id_list(recs):
+@app.task(queue='write-affdata')
+def task_write_canonical_to_db(recs):
     if len(recs) > 0:
-        outrecs=[]
-        for r in recs:
-            outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
-        session.bulk_save_objects(outrecs)
-        session.commit()
+        try:
+            app.write_canonical_to_db(recs)
+        except:
+            raise BaseException("Could not write canonical to db")
 
-
-
-#@app.task(queue='load-affstrings')
-def task_db_affil_string_dict(recs):
+@app.task(queue='write-affdata')
+def task_write_affilstrings_to_db(recs):
     if len(recs) > 0:
-        outrecs = []
-        for r in recs:
-            outrecs.append(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
-        session.bulk_save_objects(outrecs)
-        session.commit()
+        try:
+            app.write_affilstrings_to_db(recs)
+        except:
+            raise BaseException("Could not write affilstrings to db")
 
 
-#@app.task(queue='read-affstrings')
-def task_db_readall_affstrings():
-    dictionary = {}
-    for record in session.query(AffStrings.aff_id,AffStrings.aff_string).order_by(AffStrings.aff_id):
-        s = record.aff_string
-        a = record.aff_id
-        if s in dictionary:
-            if dictionary[s] != a:
-                logger.info("Not overwriting existing key pair {0}: {1} with {2}".format(s,dictionary[s],a))
-        else:
-            dictionary[s] = a
-    return dictionary
-
-
-
-#@app.task(queue='read-canonical')
-def task_db_readall_canonical():
-    dictionary = {}
+@app.task(queue='read-affdata')
+def task_read_canonical_from_db():
     try:
-        for record in session.query(CanonicalAffil.aff_id,CanonicalAffil.canonical_name,CanonicalAffil.facet_name,CanonicalAffil.parents_list,CanonicalAffil.children_list):
-            (p,c) = record.parents_list['parents'],record.children_list['children']
-            dictionary[record.aff_id] = {'canonical_name':record.canonical_name,'facet_name':record.facet_name,'parents':p,'children':c}
+        dictionary = app.read_canonical_from_db()
     except:
-        logger.warn("Warning: failed to read from CanonicalAffil.")
-    return dictionary
+        raise BaseException("Could not read canonical from db")
+    else:
+        return dictionary
 
 
+@app.task(queue='read-affdata')
+def task_read_affilstrings_from_db():
+    try:
+        dictionary = app.read_affilstrings_from_db()
+    except:
+        raise BaseException("Could not read canonical from db")
+    else:
+        return dictionary
+
+
+# Non-app tasks: move somewhere else (utils or app?)
 #@app.task(queue='read-affstrings')
 def task_make_learning_model(aff_dict):
     learningmodel = mkl.make_learner(aff_dict)
