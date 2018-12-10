@@ -5,6 +5,11 @@
 # possible values: WARN, INFO, DEBUG
 LOGGING_LEVEL = 'DEBUG'
 
+# Connection to the database where we save orcid-claims (this database
+# serves as a running log of claims and storage of author-related
+# information). It is not consumed by others (ie. we 'push' results)
+SQLALCHEMY_URL = 'postgres://docker:docker@localhost:5432/docker'
+SQLALCHEMY_ECHO = False
 
 # used by ADSPiplelineUtils to connect
 CELERY_INCLUDE = ['ADSAffil.tasks']
