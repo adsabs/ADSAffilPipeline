@@ -8,7 +8,8 @@ LOGGING_LEVEL = 'DEBUG'
 # Connection to the database where we save orcid-claims (this database
 # serves as a running log of claims and storage of author-related
 # information). It is not consumed by others (ie. we 'push' results)
-SQLALCHEMY_URL = 'postgres://docker:docker@localhost:5432/docker'
+# SQLALCHEMY_URL = 'postgres://docker:docker@localhost:5432/docker'
+SQLALCHEMY_URL = 'sqlite:///'
 SQLALCHEMY_ECHO = False
 
 # used by ADSPiplelineUtils to connect
@@ -17,8 +18,9 @@ ACKS_LATE=True
 PREFETCH_MULTIPLIER=1
 CELERY_BROKER = 'pyamqp://'
 
-CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
-CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
+# CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
+# CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
+
 OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 OUTPUT_QUEUE = 'update-record'
