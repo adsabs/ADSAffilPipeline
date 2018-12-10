@@ -94,7 +94,7 @@ def main():
         else:
             if len(recs) > 0:
                 logger.info('Inserting {0} canonical affiliations'.format(len(recs)))
-                tasks.task_db_canonical_id_list(recs)
+                tasks.task_write_canonical_to_db(recs)
 
 # OPTIONAL
 # load the dictionary of string - affil_id matches
