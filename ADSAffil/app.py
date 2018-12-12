@@ -11,6 +11,7 @@ from adsmsg import AugmentAffiliationRequestRecord, \
     AugmentAffiliationRequestRecordList, \
     AugmentAffiliationResponseRecord, \
     AugmentAffiliationResponseRecordList
+import json
 
 try:
     adict = utils.load_affil_dict()
@@ -112,7 +113,9 @@ class ADSAffilCelery(ADSCelery):
         dictionary = {}
         with self.session_scope() as session:
             for record in session.query(CanonicalAffil.aff_id,CanonicalAffil.canonical_name,CanonicalAffil.facet_name,CanonicalAffil.parents_list,CanonicalAffil.children_list):
-                (p,c) = record.parents_list['parents'],record.children_list['children']
+                pj = json.loads(record.parents_list)
+                cj = json.loads(record.children_list)
+                (p,c) = pj['parents'],cj['children']
                 dictionary[record.aff_id] = {'canonical_name':record.canonical_name,'facet_name':record.facet_name,'parents':p,'children':c}
         return dictionary
 

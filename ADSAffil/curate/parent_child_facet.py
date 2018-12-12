@@ -41,8 +41,8 @@ def load_simple(filename):
         if i not in affil_child:
             affil_child[i] = ["-"]
 
-        affil_parent[i] = json.loads('{"parents":'+str(affil_parent[i]).replace('\'','"')+'}')
-        affil_child[i] = json.loads('{"children":'+str(affil_child[i]).replace('\'','"')+'}')
+        affil_parent[i] = '{"parents":'+str(affil_parent[i]).replace('\'','"')+'}'
+        affil_child[i] = '{"children":'+str(affil_child[i]).replace('\'','"')+'}'
 
         record = (i,affil_canonical[i],affil_abbrev[i],affil_parent[i],affil_child[i])
         records.append(record)
