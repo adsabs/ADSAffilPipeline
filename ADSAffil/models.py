@@ -34,8 +34,8 @@ class CanonicalAffil(Base):
     aff_id = Column(String, primary_key=True, unique=True)
     canonical_name = Column(String, nullable=False)
     facet_name = Column(String)
-    parents_list = Column(JSON, server_default="'{}'")
-    children_list = Column(JSON, server_default="'{}'")
+    parents_list = Column(String)
+    children_list = Column(String)
     created = Column(UTCDateTime, default=datetime.now())
 
 class AffStrings(Base):
