@@ -4,6 +4,7 @@ in order to initialize the database and get a working configuration.
 """
 
 from __future__ import absolute_import, unicode_literals
+from .models import CanonicalAffil, AffStrings
 from sqlalchemy.orm import load_only as _load_only
 from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
