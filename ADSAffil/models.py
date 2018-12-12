@@ -18,7 +18,7 @@ class CanonicalAffil(Base):
     facet_name = Column(String)
     parents_list = Column(String)
     children_list = Column(String)
-    created = Column(UTCDateTime, default=datetime.now())
+    created = Column(UTCDateTime, default=get_date)
 
 class AffStrings(Base):
     __tablename__ = 'string_ids'
@@ -31,5 +31,5 @@ class AffStrings(Base):
     orig_ads = Column(Boolean)
     ml_score = Column(Numeric)
     ml_version = Column(String)
-    created = Column(UTCDateTime, default=datetime.now())
+    created = Column(UTCDateTime, default=get_date)
 
