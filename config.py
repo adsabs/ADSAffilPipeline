@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-#ADD Documentation to make it clear what these variables are!
+import os
 
 # possible values: WARN, INFO, DEBUG
 LOGGING_LEVEL = 'DEBUG'
@@ -12,17 +10,33 @@ LOGGING_LEVEL = 'DEBUG'
 SQLALCHEMY_URL = 'sqlite:///'
 SQLALCHEMY_ECHO = False
 
-# used by ADSPiplelineUtils to connect
-CELERY_INCLUDE = ['ADSAffil.tasks']
-ACKS_LATE=True
-PREFETCH_MULTIPLIER=1
-CELERY_BROKER = 'pyamqp://'
+
+# Celery related configuration
+# All work we do is concentrated into one exchange (the queues are marked
+# by topics, e.g. ads.orcid.claims); The queues will be created automatically
+# based on the workers' definition. If 'durable' = True, it means that the 
+# queue is created as permanent *AND* the worker will publish 'permanent'
+# messages. Ie. if rabbitmq goes down/restarted, the uncomsumed messages will
+# still be there 
+
 
 # CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
 # CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
+CELERY_INCLUDE = ['ADSAffil.tasks']
+ACKS_LATE=True
+PREFETCH_MULTIPLIER=1
+CELERYD_TASK_SOFT_TIME_LIMIT = 60
+CELERY_BROKER = 'pyamqp://'
 
+
+# Where to send results (of our processing); since we rely on Celery, we have
+# to specify the task id - which is the worker's module on the remote side
+# that will be handling the message. This is a limitation of the current setup.
+# TODO: find a way to send a queue to the remote queue and let Celery deliver
+# it to the appropriate worker without having to specify it's name
 OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
+#OUTPUT_EXCHANGE = 'master_pipeline'
 OUTPUT_QUEUE = 'update-record'
 
 # Affiliation configuration files

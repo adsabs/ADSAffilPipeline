@@ -2,8 +2,10 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (Table, Column, Integer, Numeric, String, TIMESTAMP,
                         ForeignKey, Boolean, Float)
+from sqlalchemy.types import JSON
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.dialects.postgresql import JSONB,ENUM
+#from sqlalchemy.dialects.postgresql import JSONB,ENUM
+import json
 from adsputils import get_date
 
 Base = declarative_base()
@@ -18,8 +20,8 @@ class CanonicalAffil(Base):
     aff_id = Column(String, primary_key=True, unique=True)
     canonical_name = Column(String, nullable=False)
     facet_name = Column(String)
-    parents_list = Column(JSONB, server_default="'{}'")
-    children_list = Column(JSONB, server_default="'{}'")
+    parents_list = Column(JSON, server_default="'{}'")
+    children_list = Column(JSON, server_default="'{}'")
     created = Column(TIMESTAMP, default=datetime.now())
 
 class AffStrings(Base):
