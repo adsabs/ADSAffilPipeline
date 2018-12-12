@@ -38,10 +38,10 @@ def task_augment_affiliations(rec):
 @app.task(queue='write-affdata')
 def task_write_canonical_to_db(recs):
     if len(recs) > 0:
-        try:
-            app.write_canonical_to_db(recs)
-        except:
-            raise BaseException("Could not write canonical to db")
+#       try:
+        app.write_canonical_to_db(recs)
+#       except:
+#           raise BaseException("Could not write canonical to db")
 
 @app.task(queue='write-affdata')
 def task_write_affilstrings_to_db(recs):
