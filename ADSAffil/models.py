@@ -4,29 +4,11 @@ from sqlalchemy import (Table, Column, Integer, Numeric, String, TIMESTAMP,
                         ForeignKey, Boolean, Float)
 from sqlalchemy.types import JSON
 import json
-from adsputils import get_date
+from adsputils import get_date, UTCDateTime
 
 Base = declarative_base()
 
 from sqlalchemy import types
-from dateutil.tz import tzutc
-from datetime import datetime
-
-class UTCDateTime(types.TypeDecorator):
-
-    impl = TIMESTAMP
-
-    def process_bind_param(self, value, engine):
-        if isinstance(value, basestring):
-            return get_date(value).astimezone(tzutc())
-        elif value is not None:
-            return value.astimezone(tzutc()) # will raise Error is not datetime
-
-    def process_result_value(self, value, engine):
-        if value is not None:
-            return datetime(value.year, value.month, value.day,
-                            value.hour, value.minute, value.second,
-                            value.microsecond, tzinfo=tzutc())
 
 class CanonicalAffil(Base):
     __tablename__ = 'canon'
