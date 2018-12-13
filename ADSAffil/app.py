@@ -137,10 +137,10 @@ class ADSAffilCelery(ADSCelery):
 
     def write_canonical_to_db(self, recs):
         with self.session_scope() as session:
-            outrecs=[]
             for r in recs:
-                outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
-            session.bulk_save_objects(outrecs)
+                session.add(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
+#               outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
+#           session.bulk_save_objects(outrecs)
             session.commit()
 
 
@@ -148,8 +148,9 @@ class ADSAffilCelery(ADSCelery):
         with self.session_scope() as session:
             outrecs = []
             for r in recs:
-                outrecs.append(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
-            session.bulk_save_objects(outrecs)
+                session.add(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
+#               outrecs.append(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
+#           session.bulk_save_objects(outrecs)
             session.commit()
 
 
