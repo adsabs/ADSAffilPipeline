@@ -6,7 +6,9 @@ import cPickle as pickle
 def load_simple(filename):
     records = []
     with open(filename,'rU') as fa:
+        i=0
         for l in fa.readlines():
+            i=i+1
             try:
                 (aff_id,aff_string) = l.rstrip().split('\t')
             except:

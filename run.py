@@ -105,13 +105,13 @@ def main():
             raise BaseException("Could not load affiliation string dictionary from file.")
         if len(recs) > 0:
             logger.info('Inserting {0} unique strings'.format(len(recs)))
-            tasks.task_db_affil_string_dict(recs)
+            tasks.task_write_affilstrings_to_db(recs)
 
 
 # OPTIONAL
 # pickle the dictionary of affil strings pulled from the database
     if args.pickle_filename:
-        aff_dict = tasks.task_db_readall_affstrings()
+        aff_dict = tasks.task_read_affilstrings_from_db()
         ad_pickle = {}
         try:
             for k,v in aff_dict.items():

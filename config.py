@@ -7,7 +7,7 @@ LOGGING_LEVEL = 'DEBUG'
 # serves as a running log of claims and storage of author-related
 # information). It is not consumed by others (ie. we 'push' results)
 # SQLALCHEMY_URL = 'postgres://docker:docker@localhost:5432/docker'
-SQLALCHEMY_URL = 'postgres://user:password@localhost:15432/augment_pipeline'
+SQLALCHEMY_URL = 'postgresql://postgres:postgres@localhost:15432/augment_pipeline'
 SQLALCHEMY_ECHO = False
 
 
