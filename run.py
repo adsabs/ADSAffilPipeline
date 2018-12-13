@@ -155,23 +155,6 @@ def main():
         logger.warn("No records to process, stopping now.")
     else:
                 
-# load data from databases
-
-#       if not args.unmatched:
-#           if os.path.isfile(config.PICKLE_FILE):
-#               ad_pickle = utils.load_affil_dict()
-#           else:
-#               try:
-#                   aff_dict = tasks.task_db_readall_affstrings()
-#                   ad_pickle = {}
-#                   for (k,v) in aff_dict.items():
-#                       knew = utils.normalize_string(k)
-#                       ad_pickle[knew] = v
-#               except:
-#                   raise BaseException("Error loading affiliation data.")
-
-#       canon_dict = tasks.task_db_readall_canonical()
-
         unmatched = {}
 
         for rec in records:

@@ -19,9 +19,10 @@ import json
 app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(os.path.join(os.path.dirname(__file__), '../')))
 
 app.conf.CELERY_QUEUES = (
-    Queue('read-affdata', app.exchange, routing_key='read-affdata'),
-    Queue('write-affdata', app.exchange, routing_key='write-affdata'),
-    Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation')
+    Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
+    Queue('output-record', app.exchange, routing_key='output-record'),
+    Queue('read-affildata', app.exchange, routing_key='read-affildata'),
+    Queue('write-affildata', app.exchange, routing_key='write-affildata')
 )
 logger = app.logger
 
@@ -30,20 +31,31 @@ logger = app.logger
 def task_augment_affiliations(rec):
     try:
         unmatched = app.augment_affiliations(rec)
+        task_output_augmented_record.delay(rec)
     except:
         raise BaseException("Error augmenting record %s:"%rec['bibcode'])
     else:
         return unmatched
 
-@app.task(queue='write-affdata')
+
+@app.task(queue='output-record')
+def task_output_augmented_record(rec):
+    logger.debug('Will forward this record: %s', rec)
+
+    msg = DenormalizedRecord(**rec)
+    app.forward_message(msg)
+
+
+@app.task(queue='write-affildata')
 def task_write_canonical_to_db(recs):
     if len(recs) > 0:
-#       try:
-        app.write_canonical_to_db(recs)
-#       except:
-#           raise BaseException("Could not write canonical to db")
+        try:
+            app.write_canonical_to_db(recs)
+        except:
+            raise BaseException("Could not write canonical to db")
 
-@app.task(queue='write-affdata')
+
+@app.task(queue='write-affildata')
 def task_write_affilstrings_to_db(recs):
     if len(recs) > 0:
         try:
@@ -52,7 +64,7 @@ def task_write_affilstrings_to_db(recs):
             raise BaseException("Could not write affilstrings to db")
 
 
-@app.task(queue='read-affdata')
+@app.task(queue='read-affildata')
 def task_read_canonical_from_db():
     try:
         dictionary = app.read_canonical_from_db()
@@ -62,7 +74,7 @@ def task_read_canonical_from_db():
         return dictionary
 
 
-@app.task(queue='read-affdata')
+@app.task(queue='read-affildata')
 def task_read_affilstrings_from_db():
     try:
         dictionary = app.read_affilstrings_from_db()
@@ -72,14 +84,11 @@ def task_read_affilstrings_from_db():
         return dictionary
 
 
-# Non-app tasks: move somewhere else (utils or app?)
-#@app.task(queue='read-affstrings')
 def task_make_learning_model(aff_dict):
     learningmodel = mkl.make_learner(aff_dict)
     return learningmodel
 
 
-#@app.task(queue='resolve-unmatched')
 def task_resolve_unmatched(stringdict,learningdict):
     try:
         e = lm.matcha(stringdict,learningdict)
@@ -90,7 +99,6 @@ def task_resolve_unmatched(stringdict,learningdict):
             logger.error("Machine learning matching failed.  No output.")
 
 
-#@app.task(queue='resolve-unmatched')
 def task_output_unmatched(unmatched_strings):
     try:
         if len(unmatched_strings) > 0:
