@@ -7,7 +7,7 @@ LOGGING_LEVEL = 'DEBUG'
 # serves as a running log of claims and storage of author-related
 # information). It is not consumed by others (ie. we 'push' results)
 # SQLALCHEMY_URL = 'postgres://docker:docker@localhost:5432/docker'
-SQLALCHEMY_URL = 'postgresql://postgres:postgres@localhost:15432/augment_pipeline'
+SQLALCHEMY_URL = 'postgres://user:password@localhost:15432/augment_pipeline'
 SQLALCHEMY_ECHO = False
 
 
@@ -24,12 +24,13 @@ CELERY_INCLUDE = ['ADSAffil.tasks']
 ACKS_LATE=True
 PREFETCH_MULTIPLIER=1
 CELERYD_TASK_SOFT_TIME_LIMIT = 300
-CELERY_BROKER = 'pyamqp://'
+
 
 CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
 CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
 
-OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
+CELERY_BROKER = 'pyamqp://user:password@localhost:6672/augment_pipeline'
+OUTPUT_CELERY_BROKER = 'pyamqp://user:password@localhost:5682/master_pipeline'
 
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 
