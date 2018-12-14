@@ -128,8 +128,9 @@ class ADSAffilCelery(ADSCelery):
                 s = record.aff_string
                 a = record.aff_id
                 if s in dictionary:
+                    pass
                     if dictionary[s] != a:
-                        logger.info("Not overwriting existing key pair {0}: {1} with {2}".format(s,dictionary[s],a))
+#                       logger.info("Not overwriting existing key pair {0}: {1} with {2}".format(s,dictionary[s],a))
                 else:
                     dictionary[s] = a
             return dictionary
@@ -141,7 +142,7 @@ class ADSAffilCelery(ADSCelery):
                 session.add(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
 #               outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
 #           session.bulk_save_objects(outrecs)
-            session.commit()
+                session.commit()
 
 
     def write_affilstrings_to_db(self, recs):
@@ -151,17 +152,5 @@ class ADSAffilCelery(ADSCelery):
                 session.add(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
 #               outrecs.append(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
 #           session.bulk_save_objects(outrecs)
-            session.commit()
-
-
-
-
-
-
-
-
-
-
-
-
+                session.commit()
 
