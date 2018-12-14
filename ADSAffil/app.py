@@ -128,8 +128,8 @@ class ADSAffilCelery(ADSCelery):
                 s = record.aff_string
                 a = record.aff_id
                 if s in dictionary:
-                    pass
                     if dictionary[s] != a:
+                        pass
 #                       logger.info("Not overwriting existing key pair {0}: {1} with {2}".format(s,dictionary[s],a))
                 else:
                     dictionary[s] = a
