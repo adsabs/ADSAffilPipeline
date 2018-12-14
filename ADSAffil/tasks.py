@@ -11,7 +11,8 @@ from ADSAffil.curate import affil_strings as af
 from ADSAffil.models import *
 from ADSAffil.learningmodel import affil_match as lm
 from ADSAffil.learningmodel import make_learner as mkl
-from adsmsg import BibRecord, DenormalizedRecord
+#from adsmsg import BibRecord, DenormalizedRecord
+from adsmsg import AugmentAffiliationResponseRecord
 
 import ADSAffil.utils as utils
 import json
@@ -31,7 +32,7 @@ logger = app.logger
 def task_augment_affiliations(rec):
     try:
         unmatched = app.augment_affiliations(rec)
-        task_output_augmented_record.delay(rec)
+        task_output_augmented_record(rec)
     except:
         raise BaseException("Error augmenting record %s:"%rec['bibcode'])
     else:
@@ -42,7 +43,7 @@ def task_augment_affiliations(rec):
 def task_output_augmented_record(rec):
     logger.debug('Will forward this record: %s', rec)
 
-    msg = DenormalizedRecord(**rec)
+    msg = AugmentAffiliationResponseRecord(**rec)
     app.forward_message(msg)
 
 

@@ -158,7 +158,7 @@ def main():
         unmatched = {}
 
         for rec in records:
-            unmatched.update(tasks.task_augment_affiliations(rec))
+            unmatched.update(tasks.task_augment_affiliations.delay(rec))
             
 
 #testing: print output records
