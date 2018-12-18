@@ -91,3 +91,4 @@ def load_affil_dict():
         raise BaseException("Failed to load pickle file.")
     else:
         return dictionary
+
