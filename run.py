@@ -89,7 +89,6 @@ def main():
     if args.load_canonical_pc_facet:
         try:
             recs = pcf.load_simple(args.load_canonical_pc_facet)
-            clean_recs = 
         except:
             raise BaseException("Could not load affiliation string dictionary from file.")
         else:
@@ -134,13 +133,13 @@ def main():
     records = []
     if args.filename:
         if os.path.isfile(args.filename):
-            try:
+#           try:
                 with open(args.filename,'rU') as fp:
                     jdata = json.load(fp)
                     records = jdata['response']['docs']
-            except:
-                logger.error("Failed to read JSON file of records to augment. Stopping.")
-                raise BaseException("Error reading input JSON file.")
+#           except:
+#               logger.error("Failed to read JSON file of records to augment. Stopping.")
+#               raise BaseException("Error reading input JSON file.")
         else:
             logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
             raise BaseException("The JSON file with the given filename doesn't exist.")
