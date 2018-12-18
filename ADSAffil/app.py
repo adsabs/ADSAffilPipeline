@@ -53,14 +53,14 @@ class ADSAffilCelery(ADSCelery):
         facet = []
         unmatched = {}
         for s in aff:
-            s = utils.encode_string(s)
+            s = utils.reencode_string(s)
             if ';' in s:
                 t = s.split(';')
                 idl = []
                 cl = []
                 for v in t:
                     if v.strip() != '':
-                        v = utils.encode_string(v)
+                        v = utils.reencode_string(v)
                         (aid,can,fac) = augmenter(v)
                         idl.append(aid)
                         cl.append(can)
@@ -140,19 +140,26 @@ class ADSAffilCelery(ADSCelery):
         with self.session_scope() as session:
             outrecs = []
             for r in recs:
-#               session.add(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
                 outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
             session.bulk_save_objects(outrecs)
             session.commit()
 
 
     def write_affilstrings_to_db(self, recs):
+        maxlen = 50000
         with self.session_scope() as session:
-            outrecs = []
-            for r in recs:
-                (affid,affstring)=r.split('\t')
-#               session.add(AffStrings(aff_id=r[0],aff_string=r[1],orig_pub=r[2],orig_ml=r[3],orig_ads=r[4],ml_score=r[5],ml_version=r[6]))
-                outrecs.append(AffStrings(aff_id=affid,aff_string=affstring,orig_pub=False,orig_ml=False,orig_ads=True,ml_score=0,ml_version=0))
-            session.bulk_save_objects(outrecs)
-            session.commit()
+            while len(recs) > 0:
+                outrecs = recs[0:maxlen]
+                remainder = recs[maxlen:]
+                recs = remainder
+                db_outrec = []
+                for r in outrecs:
+                    try:
+                        (affid,affstring)=r.split('\t')
+                    except:
+                        pass
+                    else:
+                        db_outrec.append(AffStrings(aff_id=affid,aff_string=affstring,orig_pub=False,orig_ml=False,orig_ads=True,ml_score=0,ml_version=0))
+                session.bulk_save_objects(db_outrec)
+                session.commit()
 
