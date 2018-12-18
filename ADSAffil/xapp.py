@@ -21,6 +21,7 @@ except:
 
 def augmenter(afstring):
 #   logging.captureWarnings(True)
+
     m_id = utils.affil_id_match(afstring,adict)
     try:
         facet = cdict[m_id]['facet_name']
