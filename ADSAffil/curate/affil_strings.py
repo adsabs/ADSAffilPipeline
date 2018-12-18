@@ -4,28 +4,32 @@ from ADSAffil import utils
 import cPickle as pickle
 
 def load_simple(filename):
-    records = []
+    inputrecords = []
     with open(filename,'rU') as fa:
         i=0
         for l in fa.readlines():
             i=i+1
+            ll = utils.convert_unicode(l)
             try:
-                (aff_id,aff_string) = l.rstrip().split('\t')
+                (aff_id,aff_string) = ll.rstrip().split('\t')
             except:
                 raise BaseException("Fatal line read error in affil_strings.load, line: %s"%i)
-
-            if aff_string.strip() != '':
-                try:
-                    aff_string = utils.encode_string(aff_string)
-                except:
-                    print ("encoding problem on line %s, skipping."%i)
-                else:
-                    record = (aff_id,aff_string,False,False,True,0,0)
-                    records.append(record)
             else:
-                print ("empty affil string ignored")
+                inputrecords.append(ll)
+    return inputrecords
 
-    return records
+#           if aff_string.strip() != '':
+#               try:
+#                   aff_string = utils.encode_string(aff_string)
+#               except:
+#                   print ("encoding problem on line %s, skipping."%i)
+#               else:
+#                   record = (aff_id,aff_string,False,False,True,0,0)
+#                   records.append(record)
+#           else:
+#               print ("empty affil string ignored")
+#
+#   return records
 
 def dump_affil_pickle(aff_dict,filename):
     if len(aff_dict.keys())>0:

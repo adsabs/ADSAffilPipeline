@@ -89,6 +89,7 @@ def main():
     if args.load_canonical_pc_facet:
         try:
             recs = pcf.load_simple(args.load_canonical_pc_facet)
+            clean_recs = 
         except:
             raise BaseException("Could not load affiliation string dictionary from file.")
         else:
@@ -100,7 +101,7 @@ def main():
 # load the dictionary of string - affil_id matches
     if args.load_affil_strings:
         try:
-            recs = af.load_simple(args.load_affil_strings)
+            recs = utils.back_convert_entities(af.load_simple(args.load_affil_strings))
         except:
             raise BaseException("Could not load affiliation string dictionary from file.")
         if len(recs) > 0:

@@ -9,6 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="bs4")
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="unidecode")
 
 # TEXT CONVERSION UTILITIES
+
 srs = re.compile(r'[-!?.,;:/\\]')
 
 def convert_unicode(s):
@@ -27,34 +28,34 @@ def convert_unicode(s):
         s = lo
     return(s)
 
-def back_convert_entities(s):
-    li = bs4.BeautifulSoup(s,"lxml").find_all('p')
-    if s != '':
-        lo = unicode(li[0]).replace('<p>','').replace('</p>','').lstrip('[').rstrip(']').replace('&amp;','&').replace('&gt;','>').replace('&lt;','<').lstrip().rstrip()
-    else:
-        lo = u''
-    return lo
-
-def encode_string(s):
-    # encoding consists of
-    # 0) cleaning mixed encoding (e.g. cp1252)
-    # 1) converting all HTML/XML encodings to utf-8
-    # 2) converting all utf-8 chars to ascii equiv
-
-    try:
-        s = convert_unicode(s)
-    except:
-        pass
-    try:
-        s = back_convert_entities(s)
-    except:
-        s = ''
-        pass
+def back_convert_entities(recs):
+#   Note: "recs" in this case is a list of strings.
+#   Each list that gets passed cannot have more 
+#   than ~65535 lines 
+#   otherwise bs4 will output garbage
+    outrecs = []
+    maxlen = 50000
+    while len(recs) > 0:
+        block1 = recs[0:maxlen]
+        block2 = recs[maxlen:]
+        recs = block2
+        input_block = "<p>".join(block1)
+        output_block = bs4.BeautifulSoup(input_block, "lxml").find_all('p')
+        for l in output_block:
+            if l != '':
+                lo = unicode(l).replace('<p>','').replace('</p>','').lstrip('[').rstrip(']').replace('&amp;','&').replace('&gt;','>').replace('&lt;','<').lstrip().rstrip()
+            else:
+                lo = u''
+            outrecs.append(reencode_string(lo))
+    return outrecs
+                
+        
+def reencode_string(s):
     try:
         s = unidecode.unidecode(unicode(s))
     except:
         pass
-    return unicode(s)
+    return s
 
 def normalize_string(s):
     # normalizing consists of
