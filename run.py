@@ -104,7 +104,7 @@ def main():
         except:
             raise BaseException("Could not load affiliation string dictionary from file.")
         if len(recs) > 0:
-            logger.info('Inserting {0} unique strings'.format(len(recs)))
+            logger.info('Inserting {0} IDed affiliation strings'.format(len(recs)))
             tasks.task_write_affilstrings_to_db(recs)
 
 
@@ -128,27 +128,25 @@ def main():
 
 # Get records to Augment:
 # args.filename is the JSON file containing Solr records to augment.
-# If the switch is not given, data will be assumed to arrive as
-# messages instead (and raise an error if there are none).
     records = []
     if args.filename:
         if os.path.isfile(args.filename):
-#           try:
+            try:
                 with open(args.filename,'rU') as fp:
                     jdata = json.load(fp)
                     records = jdata['response']['docs']
-#           except:
-#               logger.error("Failed to read JSON file of records to augment. Stopping.")
-#               raise BaseException("Error reading input JSON file.")
+            except:
+                logger.error("Failed to read JSON file of records to augment. Stopping.")
+                raise BaseException("Error reading input JSON file.")
         else:
             logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
             raise BaseException("The JSON file with the given filename doesn't exist.")
     else:
+        print "I would get messages from master pipeline here...."
         pass
-#       print "I am expecting messages from master pipeline...."
 # code that receives messages from MP here....
 
-# records should not be an empty list [] here, but if so, quit.
+
 
 # only continue if you have records, no point otherwise.
     if len(records) == 0 and not args.unmatched:
@@ -158,6 +156,7 @@ def main():
         unmatched = {}
 
         for rec in records:
+# This is a complicated step condensed into one command... split up?
             unmatched.update(tasks.task_augment_affiliations(rec))
             
 
@@ -193,11 +192,11 @@ def main():
                     logger.error("Failed to create learning model, stopping.")
                     raise BaseException("Could not make learning model.")
 
-#               try:
-                tasks.task_resolve_unmatched(unmatched.keys(), lmod)
-#               except:
-#                   logger.error("Problem using learning model, failed.")
-#                   raise BaseException("Machine learning model failed.")
+                try:
+                    tasks.task_resolve_unmatched(unmatched.keys(), lmod)
+                except:
+                    logger.error("Problem using learning model, failed.")
+                    raise BaseException("Machine learning model failed.")
             else:
                 try:
                     output = unmatched.keys()
