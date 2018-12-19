@@ -8,11 +8,11 @@ from .models import CanonicalAffil, AffStrings
 from sqlalchemy.orm import load_only as _load_only
 from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
-from adsmsg import AugmentAffiliationRequestRecord, \
-    AugmentAffiliationRequestRecordList, \
-    AugmentAffiliationResponseRecord, \
-    AugmentAffiliationResponseRecordList, \
-    DenormalizedRecord
+#from adsmsg import AugmentAffiliationRequestRecord, \
+#    AugmentAffiliationRequestRecordList, \
+#    AugmentAffiliationResponseRecord, \
+#    AugmentAffiliationResponseRecordList, \
+#    DenormalizedRecord
 import json
 
 try:
