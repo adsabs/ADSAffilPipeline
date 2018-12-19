@@ -11,7 +11,8 @@ from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 from adsmsg import AugmentAffiliationRequestRecord, \
     AugmentAffiliationRequestRecordList, \
     AugmentAffiliationResponseRecord, \
-    AugmentAffiliationResponseRecordList
+    AugmentAffiliationResponseRecordList, \
+    DenormalizedRecord
 import json
 
 try:
