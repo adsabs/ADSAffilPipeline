@@ -108,7 +108,7 @@ def main():
                 block2 = recs[maxlen:]
                 recs = block2
                 input_block = "<p>".join(block1)
-                recs_converted.append(utils.back_convert_entities(input_block))
+                recs_converted.extend(utils.back_convert_entities(input_block))
             recs = recs_converted
 
 

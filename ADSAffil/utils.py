@@ -31,12 +31,14 @@ def convert_unicode(s):
 def back_convert_entities(rec):
     outrec = []
     output_block = bs4.BeautifulSoup(rec, "lxml").find_all('p')
+    print "BCE: my output_block is size %s"%len(output_block)
     for l in output_block:
         if l != '':
             lo = unicode(l).replace('<p>','').replace('</p>','').lstrip('[').rstrip(']').replace('&amp;','&').replace('&gt;','>').replace('&lt;','<').lstrip().rstrip()
         else:
             lo = u''
         outrec.append(reencode_string(lo))
+    print "BCE: my outrec is size %s"%len(outrec)
     return outrec
                 
         

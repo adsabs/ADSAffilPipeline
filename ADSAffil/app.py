@@ -34,13 +34,16 @@ def augmenter(afstring):
         afh = []
         if pids[0] == u"-":
             fbase = u"0/"+facet
-            afh.append(fbase)
+            fchild = u"1/"+facet+u"/"+facet
+            afh.extend(fbase,fchild)
+#           afh.append(fbase)
         else:
             for x in pids:
                 fp = cdict[x]['facet_name']
                 fbase = u"0/"+fp
                 fchild = u"1/"+fp+u"/"+facet
-                afh.append((fbase,fchild))
+                afh.extend((fbase,fchild))
+#               afh.append((fbase,fchild))
         return (abbrev,canon,afh)
 
 class ADSAffilCelery(ADSCelery):
@@ -64,21 +67,29 @@ class ADSAffilCelery(ADSCelery):
                     if v.strip() != '':
                         v = utils.reencode_string(utils.back_convert_encodings(v)[0])
                         (aid,can,fac) = augmenter(v)
-                        idl.append(aid)
-                        cl.append(can)
+                        idl.extend(aid)
+                        cl.extend(can)
+#                       idl.append(aid)
+#                       cl.append(can)
                         if fac:
-                            facet.append(fac)
+                            facet.extend(fac)
+#                           facet.append(fac)
                         else:
                             if v != u"" and v !=u"-":
                                 unmatched[v] = u"0"
-                id_list.append(idl)
-                can_list.append(cl)
+                id_list.extend(idl)
+                can_list.extend(cl)
+#               id_list.append(idl)
+#               can_list.append(cl)
             else:
                 (aid,can,fac) = augmenter(s)
-                id_list.append(aid)
-                can_list.append(can)
+                id_list.extend(aid)
+                can_list.extend(can)
+#               id_list.append(aid)
+#               can_list.append(can)
                 if fac:
-                    facet.append(fac)
+                    facet.extend(fac)
+#                   facet.append(fac)
                 else:
                     if s != u"" and s !=u"-":
                         unmatched[s] = u"0"
