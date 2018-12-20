@@ -28,26 +28,16 @@ def convert_unicode(s):
         s = lo
     return(s)
 
-def back_convert_entities(recs):
-#   Note: "recs" in this case is a list of strings.
-#   Each list that gets passed cannot have more 
-#   than ~65535 lines 
-#   otherwise bs4 will output garbage
-    outrecs = []
-    maxlen = 50000
-    while len(recs) > 0:
-        block1 = recs[0:maxlen]
-        block2 = recs[maxlen:]
-        recs = block2
-        input_block = "<p>".join(block1)
-        output_block = bs4.BeautifulSoup(input_block, "lxml").find_all('p')
-        for l in output_block:
-            if l != '':
-                lo = unicode(l).replace('<p>','').replace('</p>','').lstrip('[').rstrip(']').replace('&amp;','&').replace('&gt;','>').replace('&lt;','<').lstrip().rstrip()
-            else:
-                lo = u''
-            outrecs.append(reencode_string(lo))
-    return outrecs
+def back_convert_entities(rec):
+    outrec = []
+    output_block = bs4.BeautifulSoup(rec, "lxml").find_all('p')
+    for l in output_block:
+        if l != '':
+            lo = unicode(l).replace('<p>','').replace('</p>','').lstrip('[').rstrip(']').replace('&amp;','&').replace('&gt;','>').replace('&lt;','<').lstrip().rstrip()
+        else:
+            lo = u''
+        outrec.append(reencode_string(lo))
+    return u' '.join(outrec)
                 
         
 def reencode_string(s):

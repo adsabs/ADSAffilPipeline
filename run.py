@@ -100,7 +100,18 @@ def main():
 # load the dictionary of string - affil_id matches
     if args.load_affil_strings:
         try:
-            recs = utils.back_convert_entities(af.load_simple(args.load_affil_strings))
+            recs = af.load_simple(args.load_affil_strings)
+            recs_converted = []
+            maxlen = 50000
+            while len(recs) > 0:
+                block1 = recs[0:maxlen]
+                block2 = recs[maxlen:]
+                recs = block2
+                input_block = "<p>".join(block1)
+                recs_converted.append(utils.back_convert_entities(input_block))
+            recs = recs_converted
+
+
         except:
             raise BaseException("Could not load affiliation string dictionary from file.")
         if len(recs) > 0:
