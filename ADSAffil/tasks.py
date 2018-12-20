@@ -30,13 +30,13 @@ logger = app.logger
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations(rec):
-    try:
+#   try:
         unmatched = app.augment_affiliations(rec)
         task_output_augmented_record(rec)
-    except:
-        logger.error("Error augmenting record: %s", rec)
+#   except:
+#       logger.error("Error augmenting record: %s", rec)
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
-    else:
+#   else:
         return unmatched
 
 
