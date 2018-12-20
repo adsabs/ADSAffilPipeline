@@ -37,7 +37,7 @@ def back_convert_entities(rec):
         else:
             lo = u''
         outrec.append(reencode_string(lo))
-    return u' '.join(outrec)
+    return outrec
                 
         
 def reencode_string(s):

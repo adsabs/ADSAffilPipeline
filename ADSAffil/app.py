@@ -55,14 +55,14 @@ class ADSAffilCelery(ADSCelery):
         facet = []
         unmatched = {}
         for s in aff:
-            s = utils.reencode_string(s)
+            s = utils.reencode_string(utils.back_convert_encodings(s)[0])
             if ';' in s:
                 t = s.split(';')
                 idl = []
                 cl = []
                 for v in t:
                     if v.strip() != '':
-                        v = utils.reencode_string(v)
+                        v = utils.reencode_string(utils.back_convert_encodings(v)[0])
                         (aid,can,fac) = augmenter(v)
                         idl.append(aid)
                         cl.append(can)
