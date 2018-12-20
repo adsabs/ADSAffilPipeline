@@ -35,7 +35,7 @@ def augmenter(afstring):
         if pids[0] == u"-":
             fbase = u"0/"+facet
             fchild = u"1/"+facet+u"/"+facet
-            afh.extend(fbase,fchild)
+            afh.extend((fbase,fchild))
 #           afh.append(fbase)
         else:
             for x in pids:
@@ -58,14 +58,14 @@ class ADSAffilCelery(ADSCelery):
         facet = []
         unmatched = {}
         for s in aff:
-            s = utils.reencode_string(utils.back_convert_encodings(s)[0])
+            s = utils.reencode_string(utils.back_convert_entities(s)[0])
             if ';' in s:
                 t = s.split(';')
                 idl = []
                 cl = []
                 for v in t:
                     if v.strip() != '':
-                        v = utils.reencode_string(utils.back_convert_encodings(v)[0])
+                        v = utils.reencode_string(utils.back_convert_entities(v)[0])
                         (aid,can,fac) = augmenter(v)
                         idl.extend(aid)
                         cl.extend(can)
