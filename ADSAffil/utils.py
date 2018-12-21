@@ -53,6 +53,7 @@ def normalize_string(s):
     # 4) converting all ascii chars to upper-case
     try:
         s = srs.sub(' ',s)
+        s = " ".join(s.split())
     except:
         pass
     try:
