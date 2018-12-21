@@ -117,7 +117,8 @@ class ADSAffilCelery(ADSCelery):
         else:
             aff_facet_hier = []
     
-        rec["aff_abbrev"] = id_list
+#       rec["aff_abbrev"] = id_list
+        rec["aff_abbrev"] = aff_facet_hier
         rec["aff_canonical"] = can_list
         rec["aff_facet_hier"] = aff_facet_hier
         return unmatched
