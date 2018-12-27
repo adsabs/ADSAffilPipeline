@@ -44,7 +44,7 @@ def task_augment_affiliations(rec):
 def task_output_augmented_record(rec):
     logger.debug('Will forward this record: %s', rec)
 
-    msg = AugmentAffiliationResponseRecord(**rec)
+    msg = AugmentAffiliationResponseRecord(rec)
     app.forward_message(msg)
 
 
