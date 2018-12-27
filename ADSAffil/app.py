@@ -37,13 +37,16 @@ def augmenter(afstring):
             fchild = u"1/"+facet+u"/"+facet
 #           afh.extend((fbase,fchild))
             afh.append(fbase)
+            afh.append(fchild)
         else:
             for x in pids:
                 fp = cdict[x]['facet_name']
                 fbase = u"0/"+fp
                 fchild = u"1/"+fp+u"/"+facet
 #               afh.extend((fbase,fchild))
-                afh.append((fbase,fchild))
+#               afh.append((fbase,fchild))
+                afh.append(fbase)
+                afh.append(fchild)
         return (abbrev,canon,afh)
 
 class ADSAffilCelery(ADSCelery):
@@ -77,6 +80,8 @@ class ADSAffilCelery(ADSCelery):
                         else:
                             if v != u"" and v !=u"-":
                                 unmatched[v] = u"0"
+                if not isinstance(cl,basestring):
+                    cl = u'; '.join(cl)
 #               id_list.extend(idl)
 #               can_list.extend(cl)
                 id_list.append(idl)
@@ -105,7 +110,8 @@ class ADSAffilCelery(ADSCelery):
             try:
                 f4 = []
                 for f3 in list(set(f2)):
-                    if isinstance(f3,tuple):
+#                   if isinstance(f3,tuple):
+                    if isinstance(f3,list):
                         for x in list(f3):
                             f4.append(x)
                     else:
