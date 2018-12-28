@@ -10,8 +10,9 @@ from ADSAffil.curate import parent_child_facet as pcf
 from ADSAffil.models import *
 from adsputils import setup_logging, get_date
 
-global logger
+global logger, unmatched
 logger = setup_logging('run.py')
+unmatched = {}
 
 def get_arguments():
 
@@ -164,11 +165,9 @@ def main():
         logger.warn("No records to process, stopping now.")
     else:
                 
-        unmatched = {}
-
         logger.info("Starting augments")
         for rec in records:
-            unmatched.update(tasks.task_augment_affiliations(rec))
+            tasks.task_augment_affiliations.delay(rec)
 #           tasks.task_output_augmented_record.delay(rec)
         logger.info("Finished augments")
             
