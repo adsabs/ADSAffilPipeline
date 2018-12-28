@@ -27,18 +27,19 @@ app.conf.CELERY_QUEUES = (
 )
 logger = app.logger
 
+global unmatched
+unmatched = {}
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations(rec):
     try:
         u = app.augment_affiliations(rec)
+        unmatched.update(u)
         print "lol, inside of task_augment_affilliations"
         task_output_augmented_record(rec)
     except:
         logger.error("Error augmenting record: %s", rec['bibcode'])
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
-    else:
-        return u
 
 
 @app.task(queue='output-record')

@@ -167,23 +167,22 @@ def main():
                 
         logger.info("Starting augments")
         for rec in records:
-            u = tasks.task_augment_affiliations.delay(rec)
-            unmatched.update(u)
+            tasks.task_augment_affiliations.delay(rec)
 #           tasks.task_output_augmented_record.delay(rec)
         logger.info("Finished augments")
             
 
 #testing: print output records
 # you need to add code to send these to MP instead....
-#       if len(records) > 0:
-#          logger.info("Starting send to master")
-#          for rec in records:
-#               tasks.task_output_augmented_record.delay(rec)
-#          logger.info("Done send to master")
-#           with open(config.DIRECT_RECORDS,'w') as fo:
-#               dout = {}
-#               dout["docs"] = records
-#               json.dump(dout,fo, sort_keys=True, indent=4)
+        if len(records) > 0:
+           logger.info("Starting send to master")
+           for rec in records:
+                tasks.task_output_augmented_record.delay(rec)
+           logger.info("Done send to master")
+            with open(config.DIRECT_RECORDS,'w') as fo:
+                dout = {}
+                dout["docs"] = records
+                json.dump(dout,fo, sort_keys=True, indent=4)
 
         if args.unmatched:
             try:
