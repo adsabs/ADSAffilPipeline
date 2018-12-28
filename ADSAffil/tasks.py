@@ -28,7 +28,7 @@ app.conf.CELERY_QUEUES = (
 logger = app.logger
 
 
-@app.task(queue='augment-affiliation')
+#@app.task(queue='augment-affiliation')
 def task_augment_affiliations(rec):
     try:
         unmatched = app.augment_affiliations(rec)
