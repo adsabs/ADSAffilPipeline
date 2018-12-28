@@ -15,6 +15,7 @@ from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 #    DenormalizedRecord
 import json
 
+global adict
 try:
     adict = utils.load_affil_dict()
 except:
