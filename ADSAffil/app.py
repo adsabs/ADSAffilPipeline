@@ -8,11 +8,6 @@ from .models import CanonicalAffil, AffStrings
 from sqlalchemy.orm import load_only as _load_only
 from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
-#from adsmsg import AugmentAffiliationRequestRecord, \
-#    AugmentAffiliationRequestRecordList, \
-#    AugmentAffiliationResponseRecord, \
-#    AugmentAffiliationResponseRecordList, \
-#    DenormalizedRecord
 import json
 
 global adict
@@ -36,7 +31,6 @@ def augmenter(afstring):
         if pids[0] == u"-":
             fbase = u"0/"+facet
             fchild = u"1/"+facet+u"/"+facet
-#           afh.extend((fbase,fchild))
             afh.append(fbase)
             afh.append(fchild)
         else:
@@ -44,8 +38,6 @@ def augmenter(afstring):
                 fp = cdict[x]['facet_name']
                 fbase = u"0/"+fp
                 fchild = u"1/"+fp+u"/"+facet
-#               afh.extend((fbase,fchild))
-#               afh.append((fbase,fchild))
                 afh.append(fbase)
                 afh.append(fchild)
         return (abbrev,canon,afh)
@@ -62,7 +54,9 @@ class ADSAffilCelery(ADSCelery):
         facet = []
         unmatched = {}
         for s in aff:
+            print "start reencoding"
             s = utils.reencode_string(utils.back_convert_entities(s)[0])
+            print "end reencoding"
             if ';' in s:
                 t = s.split(';')
                 idl = []
@@ -71,30 +65,22 @@ class ADSAffilCelery(ADSCelery):
                     if v.strip() != '':
                         v = utils.reencode_string(utils.back_convert_entities(v)[0])
                         (aid,can,fac) = augmenter(v)
-#                       idl.extend(aid)
-#                       cl.extend(can)
                         idl.append(aid)
                         cl.append(can)
                         if fac:
-#                           facet.extend(fac)
                             facet.append(fac)
                         else:
                             if v != u"" and v !=u"-":
                                 unmatched[v] = u"0"
                 if not isinstance(cl,basestring):
                     cl = u'; '.join(cl)
-#               id_list.extend(idl)
-#               can_list.extend(cl)
                 id_list.append(idl)
                 can_list.append(cl)
             else:
                 (aid,can,fac) = augmenter(s)
-#               id_list.extend(aid)
-#               can_list.extend(can)
                 id_list.append(aid)
                 can_list.append(can)
                 if fac:
-#                   facet.extend(fac)
                     facet.append(fac)
                 else:
                     if s != u"" and s !=u"-":
@@ -111,7 +97,6 @@ class ADSAffilCelery(ADSCelery):
             try:
                 f4 = []
                 for f3 in list(set(f2)):
-#                   if isinstance(f3,tuple):
                     if isinstance(f3,list):
                         for x in list(f3):
                             f4.append(x)
@@ -124,7 +109,6 @@ class ADSAffilCelery(ADSCelery):
         else:
             aff_facet_hier = []
     
-#       rec["aff_abbrev"] = id_list
         rec["aff_abbrev"] = aff_facet_hier
         rec["aff_canonical"] = can_list
         rec["aff_facet_hier"] = aff_facet_hier
