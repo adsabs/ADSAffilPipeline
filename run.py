@@ -167,7 +167,7 @@ def main():
                 
         logger.info("Starting augments")
         for rec in records:
-            u = tasks.task_augment_affiliations(rec)
+            u = tasks.task_augment_affiliations.delay(rec)
             unmatched.update(u)
 #           tasks.task_output_augmented_record.delay(rec)
         logger.info("Finished augments")
