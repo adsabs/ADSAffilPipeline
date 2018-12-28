@@ -37,7 +37,7 @@ def task_augment_affiliations(rec):
 #   except:
 #       logger.error("Error augmenting record: %s", rec['bibcode'])
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
-    else:
+#   else:
         return u
 
 
