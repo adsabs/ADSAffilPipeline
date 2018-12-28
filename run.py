@@ -166,11 +166,12 @@ def main():
                 
         unmatched = {}
 
+        logger.info("Starting augments")
         for rec in records:
-            logger.info("Starting augments")
-            unmatched.update(tasks.task_augment_affiliations(rec))
-            logger.info("Finished augments")
+            kvpair = tasks.task_augment_affiliations(rec)
+            unmatched.update(kvpair)
 #           tasks.task_output_augmented_record.delay(rec)
+        logger.info("Finished augments")
             
 
 #testing: print output records
