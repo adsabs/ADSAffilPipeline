@@ -33,7 +33,8 @@ def task_augment_affiliations(rec):
 #   try:
         u = app.augment_affiliations(rec)
         unmatched.update(u)
-        task_output_augmented_record.delay(rec)
+        print "lol, inside of task_augment_affilliations"
+        task_output_augmented_record(rec)
 #   except:
 #       logger.error("Error augmenting record: %s", rec['bibcode'])
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
