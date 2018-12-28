@@ -30,14 +30,14 @@ logger = app.logger
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations(rec):
-#   try:
+    try:
         u = app.augment_affiliations(rec)
         print "lol, inside of task_augment_affilliations"
-        task_output_augmented_record(rec)
-#   except:
-#       logger.error("Error augmenting record: %s", rec['bibcode'])
+        task_output_augmented_record.delay(rec)
+    except:
+        logger.error("Error augmenting record: %s", rec['bibcode'])
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
-#   else:
+    else:
         return u
 
 
