@@ -42,7 +42,7 @@ def task_augment_affiliations(rec):
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
 
 
-@app.task(queue='output-record')
+#@app.task(queue='output-record')
 def task_output_augmented_record(rec):
     logger.debug('Will forward this record: %s', rec)
 
