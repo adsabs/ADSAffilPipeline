@@ -54,9 +54,7 @@ class ADSAffilCelery(ADSCelery):
         facet = []
         unmatched = {}
         for s in aff:
-            print "start reencoding"
             s = utils.reencode_string(utils.back_convert_entities(s)[0])
-            print "end reencoding"
             if ';' in s:
                 t = s.split(';')
                 idl = []
