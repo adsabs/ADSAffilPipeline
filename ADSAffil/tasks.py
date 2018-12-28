@@ -36,12 +36,10 @@ def task_augment_affiliations(rec):
         logger.error("Error augmenting record: %s", rec['bibcode'])
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
     else:
-        task_output_augmented_record.delay(rec)
         return unmatched
 
 
-#@app.task(queue='output-record')
-@app.task(queue='augment-affiliation')
+@app.task(queue='output-record')
 def task_output_augmented_record(rec):
     logger.debug('Will forward this record: %s', rec)
 
