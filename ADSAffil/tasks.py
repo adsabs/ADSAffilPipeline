@@ -42,9 +42,11 @@ def task_output_augmented_record(rec):
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations(rec):
     try:
+        logger.info("Input record: %s", rec)
 #       print "lol, inside of task_augment_affilliations"
         u = app.augment_affiliations(rec)
         unmatched.update(u)
+        logger.info("Output record: %s", rec)
         task_output_augmented_record(rec)
     except:
         logger.error("Error augmenting record: %s", rec['bibcode'])
