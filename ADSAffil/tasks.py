@@ -31,6 +31,14 @@ global unmatched
 unmatched = {}
 
 
+@app.task(queue='output-record')
+def task_output_augmented_record(rec):
+    logger.debug('Will forward this record: %s', rec)
+
+    msg = AugmentAffiliationResponseRecord(rec)
+    app.forward_message(msg)
+
+
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations(rec):
     try:
@@ -42,13 +50,6 @@ def task_augment_affiliations(rec):
         logger.error("Error augmenting record: %s", rec['bibcode'])
 #       raise BaseException("Error augmenting record %s:"%rec['bibcode'])
 
-
-@app.task(queue='output-record')
-def task_output_augmented_record(rec):
-    logger.debug('Will forward this record: %s', rec)
-
-    msg = AugmentAffiliationResponseRecord(rec)
-    app.forward_message(msg)
 
 @app.task(queue='write-affildata')
 def task_write_canonical_to_db(recs):
