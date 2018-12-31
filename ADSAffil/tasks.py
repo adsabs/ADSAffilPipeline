@@ -34,7 +34,7 @@ unmatched = {}
 @app.task(queue='output-record')
 def task_output_augmented_record(rec):
 
-    msg = AugmentAffiliationResponseRecord(rec)
+    msg = AugmentAffiliationResponseRecord(**rec)
     app.forward_message(msg)
 
 
