@@ -31,7 +31,7 @@ global unmatched
 unmatched = {}
 
 
-#@app.task(queue='output-record')
+@app.task(queue='output-record')
 def task_output_augmented_record(rec):
     logger.debug('Will forward this record: %s', rec)
 
