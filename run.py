@@ -75,6 +75,14 @@ def get_arguments():
                         type=str,
                         help='Curation: Load a list of unmatched strings for the machine learner.  Note: triggers -m.')
 
+    parser.add_argument('-r',
+                        '--records',
+                        dest='records',
+                        action='store',
+                        nargs='?',
+                        type=str,
+                        help='One or more records to be processed')
+
     args=parser.parse_args()
     return args
 
@@ -141,22 +149,23 @@ def main():
 # Get records to Augment:
 # args.filename is the JSON file containing Solr records to augment.
     records = []
-    if args.filename:
-        if os.path.isfile(args.filename):
-            try:
-                with open(args.filename,'rU') as fp:
-                    jdata = json.load(fp)
-                    records = jdata['response']['docs']
-            except:
-                logger.error("Failed to read JSON file of records to augment. Stopping.")
-                raise BaseException("Error reading input JSON file.")
-        else:
-            logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
-            raise BaseException("The JSON file with the given filename doesn't exist.")
-    else:
+    if args.records:
+# code that receives records to augment here....
         print "I would get messages from master pipeline here...."
         pass
-# code that receives messages from MP here....
+    else:
+        if args.filename:
+            if os.path.isfile(args.filename):
+                try:
+                    with open(args.filename,'rU') as fp:
+                        jdata = json.load(fp)
+                        records = jdata['response']['docs']
+                except:
+                    logger.error("Failed to read JSON file of records to augment. Stopping.")
+                    raise BaseException("Error reading input JSON file.")
+            else:
+                logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
+                raise BaseException("The JSON file with the given filename doesn't exist.")
 
 
 

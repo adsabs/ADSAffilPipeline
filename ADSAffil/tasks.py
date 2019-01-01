@@ -3,8 +3,6 @@ from kombu import Queue
 import os
 import config
 
-import pandas as pd
-
 from ADSAffil import app as app_module
 from ADSAffil.curate import parent_child_facet as pcf
 from ADSAffil.curate import affil_strings as af
