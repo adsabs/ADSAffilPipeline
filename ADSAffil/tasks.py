@@ -9,8 +9,7 @@ from ADSAffil.curate import affil_strings as af
 from ADSAffil.models import *
 from ADSAffil.learningmodel import affil_match as lm
 from ADSAffil.learningmodel import make_learner as mkl
-#from adsmsg import BibRecord, DenormalizedRecord
-from adsmsg import AugmentAffiliationResponseRecord
+from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationResponseRecord
 
 import ADSAffil.utils as utils
 import json
@@ -20,13 +19,9 @@ app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(o
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
     Queue('output-record', app.exchange, routing_key='output-record') 
-#   Queue('read-affildata', app.exchange, routing_key='read-affildata'),
-#   Queue('write-affildata', app.exchange, routing_key='write-affildata')
 )
 logger = app.logger
 
-global unmatched
-unmatched = {}
 
 
 @app.task(queue='output-record')
@@ -39,7 +34,7 @@ def task_output_augmented_record(rec):
 def task_augment_affiliations_json(rec):
     try:
         u = app.augment_affiliations(rec)
-        unmatched.update(u)
+        task_output_unmatched(u)
         task_output_augmented_record(rec)
     except:
         logger.error("Error augmenting record: %s", rec['bibcode'])
@@ -48,12 +43,11 @@ def task_augment_affiliations_json(rec):
 def task_augment_affiliations_proto(rec):
     try:
         jrec = rec.toJSON(including_default_value_fields=True)
-        logger.info("Here's your jrec: %s",jrec)
+        logger.warning("Here's your jrec: %s",jrec)
         task_augment_affiliations_json(jrec)
     except:
         logger.error("Error augmenting protobuf record: %s", jrec['bibcode'])
 
-#@app.task(queue='write-affildata')
 def task_write_canonical_to_db(recs):
     if len(recs) > 0:
         try:
@@ -62,7 +56,6 @@ def task_write_canonical_to_db(recs):
             raise BaseException("Could not write canonical to db")
 
 
-#@app.task(queue='write-affildata')
 def task_write_affilstrings_to_db(recs):
     if len(recs) > 0:
         try:
@@ -71,7 +64,6 @@ def task_write_affilstrings_to_db(recs):
             raise BaseException("Could not write affilstrings to db")
 
 
-#@app.task(queue='read-affildata')
 def task_read_canonical_from_db():
     try:
         dictionary = app.read_canonical_from_db()
@@ -81,7 +73,6 @@ def task_read_canonical_from_db():
         return dictionary
 
 
-#@app.task(queue='read-affildata')
 def task_read_affilstrings_from_db():
     try:
         dictionary = app.read_affilstrings_from_db()
@@ -106,11 +97,10 @@ def task_resolve_unmatched(stringdict,learningdict):
             logger.error("Machine learning matching failed.  No output.")
 
 
-def task_output_unmatched(unmatched_strings):
+def task_output_unmatched(unmatched_string):
     try:
-        if len(unmatched_strings) > 0:
+        if len(unmatched_string) > 0:
             with open(config.UNMATCHED_FILE,'a') as fo:
-                for l in unmatched_strings:
-                    fo.write(l+"\n")
+                fo.write(unmatched_string+"\n")
     except:
         logger.error("Failed to write unmatched strings to file.  No output.")
