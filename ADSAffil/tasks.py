@@ -19,9 +19,9 @@ app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(o
 
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
-    Queue('output-record', app.exchange, routing_key='output-record'),
-    Queue('read-affildata', app.exchange, routing_key='read-affildata'),
-    Queue('write-affildata', app.exchange, routing_key='write-affildata')
+    Queue('output-record', app.exchange, routing_key='output-record') 
+#   Queue('read-affildata', app.exchange, routing_key='read-affildata'),
+#   Queue('write-affildata', app.exchange, routing_key='write-affildata')
 )
 logger = app.logger
 
