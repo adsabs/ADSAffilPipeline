@@ -8,6 +8,7 @@ from ADSAffil import utils
 from ADSAffil.curate import affil_strings as af
 from ADSAffil.curate import parent_child_facet as pcf
 from ADSAffil.models import *
+from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationRequestRecordList
 from adsputils import setup_logging, get_date
 
 global logger, unmatched
@@ -150,9 +151,23 @@ def main():
 # args.filename is the JSON file containing Solr records to augment.
     records = []
     if args.records:
+        r = AugmentAffiliationRecordRequestList.toJSON(args.records)
+        print "type(r),r from cmd line are: %s,%s"%(type(r),r)
+        quit()
+
+
 # code that receives records to augment here....
+
+
+
         print "I would get messages from master pipeline here...."
         pass
+
+
+
+
+
+
     else:
         if args.filename:
             if os.path.isfile(args.filename):
