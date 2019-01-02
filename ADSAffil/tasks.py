@@ -48,6 +48,7 @@ def task_augment_affiliations_json(rec):
 def task_augment_affiliations_proto(rec):
     try:
         jrec = rec.toJSON(including_default_value_fields=True)
+        logger.info("Here's your jrec: %s",jrec)
         task_augment_affiliations_json(jrec)
     except:
         logger.error("Error augmenting protobuf record: %s", jrec['bibcode'])
