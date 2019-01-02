@@ -151,23 +151,8 @@ def main():
 # args.filename is the JSON file containing Solr records to augment.
     records = []
     if args.records:
-        r = AugmentAffiliationRecordRequestList.toJSON(args.records)
-        print "type(r),r from cmd line are: %s,%s"%(type(r),r)
-        quit()
-
-
-# code that receives records to augment here....
-
-
-
-        print "I would get messages from master pipeline here...."
-        pass
-
-
-
-
-
-
+        rec = json.loads(args.records)
+        records.append(rec)
     else:
         if args.filename:
             if os.path.isfile(args.filename):
