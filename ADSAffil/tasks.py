@@ -98,10 +98,10 @@ def task_resolve_unmatched(stringdict,learningdict):
 
 
 def task_output_unmatched(unmatched_string):
-    if unmatched_string is not null:
         try:
             if len(unmatched_string) > 0:
                 with open(config.UNMATCHED_FILE,'a') as fo:
-                    fo.write(unmatched_string+"\n")
+                    for l in unmatched_string.keys():
+                        fo.write(l+"\n")
         except:
             logger.error("Failed to write unmatched strings to file.  No output.")
