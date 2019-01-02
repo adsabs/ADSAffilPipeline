@@ -150,22 +150,18 @@ def main():
 # Get records to Augment:
 # args.filename is the JSON file containing Solr records to augment.
     records = []
-    if args.records:
-        rec = json.loads(args.records)
-        records.append(rec)
-    else:
-        if args.filename:
-            if os.path.isfile(args.filename):
-                try:
-                    with open(args.filename,'rU') as fp:
-                        jdata = json.load(fp)
-                        records = jdata['response']['docs']
-                except:
-                    logger.error("Failed to read JSON file of records to augment. Stopping.")
-                    raise BaseException("Error reading input JSON file.")
-            else:
-                logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
-                raise BaseException("The JSON file with the given filename doesn't exist.")
+    if args.filename:
+        if os.path.isfile(args.filename):
+            try:
+                with open(args.filename,'rU') as fp:
+                    jdata = json.load(fp)
+                    records = jdata['response']['docs']
+            except:
+                logger.error("Failed to read JSON file of records to augment. Stopping.")
+                raise BaseException("Error reading input JSON file.")
+        else:
+            logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
+            raise BaseException("The JSON file with the given filename doesn't exist.")
 
 
 
@@ -176,7 +172,7 @@ def main():
                 
         logger.info("Starting augments")
         for rec in records:
-            tasks.task_augment_affiliations.delay(rec)
+            tasks.task_augment_affiliations_json(rec)
         logger.info("Finished augments")
             
 

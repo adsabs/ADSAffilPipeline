@@ -36,8 +36,7 @@ def task_output_augmented_record(rec):
     app.forward_message(msg)
 
 
-@app.task(queue='augment-affiliation')
-def task_augment_affiliations(rec):
+def task_augment_affiliations_json(rec):
     try:
         u = app.augment_affiliations(rec)
         unmatched.update(u)
@@ -45,8 +44,15 @@ def task_augment_affiliations(rec):
     except:
         logger.error("Error augmenting record: %s", rec['bibcode'])
 
+@app.task(queue='augment-affiliation')
+def task_augment_affiliations_proto(rec):
+    try:
+        jrec = rec.toJSON(including_default_value_fields=True)
+        task_augment_affiliations_json(jrec)
+    except:
+        logger.error("Error augmenting protobuf record: %s", jrec['bibcode'])
 
-@app.task(queue='write-affildata')
+#@app.task(queue='write-affildata')
 def task_write_canonical_to_db(recs):
     if len(recs) > 0:
         try:
@@ -55,7 +61,7 @@ def task_write_canonical_to_db(recs):
             raise BaseException("Could not write canonical to db")
 
 
-@app.task(queue='write-affildata')
+#@app.task(queue='write-affildata')
 def task_write_affilstrings_to_db(recs):
     if len(recs) > 0:
         try:
@@ -64,7 +70,7 @@ def task_write_affilstrings_to_db(recs):
             raise BaseException("Could not write affilstrings to db")
 
 
-@app.task(queue='read-affildata')
+#@app.task(queue='read-affildata')
 def task_read_canonical_from_db():
     try:
         dictionary = app.read_canonical_from_db()
@@ -74,7 +80,7 @@ def task_read_canonical_from_db():
         return dictionary
 
 
-@app.task(queue='read-affildata')
+#@app.task(queue='read-affildata')
 def task_read_affilstrings_from_db():
     try:
         dictionary = app.read_affilstrings_from_db()
