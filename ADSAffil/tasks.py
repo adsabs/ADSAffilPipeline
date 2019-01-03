@@ -37,8 +37,12 @@ def task_augment_affiliations_json(rec):
             u = app.augment_affiliations(rec)
             task_output_unmatched(u)
             task_output_augmented_record(rec)
+        else:
+            logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
+            pass
     except:
         logger.warning("Could not augment record: %s", rec['bibcode'])
+
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_proto(rec):
@@ -47,7 +51,8 @@ def task_augment_affiliations_proto(rec):
         logger.warning("Here's your jrec: %s",jrec)
         task_augment_affiliations_json(jrec)
     except:
-        logger.error("Error augmenting protobuf record: %s", jrec['bibcode'])
+        logger.warning("Error augmenting protobuf record.")
+
 
 def task_write_canonical_to_db(recs):
     if len(recs) > 0:
