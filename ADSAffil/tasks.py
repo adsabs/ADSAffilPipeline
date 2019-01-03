@@ -31,6 +31,7 @@ def task_output_augmented_record(rec):
     app.forward_message(msg)
 
 
+@app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
     try:
         if 'aff' in rec:
@@ -44,7 +45,6 @@ def task_augment_affiliations_json(rec):
         logger.warning("Could not augment record: %s", rec['bibcode'])
 
 
-@app.task(queue='augment-affiliation')
 def task_augment_affiliations_proto(rec):
     try:
         jrec = rec.toJSON(including_default_value_fields=True)
