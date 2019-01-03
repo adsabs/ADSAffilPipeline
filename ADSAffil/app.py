@@ -72,7 +72,7 @@ class ADSAffilCelery(ADSCelery):
                                 unmatched[v] = u"0"
                 if not isinstance(cl,basestring):
                     cl = u'; '.join(cl)
-                id_list.append(idl)
+                id_list.append("; ".join(idl))
                 can_list.append(cl)
             else:
                 (aid,can,fac) = augmenter(s)
