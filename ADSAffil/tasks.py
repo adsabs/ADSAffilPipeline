@@ -33,11 +33,12 @@ def task_output_augmented_record(rec):
 
 def task_augment_affiliations_json(rec):
     try:
-        u = app.augment_affiliations(rec)
-        task_output_unmatched(u)
-        task_output_augmented_record(rec)
+        if 'aff' in rec:
+            u = app.augment_affiliations(rec)
+            task_output_unmatched(u)
+            task_output_augmented_record(rec)
     except:
-        logger.error("Error augmenting record: %s", rec['bibcode'])
+        logger.warning("Could not augment record: %s", rec['bibcode'])
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_proto(rec):
