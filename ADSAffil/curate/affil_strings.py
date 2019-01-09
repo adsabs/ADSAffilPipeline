@@ -31,6 +31,17 @@ def load_simple(filename):
 #
 #   return records
 
+def convert_strings(records):
+    recs_converted = []
+    maxlen = 50000 
+    while len(records) > 0:
+        block1 = records[0:maxlen]
+        block2 = records[maxlen:]
+        records = block2
+        input_block = "<p>".join(block1)
+        recs_converted.extend(utils.back_convert_entities(input_block))
+    return recs_converted
+
 def dump_affil_pickle(aff_dict,filename):
     if len(aff_dict.keys())>0:
         try:

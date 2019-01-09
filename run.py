@@ -67,8 +67,14 @@ def get_arguments():
                         action='store_true',
                         help='Send unmatched strings to the machine learner')
 
+    parser.add_argument('-cf',
+                        '--load-configs',
+                        dest='configfiles_load',
+                        action='store_true',
+                        help='Load from config files, not postgres db.')
+
     parser.add_argument('-lu',
-                        '-load-unmatched',
+                        '--load-unmatched',
                         dest='unmatched',
                         action='store',
                         nargs='?',
@@ -94,39 +100,31 @@ def main():
 
     args = get_arguments()
 
+    if args.configfiles_load:
+        canon_dict = pcf.load_simple(config.PC_INFILE)
+        aff_list = af.load_simple(config.AFFDICT_INFILE)
+        aff_list = af.convert_strings(aff_list)
+        aff_dict = {}
+        for l in aff_list:
+            (k,v) = l.strip().split('\t')
+            aff_dict[v] = k
+#       del args.load_canonical_pc_facet
+#       del args.load_affil_strings
+
 # OPTIONAL
 # load the dictionary of canonical pc facet info
     if args.load_canonical_pc_facet:
-        try:
-            recs = pcf.load_simple(args.load_canonical_pc_facet)
-        except:
-            raise BaseException("Could not load affiliation string dictionary from file.")
-        else:
-            if len(recs) > 0:
-                logger.info('Inserting {0} canonical affiliations'.format(len(recs)))
-                tasks.task_write_canonical_to_db(recs)
+        if len(canon_dict) > 0:
+                logger.info('Inserting {0} canonical affiliations into db'.format(len(canon_dict)))
+                tasks.task_write_canonical_to_db(canon_dict)
+            
 
 # OPTIONAL
 # load the dictionary of string - affil_id matches
     if args.load_affil_strings:
-        try:
-            recs = af.load_simple(args.load_affil_strings)
-            recs_converted = []
-            maxlen = 50000
-            while len(recs) > 0:
-                block1 = recs[0:maxlen]
-                block2 = recs[maxlen:]
-                recs = block2
-                input_block = "<p>".join(block1)
-                recs_converted.extend(utils.back_convert_entities(input_block))
-            recs = recs_converted
-
-
-        except:
-            raise BaseException("Could not load affiliation string dictionary from file.")
-        if len(recs) > 0:
-            logger.info('Inserting {0} IDed affiliation strings'.format(len(recs)))
-            tasks.task_write_affilstrings_to_db(recs)
+        if len(aff_dict) > 0:
+            logger.info('Inserting {0} IDed affiliation strings'.format(len(aff_dict)))
+            tasks.task_write_affilstrings_to_db(aff_dict)
 
 
 # OPTIONAL
@@ -176,43 +174,27 @@ def main():
         logger.info("Finished augments")
             
 
-#testing: print output records
-# you need to add code to send these to MP instead....
-#       if len(records) > 0:
-#            with open(config.DIRECT_RECORDS,'w') as fo:
-#                dout = {}
-#                dout["docs"] = records
-#                json.dump(dout,fo, sort_keys=True, indent=4)
-
         if args.unmatched:
             try:
                 with open(args.unmatched,'rU') as fi:
                     for l in fi.readlines():
                         unmatched[l.strip()] = u"0"
             except:
-                logger.error("Failed to read unmatched strings from file.  No input.")
+                logger.error("Failed to read unmatched strings from file {0}".format(args.unmatched))
             else:
                 args.resolve = True
 
         if len(unmatched) > 0:
             if args.resolve:
-                try:
-                    aff_dict = tasks.task_db_readall_affstrings()
-                except:
-                    logger.error("Failed to load aff_dict from postgres, stopping.")
-                    raise BaseException("Could not load aff_dict from db.")
-
-                try:
+#               try:
                     lmod = tasks.task_make_learning_model(aff_dict)
-                except:
-                    logger.error("Failed to create learning model, stopping.")
-                    raise BaseException("Could not make learning model.")
+#               except:
+#                   logger.error("Failed to create learning model, stopping.")
 
-                try:
+#               try:
                     tasks.task_resolve_unmatched(unmatched.keys(), lmod)
-                except:
-                    logger.error("Problem using learning model, failed.")
-                    raise BaseException("Machine learning model failed.")
+#               except:
+#                   logger.error("Problem using learning model, failed.")
             else:
                 try:
                     output = unmatched.keys()

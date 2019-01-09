@@ -1,0 +1,4 @@
+5972	University of Delaware UD Newark DE
+14671	Cal State Northridge California CSU Northridge California State University Northridge CSUN CSUN Northridge Cal State CSU Northridge
+61814	Harvard-Smithsonian Center for Astrophysics CfA Harvard University Cambridge Massachusetts
+242727	Steward Observatory University of Arizona Steward Tucson Cherry UA AZ Obs Steward Obsv Arizona Tucson University Arizona 85721
