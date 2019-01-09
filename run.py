@@ -122,9 +122,9 @@ def main():
 # OPTIONAL
 # load the dictionary of string - affil_id matches
     if args.load_affil_strings:
-        if len(aff_dict) > 0:
-            logger.info('Inserting {0} IDed affiliation strings'.format(len(aff_dict)))
-            tasks.task_write_affilstrings_to_db(aff_dict)
+        if len(aff_list) > 0:
+            logger.info('Inserting {0} IDed affiliation strings'.format(len(aff_list)))
+            tasks.task_write_affilstrings_to_db(aff_list)
 
 
 # OPTIONAL
