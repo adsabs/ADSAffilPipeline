@@ -1,0 +1,44 @@
+A01400	Center for Astrophysics, 60 Garden St., MS 65, Cambridge, MA 02138, USA
+A01400	HEA-CFA MS 3 60 Garden St Cambridge MA 02138
+A01400	Harvard Simthsonian Center Astrophys Camden Str Cambridge MA
+A01400	Harvard Smithsonian Center Astrophys / INAF OAR
+A01400	Harvard Smithsonian Center Astrophys Cambridge Massachusetts USA School Engineering Appl Sciences Harvard Univ Oxford St Cambridge Massachusetts
+A01400	Harvard Smithsonian Center Astrophysics Cambridge Mass
+A01400	Harvard Smithsonian Center for Astrophysics 60 Garden St Cambdridge 02138 MA USA
+A01400	Harvard Smithsonian Center for Astrophysics 60 Garden Street (MS 10) Cambridge MA 02138
+A01400	Harvard Smithsonian Center for Astrophysics 60 Garden Street MA 02140 Cambridge USA
+A01400	Harvard Smithsonian Center for Astrophysics 60 Garden Street MS51 Cambridge Massachusetts 02138 USA
+A01400	Harvard Smithsonian Center for Astrophysics Cambridge MA 02138 USA
+A01400	Harvard Smithsonian Center for Astrophysics MS 18 60 Garden St Cambridge MA 02138 USA
+A01400	Harvard Smithsonian Center for Astrophysics Optical and Infrared Division M/S 20 60 Garden St Cambridge MA 02138 USA
+A01400	Harvard Smithsonian Center for Astrophysics, 60 Garden street, Cambridge, MA, 02138
+A01400	Harvard Smithsonian CfA 60 Garden St Cambridge MA 02138 United States
+A01400	Harvard Smithsonian Ctr for Astrophysics 60 Garden St Cambridge MA 02138 USA
+A01400	Harvard University Center for Astrophysics
+A01400	Harvard--Smithsonian Center for Astrophysics 60 Garden St MS65 Cambridge MA 02138 USA
+A01400	Harvard-Smithsonian Cen
+A01400	Harvard-Smithsonian Center for Astrophysics (CfA - SAO), 60 Garden Street, Cambridge, MA 02138, USA
+A00976	Center for Applied Coastal Research Department of Civil and Environmental Engineering University of Delaware Newark Delaware USA
+A00976	Coll Marine Earth Studies Univ Delaware Cannon Marine Studies Lab Lewes
+A00976	Coll Marine Studies Univ Delaware Pilottown Rd Lewes
+A00976	College of Marine Studies University of Delaware Lewes Delaware USA
+A00976	College of Marine Studies, University of Delaware, Newark, DE 19716 (U.S.A.)
+A00976	Delaware Asteroseismology Research Center
+A00976	Department of Chemical Engineering University of Delaware
+A00976	Department of Geography, University of Delaware, Newark, DE 19716, USA
+A00976	Department of Materials Science and Engineering, 201 Dupont Hall, University of Delaware, Newark, DE 19716, USA
+A00976	Dept Biological Sciences Univ Delaware Newark
+A00976	Dept Chem Biomolecular Engineering Univ Delaware Newark
+A00976	Dept Geology Univ Delaware Newark Delaware
+A00976	Disaster Research Center Univ Delaware Newark DE
+A00976	Geology Department University of Delaware Newark Delaware 19711 USA
+A00976	Mt. Cuba Observatory
+A00976	School of Marine Science and Policy University of Delaware 700 Pilottown Road Lewes DE 19958 United States
+A00976	UNIVERSITY OF DELAWARE
+A00976	Univ. of Delaware (United States)
+A00976	University of Delaware, 700 Pilottown Road, Lewes, DE 19958, USA
+A00976	University of Delaware, Newark, Delaware, USA
+A99999	University of Nothing In Particular
+A99999	Department of Semisemiotics, UNIP
+A99999	Vice provost, U. Nothing-In-Part.
+A99999	Univ NIP

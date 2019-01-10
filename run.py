@@ -101,22 +101,18 @@ def main():
     args = get_arguments()
 
     if args.configfiles_load:
-        canon_dict = pcf.load_simple(config.PC_INFILE)
-        aff_list = af.load_simple(config.AFFDICT_INFILE)
-        aff_list = af.convert_strings(aff_list)
-        aff_dict = {}
-        for l in aff_list:
-            (k,v) = l.strip().split('\t')
-            aff_dict[v] = k
-#       del args.load_canonical_pc_facet
-#       del args.load_affil_strings
+        try:
+            (aff_list,aff_dict,canon_list) = tasks.task_load_dicts_from_file(config.PC_INFILE,config.AFFDICT_INFILE)
+        except:
+            logger.error('Could not read affil data from files.')
+            raise BaseException('Could not read affil data from files.')
 
 # OPTIONAL
 # load the dictionary of canonical pc facet info
     if args.load_canonical_pc_facet:
-        if len(canon_dict) > 0:
-                logger.info('Inserting {0} canonical affiliations into db'.format(len(canon_dict)))
-                tasks.task_write_canonical_to_db(canon_dict)
+        if len(canon_list) > 0:
+                logger.info('Inserting {0} canonical affiliations into db'.format(len(canon_list)))
+                tasks.task_write_canonical_to_db(canon_list)
             
 
 # OPTIONAL
@@ -130,17 +126,9 @@ def main():
 # OPTIONAL
 # pickle the dictionary of affil strings pulled from the database
     if args.pickle_filename:
-        aff_dict = tasks.task_read_affilstrings_from_db()
         ad_pickle = {}
         try:
-            for k,v in aff_dict.items():
-                knew = utils.normalize_string(k)
-                ad_pickle[knew] = v
-        except:
-            logger.error("Could not read Affil strings from postgres. Stopping.")
-            raise BaseException("Error reading Affil strings from db.")
-        try:
-            af.dump_affil_pickle(ad_pickle,args.pickle_filename)
+            tasks.task_make_pickle_file(aff_dict,args.pickle_filename)
         except:
             logger.error("Could not write pickle file. Stopping.")
             raise BaseException("Error writing pickle file.")

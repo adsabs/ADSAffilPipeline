@@ -89,6 +89,33 @@ def task_read_affilstrings_from_db():
         return dictionary
 
 
+def task_make_pickle_file(aff_dict,pickle_file):
+    ad_pickle = {}
+    try:
+        for k,v in aff_dict.items():
+            knew = utils.normalize_string(k)
+            ad_pickle[knew] = v
+    except:
+        logger.error("Error creating pickle dictionary.")
+        raise BaseException("Error creating pickle dictionary.")
+    try:
+        af.dump_affil_pickle(ad_pickle,pickle_file)
+    except:
+        logger.error("Could not write pickle file. Stopping.")
+        raise BaseException("Error writing pickle file.")
+
+
+def task_load_dicts_from_file(canon_file,aff_file):
+    canon_dict = pcf.load_simple(canon_file)
+    aff_list = af.load_simple(aff_file)
+    aff_list = af.convert_strings(aff_list)
+    aff_dict = {}
+    for l in aff_list:
+        (k,v) = l.strip().split('\t')
+        aff_dict[v] = k
+    return aff_list,aff_dict,canon_dict
+
+
 def task_make_learning_model(aff_dict):
     learningmodel = mkl.make_learner(aff_dict)
     return learningmodel
