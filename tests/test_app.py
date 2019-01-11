@@ -7,18 +7,21 @@ from pandas.util.testing import assert_frame_equal
 import json
 from mock import patch
 import mock, copy
-from .config_tests import *
+import config_tests as config
+
+(aff_list,aff_dict,canon_list) = app.tasks.task_load_dicts_from_file(config.PC_INFILE,config.AFFDICT_INFILE)
+
+unmatched = app.tasks.task_read_unmatched_file(config.UNMATCHED_FILE)
 
 class TestLoadData(unittest.TestCase):
 
     def test_affil_data_io(self):
-        (aff_list,aff_dict,canon_list) = app.tasks.task_load_dicts_from_file(PC_INFILE,AFFDICT_INFILE)
         self.assertEqual(type(aff_list),list)
         self.assertEqual(len(aff_list),44)
         self.assertEqual(type(aff_dict),dict)
         self.assertEqual(type(canon_list),list)
         app.tasks.task_make_pickle_file(aff_dict,'tests/outputdata/test.pickle')
-        self.assertTrue(filecmp.cmp(PICKLE_FILE,'tests/outputdata/test.pickle'))
+        self.assertTrue(filecmp.cmp(config.PICKLE_FILE,'tests/outputdata/test.pickle'))
 
 
 #this won't work as is, see Import_Pipeline's test_tasks for setup of celery worker
@@ -61,4 +64,7 @@ class TestDirectMatch(unittest.TestCase):
 
 class TestMachineLearning(unittest.TestCase):
 
-
+    def test_machine_learner(self):
+        lmod = app.tasks.task_make_learning_model(aff_dict)
+        app.tasks.task_resolve_unmatched(unmatched.keys(), lmod)
+        self.assertTrue(filecmp.cmp(config.OUTPUT_FILE,'output/ml.out'))

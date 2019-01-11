@@ -130,6 +130,15 @@ def task_resolve_unmatched(stringdict,learningdict):
         if e != "":
             logger.error("Machine learning matching failed.  No output.")
 
+def task_read_unmatched_file(unmatched_file):
+    unmatched = {}
+    try:
+        with open(unmatched_file,'rU') as fi:
+            for l in fi.readlines():
+                unmatched[l.strip()] = u"0"
+    except:
+        logger.error("Failed to read unmatched strings from file {0}".format(args.unmatched))
+    return unmatched
 
 def task_output_unmatched(unmatched_string):
         try:

@@ -163,26 +163,20 @@ def main():
             
 
         if args.unmatched:
-            try:
-                with open(args.unmatched,'rU') as fi:
-                    for l in fi.readlines():
-                        unmatched[l.strip()] = u"0"
-            except:
-                logger.error("Failed to read unmatched strings from file {0}".format(args.unmatched))
-            else:
-                args.resolve = True
+            tasks.task_read_unmatched_file(config.UNMATCHED_FILE)
+            args.resolve = True
 
         if len(unmatched) > 0:
             if args.resolve:
-#               try:
+                try:
                     lmod = tasks.task_make_learning_model(aff_dict)
-#               except:
-#                   logger.error("Failed to create learning model, stopping.")
+                except:
+                    logger.error("Failed to create learning model, stopping.")
 
-#               try:
+                try:
                     tasks.task_resolve_unmatched(unmatched.keys(), lmod)
-#               except:
-#                   logger.error("Problem using learning model, failed.")
+                except:
+                    logger.error("Problem using learning model, failed.")
             else:
                 try:
                     output = unmatched.keys()
