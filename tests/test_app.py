@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import unittest
 import filecmp
 import run as app
@@ -8,6 +9,7 @@ import json
 from mock import patch
 import mock, copy
 import config_tests as config
+from ADSAffil.models import *
 
 (aff_list,aff_dict,canon_list) = app.tasks.task_load_dicts_from_file(config.PC_INFILE,config.AFFDICT_INFILE)
 
@@ -15,11 +17,20 @@ unmatched = app.tasks.task_read_unmatched_file(config.UNMATCHED_FILE)
 
 class TestLoadData(unittest.TestCase):
 
-    def test_affil_data_io(self):
+    def test_aff_list_io(self):
         self.assertEqual(type(aff_list),list)
         self.assertEqual(len(aff_list),44)
+
+    def test_aff_list_dict(self):
         self.assertEqual(type(aff_dict),dict)
+        self.assertEqual(len(aff_dict.keys()),44)
+        self.assertEqual(len(aff_dict.values()),44)
+        self.assertEqual(len(set(aff_dict.values())),3)
+
+    def test_canon_list_io(self):
         self.assertEqual(type(canon_list),list)
+
+    def test_make_pickle_file(self):
         app.tasks.task_make_pickle_file(aff_dict,'tests/outputdata/test.pickle')
         self.assertTrue(filecmp.cmp(config.PICKLE_FILE,'tests/outputdata/test.pickle'))
 
@@ -45,12 +56,12 @@ class TestDirectMatch(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUp(self)
         self.proj_home = os.path.join(os.path.dirname(__file__), '../..')
-        self._app = tasks.app
-        self.app = app_module.ADSAffilCelery('test',local_config={
+        self._app = app.tasks.app_module
+        self.app = app.tasks.app_module.ADSAffilCelery('test',local_config={
             'SQLALCHEMY_URL': 'sqlite:///',
             'SQLALCHEMY_ECHO': False
             })
-        tasks.app = self.app # monkey-patch the app object
+        app.tasks.app = self.app # monkey-patch the app object
         Base.metadata.bind = self.app._session.get_bind()
         Base.metadata.create_all()
 
@@ -59,7 +70,11 @@ class TestDirectMatch(unittest.TestCase):
         unittest.TestCase.tearDown(self)
         Base.metadata.drop_all()
         self.app.close_app()
-        tasks.app = self._app
+        app.tasks.app_module = self._app
+
+    def test_direct_matching(self):
+        with patch('ADSAffil.tasks.task_augment_affiliations_json', return_value=None) as next_task:
+            self.assertFalse(next_task.called) 
 
 
 class TestMachineLearning(unittest.TestCase):
