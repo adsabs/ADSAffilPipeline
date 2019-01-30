@@ -158,29 +158,28 @@ def main():
 
     args = get_arguments()
 
+    canon_list=[]
+    aff_list=[]
     if args.configfiles_load:
         try:
             (aff_list,aff_dict,canon_list) = tasks.task_load_dicts_from_file(config.PC_INFILE,config.AFFDICT_INFILE)
         except:
             logger.error('Could not read affil data from files.')
             raise BaseException('Could not read affil data from files.')
-
-# OPTIONAL
-# load the dictionary of canonical pc facet info
-    if args.load_canonical_pc_facet:
-        if len(canon_list) > 0:
-                logger.info('Inserting {0} canonical affiliations into db'.format(len(canon_list)))
-                write_canonical_to_db(canon_list)
-            
-
-# OPTIONAL
-# load the dictionary of string - affil_id matches
-    if args.load_affil_strings:
-        if len(aff_list) > 0:
-            logger.info('Inserting {0} IDed affiliation strings'.format(len(aff_list)))
-            write_affilstrings_to_db(aff_list)
-
-
+        else:
+            # OPTIONAL
+            # load the dictionary of canonical pc facet info
+            if args.load_canonical_pc_facet:
+                if len(canon_list) > 0:
+                        logger.info('Inserting {0} canonical affiliations into db'.format(len(canon_list)))
+                        write_canonical_to_db(canon_list)
+            # OPTIONAL
+            # load the dictionary of string - affil_id matches
+            if args.load_affil_strings:
+                if len(aff_list) > 0:
+                    logger.info('Inserting {0} IDed affiliation strings'.format(len(aff_list)))
+                    write_affilstrings_to_db(aff_list)
+      
 # OPTIONAL
 # pickle the dictionary of affil strings pulled from the database
     if args.pickle_filename:
@@ -216,13 +215,13 @@ def main():
     else:
 
 # load aff_dict and canon_dict here:
-#       aff_dict = utils.load_affil_dict(config.PICKLE_FILE)
-        aff_dict = read_affilstrings_from_db()
-        canon_dict = read_canonical_from_db()
+        aff_dict = utils.load_affil_dict(config.PICKLE_FILE)
+#       aff_dict = read_affilstrings_from_db()
+#       canon_dict = read_canonical_from_db()
                 
         logger.info("Starting augments")
         for rec in records:
-            tasks.task_augment_affiliations_json.delay(rec)
+            tasks.task_augment_affiliations_json.delay(rec,aff_dict,canon_dict)
         logger.info("Finished augments")
             
 

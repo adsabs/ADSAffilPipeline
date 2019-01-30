@@ -15,7 +15,7 @@ import json
 #except:
 #    print "Matching disabled, no matching data available"
 
-def augmenter(afstring):
+def augmenter(afstring, adict, cdict):
 #   logging.captureWarnings(True)
     m_id = utils.affil_id_match(afstring,adict)
     try:
@@ -43,9 +43,7 @@ def augmenter(afstring):
 
 
 class ADSAffilCelery(ADSCelery):
-    def augment_affiliations(self, rec):
-        global cdict
-        cdict = self.read_canonical_from_db()
+    def augment_affiliations(self, rec, adict, cdict):
         bibc = rec["bibcode"]
         aff = rec["aff"]
         id_list = []
@@ -62,7 +60,7 @@ class ADSAffilCelery(ADSCelery):
                 for v in t:
                     if v.strip() != '':
                         v = utils.reencode_string(utils.back_convert_entities(v)[0])
-                        (aid,can,fac) = augmenter(v)
+                        (aid,can,fac) = augmenter(v,adict,cdict)
                         idl.append(aid)
                         cl.append(can)
                         if fac:
@@ -75,7 +73,7 @@ class ADSAffilCelery(ADSCelery):
                 id_list.append(u'; '.join(idl))
                 can_list.append(cl)
             else:
-                (aid,can,fac) = augmenter(s)
+                (aid,can,fac) = augmenter(s,adict,cdict)
                 id_list.append(aid)
                 can_list.append(can)
                 if fac:

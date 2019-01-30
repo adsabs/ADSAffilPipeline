@@ -32,10 +32,10 @@ def task_output_augmented_record(rec):
 
 
 @app.task(queue='augment-affiliation')
-def task_augment_affiliations_json(rec):
+def task_augment_affiliations_json(rec,aff_dict,canon_dict):
     try:
         if 'aff' in rec:
-            u = app.augment_affiliations(rec)
+            u = app.augment_affiliations(rec,aff_dict,canon_dict)
             task_output_unmatched(u)
             task_output_augmented_record(rec)
         else:
@@ -106,14 +106,14 @@ def task_make_pickle_file(aff_dict,pickle_file):
 
 
 def task_load_dicts_from_file(canon_file,aff_file):
-    canon_dict = pcf.load_simple(canon_file)
+    canon_list = pcf.load_simple(canon_file)
     aff_list = af.load_simple(aff_file)
     aff_list = af.convert_strings(aff_list)
     aff_dict = {}
     for l in aff_list:
         (k,v) = l.strip().split('\t')
         aff_dict[v] = k
-    return aff_list,aff_dict,canon_dict
+    return aff_list,aff_dict,canon_list
 
 
 def task_make_learning_model(aff_dict):
