@@ -5,16 +5,15 @@ in order to initialize the database and get a working configuration.
 
 from __future__ import absolute_import, unicode_literals
 from .models import CanonicalAffil, AffStrings
-from sqlalchemy.orm import load_only as _load_only
 from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 import json
 
-global adict
-try:
-    adict = utils.load_affil_dict()
-except:
-    print "Matching disabled, no matching data available"
+#global adict
+#try:
+#    adict = utils.load_affil_dict(config.PICKLE_FILE)
+#except:
+#    print "Matching disabled, no matching data available"
 
 def augmenter(afstring):
 #   logging.captureWarnings(True)
@@ -41,6 +40,7 @@ def augmenter(afstring):
                 afh.append(fbase)
                 afh.append(fchild)
         return (abbrev,canon,afh)
+
 
 class ADSAffilCelery(ADSCelery):
     def augment_affiliations(self, rec):
@@ -112,58 +112,3 @@ class ADSAffilCelery(ADSCelery):
         rec["aff_canonical"] = can_list
         rec["aff_facet_hier"] = aff_facet_hier
         return unmatched
-
-
-    def read_canonical_from_db(self):
-        dictionary = {}
-        with self.session_scope() as session:
-            for record in session.query(CanonicalAffil.aff_id,CanonicalAffil.canonical_name,CanonicalAffil.facet_name,CanonicalAffil.parents_list,CanonicalAffil.children_list):
-                pj = json.loads(record.parents_list)
-                cj = json.loads(record.children_list)
-                (p,c) = pj['parents'],cj['children']
-                dictionary[record.aff_id] = {'canonical_name':record.canonical_name,'facet_name':record.facet_name,'parents':p,'children':c}
-        return dictionary
-
-
-    def read_affilstrings_from_db(self):
-        with self.session_scope() as session:
-            dictionary = {}
-            for record in session.query(AffStrings.aff_id,AffStrings.aff_string).order_by(AffStrings.aff_id):
-                s = record.aff_string
-                a = record.aff_id
-                if s in dictionary:
-                    if dictionary[s] != a:
-                        pass
-#                       logger.info("Not overwriting existing key pair {0}: {1} with {2}".format(s,dictionary[s],a))
-                else:
-                    dictionary[s] = a
-            return dictionary
-
-
-    def write_canonical_to_db(self, recs):
-        with self.session_scope() as session:
-            outrecs = []
-            for r in recs:
-                outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
-            session.bulk_save_objects(outrecs)
-            session.commit()
-
-
-    def write_affilstrings_to_db(self, recs):
-        maxlen = 50000
-        with self.session_scope() as session:
-            while len(recs) > 0:
-                outrecs = recs[0:maxlen]
-                remainder = recs[maxlen:]
-                recs = remainder
-                db_outrec = []
-                for r in outrecs:
-                    try:
-                        (affid,affstring)=r.split('\t')
-                    except:
-                        pass
-                    else:
-                        db_outrec.append(AffStrings(aff_id=affid,aff_string=affstring,orig_pub=False,orig_ml=False,orig_ads=True,ml_score=0,ml_version=0))
-                session.bulk_save_objects(db_outrec)
-                session.commit()
-

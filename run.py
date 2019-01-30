@@ -11,9 +11,66 @@ from ADSAffil.models import *
 from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationRequestRecordList
 from adsputils import setup_logging, get_date
 
-global logger, unmatched
+app = tasks.app
 logger = setup_logging('run.py')
-unmatched = {}
+
+
+# Database access
+def read_canonical_from_db():
+    dictionary = {}
+    with app.session_scope() as session:
+        for record in session.query(CanonicalAffil.aff_id,CanonicalAffil.canonical_name,CanonicalAffil.facet_name,CanonicalAffil.parents_list,CanonicalAffil.children_list):
+            pj = json.loads(record.parents_list)
+            cj = json.loads(record.children_list)
+            (p,c) = pj['parents'],cj['children']
+            dictionary[record.aff_id] = {'canonical_name':record.canonical_name,'facet_name':record.facet_name,'parents':p,'children':c}
+    return dictionary
+
+
+def read_affilstrings_from_db():
+    with app.session_scope() as session:
+        dictionary = {}
+        for record in session.query(AffStrings.aff_id,AffStrings.aff_string).order_by(AffStrings.aff_id):
+            s = record.aff_string
+            a = record.aff_id
+            if s in dictionary:
+                if dictionary[s] != a:
+                    pass
+#                   logger.info("Not overwriting existing key pair {0}: {1} with {2}".format(s,dictionary[s],a))
+            else:
+                dictionary[s] = a
+        return dictionary
+
+
+def write_canonical_to_db(recs):
+    with app.session_scope() as session:
+        outrecs = []
+        for r in recs:
+            outrecs.append(CanonicalAffil(aff_id=r[0],canonical_name=r[1],facet_name=r[2],parents_list=r[3],children_list=r[4]))
+        session.bulk_save_objects(outrecs)
+        session.commit()
+
+
+def write_affilstrings_to_db(self, recs):
+    maxlen = 50000
+    with app.session_scope() as session:
+        while len(recs) > 0:
+            outrecs = recs[0:maxlen]
+            remainder = recs[maxlen:]
+            recs = remainder
+            db_outrec = []
+            for r in outrecs:
+                try:
+                    (affid,affstring)=r.split('\t')
+                except:
+                    pass
+                else:
+                    db_outrec.append(AffStrings(aff_id=affid,aff_string=affstring,orig_pub=False,orig_ml=False,orig_ads=True,ml_score=0,ml_version=0))
+            session.bulk_save_objects(db_outrec)
+            session.commit()
+
+
+
 
 def get_arguments():
 
@@ -94,6 +151,7 @@ def get_arguments():
     return args
 
 
+
 def main():
 
     logging.captureWarnings(True)
@@ -112,7 +170,7 @@ def main():
     if args.load_canonical_pc_facet:
         if len(canon_list) > 0:
                 logger.info('Inserting {0} canonical affiliations into db'.format(len(canon_list)))
-                tasks.task_write_canonical_to_db(canon_list)
+                write_canonical_to_db(canon_list)
             
 
 # OPTIONAL
@@ -120,12 +178,13 @@ def main():
     if args.load_affil_strings:
         if len(aff_list) > 0:
             logger.info('Inserting {0} IDed affiliation strings'.format(len(aff_list)))
-            tasks.task_write_affilstrings_to_db(aff_list)
+            write_affilstrings_to_db(aff_list)
 
 
 # OPTIONAL
 # pickle the dictionary of affil strings pulled from the database
     if args.pickle_filename:
+        aff_dict = read_affilstrings_from_db()
         ad_pickle = {}
         try:
             tasks.task_make_pickle_file(aff_dict,args.pickle_filename)
@@ -155,6 +214,11 @@ def main():
     if len(records) == 0 and not args.unmatched:
         logger.warn("No records to process, stopping now.")
     else:
+
+# load aff_dict and canon_dict here:
+#       aff_dict = utils.load_affil_dict(config.PICKLE_FILE)
+        aff_dict = read_affilstrings_from_db()
+        canon_dict = read_canonical_from_db()
                 
         logger.info("Starting augments")
         for rec in records:
@@ -162,8 +226,9 @@ def main():
         logger.info("Finished augments")
             
 
+        unmatched = {}
         if args.unmatched:
-            tasks.task_read_unmatched_file(config.UNMATCHED_FILE)
+            unmatched = tasks.task_read_unmatched_file(args.unmatched)
             args.resolve = True
 
         if len(unmatched) > 0:

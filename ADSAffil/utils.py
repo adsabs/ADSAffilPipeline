@@ -75,11 +75,11 @@ def affil_id_match(aff_str,aff_lib):
 
 # FILE HANDLING
 
-def load_affil_dict():
-    try:
-        dictionary = pickle.load(open(config.PICKLE_FILE,'rb'))
-    except:
-        raise BaseException("Failed to load pickle file.")
-    else:
+def load_affil_dict(picklefile):
+#   try:
+        dictionary = pickle.load(open(picklefile,'rb'))
+#   except:
+#       raise BaseException("Failed to load pickle file.")
+#   else:
         return dictionary
 

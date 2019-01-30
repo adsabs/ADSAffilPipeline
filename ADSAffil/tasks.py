@@ -132,12 +132,12 @@ def task_resolve_unmatched(stringdict,learningdict):
 
 def task_read_unmatched_file(unmatched_file):
     unmatched = {}
-    try:
-        with open(unmatched_file,'rU') as fi:
-            for l in fi.readlines():
-                unmatched[l.strip()] = u"0"
-    except:
-        logger.error("Failed to read unmatched strings from file {0}".format(args.unmatched))
+#   try:
+    with open(unmatched_file,'rU') as fi:
+        for l in fi.readlines():
+            unmatched[l.strip()] = u"0"
+#   except:
+#       logger.error("Failed to read unmatched strings from file {0}".format(unmatched_file))
     return unmatched
 
 def task_output_unmatched(unmatched_string):
