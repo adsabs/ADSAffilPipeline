@@ -217,7 +217,7 @@ def main():
 # load aff_dict and canon_dict here:
         aff_dict = utils.load_affil_dict(config.PICKLE_FILE)
 #       aff_dict = read_affilstrings_from_db()
-#       canon_dict = read_canonical_from_db()
+        canon_dict = read_canonical_from_db()
                 
         logger.info("Starting augments")
         for rec in records:
