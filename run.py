@@ -51,7 +51,7 @@ def write_canonical_to_db(recs):
         session.commit()
 
 
-def write_affilstrings_to_db(self, recs):
+def write_affilstrings_to_db(recs):
     maxlen = 50000
     with app.session_scope() as session:
         while len(recs) > 0:
