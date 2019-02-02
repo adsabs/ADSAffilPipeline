@@ -1,6 +1,4 @@
 git+https://github.com/adsabs/ADSPipelineUtils.git@v1.0.10
-alembic==0.9.1
-cachetools==1.1.5
 librabbitmq==1.6.1
 psycopg2==2.7.1
 numpy==1.14.0

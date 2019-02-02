@@ -4,23 +4,19 @@ in order to initialize the database and get a working configuration.
 """
 
 from __future__ import absolute_import, unicode_literals
-from .models import CanonicalAffil, AffStrings
 from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 import json
+import config
 
-#global adict
-#try:
-#    adict = utils.load_affil_dict(config.PICKLE_FILE)
-#except:
-#    print "Matching disabled, no matching data available"
+global adict,cdict
+(adict,cdict) = utils.read_pickle(config.PICKLE_FILE)
 
-def augmenter(afstring, adict, cdict):
-#   logging.captureWarnings(True)
+
+def augmenter(afstring):
     m_id = utils.affil_id_match(afstring,adict)
     try:
         facet = cdict[m_id]['facet_name']
-        abbrev = facet
         pids = cdict[m_id]['parents']
         canon = cdict[m_id]['canonical_name']
     except:
@@ -30,20 +26,28 @@ def augmenter(afstring, adict, cdict):
         if pids[0] == u"-":
             fbase = u"0/"+facet
             fchild = u"1/"+facet+u"/"+facet
+            abbrev = facet+u"/"+facet
             afh.append(fbase)
             afh.append(fchild)
         else:
+            abbrev_list = []
             for x in pids:
                 fp = cdict[x]['facet_name']
                 fbase = u"0/"+fp
                 fchild = u"1/"+fp+u"/"+facet
+                abbrev = fp+u"/"+facet
+                abbrev_list.append(abbrev)
                 afh.append(fbase)
                 afh.append(fchild)
+            abbrev = "; ".join(abbrev_list)
         return (abbrev,canon,afh)
 
 
 class ADSAffilCelery(ADSCelery):
-    def augment_affiliations(self, rec, adict, cdict):
+#   def __init__(self):
+#       self.adict = {}
+
+    def augment_affiliations(self, rec):
         bibc = rec["bibcode"]
         aff = rec["aff"]
         id_list = []
@@ -60,7 +64,7 @@ class ADSAffilCelery(ADSCelery):
                 for v in t:
                     if v.strip() != '':
                         v = utils.reencode_string(utils.back_convert_entities(v)[0])
-                        (aid,can,fac) = augmenter(v,adict,cdict)
+                        (aid,can,fac) = augmenter(v)
                         idl.append(aid)
                         cl.append(can)
                         if fac:
@@ -73,7 +77,7 @@ class ADSAffilCelery(ADSCelery):
                 id_list.append(u'; '.join(idl))
                 can_list.append(cl)
             else:
-                (aid,can,fac) = augmenter(s,adict,cdict)
+                (aid,can,fac) = augmenter(s)
                 id_list.append(aid)
                 can_list.append(can)
                 if fac:

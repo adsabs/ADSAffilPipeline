@@ -7,8 +7,8 @@ LOGGING_LEVEL = 'DEBUG'
 # serves as a running log of claims and storage of author-related
 # information). It is not consumed by others (ie. we 'push' results)
 # SQLALCHEMY_URL = 'postgres://docker:docker@localhost:5432/docker'
-SQLALCHEMY_URL = 'postgres://user:password@localhost:15432/augment_pipeline'
-SQLALCHEMY_ECHO = False
+#SQLALCHEMY_URL = 'postgres://user:password@localhost:15432/augment_pipeline'
+#SQLALCHEMY_ECHO = False
 
 
 # Celery related configuration
@@ -36,8 +36,8 @@ OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 
 
 # Affiliation configuration files
-PC_INFILE = '/proj/ads_abstracts/config/affils/parent_child.new'
 AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/Affils_v1.0.0'
+PC_INFILE = '/proj/ads_abstracts/config/affils/parent_child.new'
 PICKLE_FILE = 'data/aff.pickle'
 OUTPUT_FILE = 'output/ml.out'
 UNMATCHED_FILE = 'output/unmatched.out'
