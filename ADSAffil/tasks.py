@@ -21,17 +21,14 @@ logger = app.logger
 def task_output_augmented_record(rec):
 
     msg = AugmentAffiliationResponseRecord(**rec)
-#   app.forward_message(msg)
-    print "lol msg: %s"%msg
+    app.forward_message(msg)
 
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
-    print "lol rec:%s"%rec['aff']
     try:
         if 'aff' in rec:
             u = app.augment_affiliations(rec)
-            print "lol u:%s"%u
             task_output_unmatched(u)
             task_output_augmented_record(rec)
         else:

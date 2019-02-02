@@ -10,7 +10,10 @@ import json
 import config
 
 global adict,cdict
-(adict,cdict) = utils.read_pickle(config.PICKLE_FILE)
+try:
+    (adict,cdict) = utils.read_pickle(config.PICKLE_FILE)
+except:
+    print "No pickle file, unable to do direct matching.\nYou should only ever see this if you're creating a pickle\nfile for the first time with 'run.py -lf -mp'"
 
 
 def augmenter(afstring):
