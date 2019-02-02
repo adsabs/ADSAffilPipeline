@@ -79,9 +79,9 @@ def main():
     if args.debug:
         jdata = json.loads(debug_record)
     elif args.input_json_file:
-        if os.path.isfile(args.filename):
+        if os.path.isfile(args.input_json_file):
             try:
-                with open(args.filename,'rU') as fp:
+                with open(args.input_json_file,'rU') as fp:
                     jdata = json.load(fp)
             except:
                 logger.error("Failed to read JSON file of records to augment. Stopping.")
