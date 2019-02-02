@@ -43,7 +43,7 @@ def augmenter(afstring):
                 afh.append(fbase)
                 afh.append(fchild)
             abbrev = "; ".join(abbrev_list)
-        return (abbrev,canon,afh)
+        return (abbrev,canon,afh,m_id)
 
 
 class ADSAffilCelery(ADSCelery):
@@ -54,6 +54,7 @@ class ADSAffilCelery(ADSCelery):
         bibc = rec["bibcode"]
         aff = rec["aff"]
         id_list = []
+        idc_list = []
         can_list = []
         aff_facet_hier = []
         facet = []
@@ -63,12 +64,14 @@ class ADSAffilCelery(ADSCelery):
             if ';' in s:
                 t = s.split(';')
                 idl = []
+                idcl = []
                 cl = []
                 for v in t:
                     if v.strip() != '':
                         v = utils.reencode_string(utils.back_convert_entities(v)[0])
-                        (aid,can,fac) = augmenter(v)
+                        (aid,can,fac,idcode) = augmenter(v)
                         idl.append(aid)
+                        idcl.append(idcode)
                         cl.append(can)
                         if fac:
                             facet.append(fac)
@@ -78,10 +81,12 @@ class ADSAffilCelery(ADSCelery):
                 if not isinstance(cl,basestring):
                     cl = u'; '.join(cl)
                 id_list.append(u'; '.join(idl))
+                idc_list.append(u'; '.join(idcl))
                 can_list.append(cl)
             else:
-                (aid,can,fac) = augmenter(s)
+                (aid,can,fac,idcode) = augmenter(s)
                 id_list.append(aid)
+                idc_list.append(idcode)
                 can_list.append(can)
                 if fac:
                     facet.append(fac)
@@ -114,6 +119,7 @@ class ADSAffilCelery(ADSCelery):
     
 #       rec["aff_abbrev"] = aff_facet_hier
         rec["aff_abbrev"] = id_list
+        rec["aff_id"] = idc_list
         rec["aff_canonical"] = can_list
         rec["aff_facet_hier"] = aff_facet_hier
         return unmatched
