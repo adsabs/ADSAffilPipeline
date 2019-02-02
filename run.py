@@ -96,8 +96,7 @@ def main():
     else:
         logger.info("Starting augments....")
         for rec in records:
-#           tasks.task_augment_affiliations_json.delay(rec)
-            tasks.task_augment_affiliations_json(rec)
+            tasks.task_augment_affiliations_json.delay(rec)
         logger.info("Finished augments")
 
 
