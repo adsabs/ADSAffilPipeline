@@ -18,6 +18,7 @@ except:
 
 def augmenter(afstring):
     m_id = utils.affil_id_match(afstring,adict)
+    print "LOLOLOL: %s"%m_id
     try:
         facet = cdict[m_id]['facet_name']
         pids = cdict[m_id]['parents']
