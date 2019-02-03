@@ -69,12 +69,8 @@ def main():
         aff_dict = utils.read_affils_file(config.AFFDICT_INFILE)
         canon_dict = utils.read_pcfacet_file(config.PC_INFILE)
         if args.makepickle:
-            aff_dict_norm = {}
-            for (k,v) in aff_dict.items():
-                kn = utils.normalize_string(k)
-                aff_dict_norm[kn] = v
+            aff_dict_norm = utils.normalize_dict(aff_dict)
             utils.dump_pickle(config.PICKLE_FILE,[aff_dict_norm,canon_dict])
-
 
     if args.debug:
         jdata = json.loads(debug_record)

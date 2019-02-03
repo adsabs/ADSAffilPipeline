@@ -1,13 +1,4 @@
+	A01397	SI	Smithsonian Institution
 	A00211	Harvard U	Harvard University, Massachusetts
 A00211	A01400	CfA	Harvard Smithsonian Center for Astrophysics
-A00211	A11034	HCO	Harvard College Observatory
-A00211	A11035	Ctr Ear Plan Phy	Harvard University Center for Earth and Planetary Physics
-A00211	A11036	Dep Ast	Harvard University, Department of Astronomy
-	A01397	SI	Smithsonian Institution
-A01397	A01398	MNH	National Museum of Natural History
-A01397	A01399	Air Sp Mus	Smithsonian Institution Air and Space Museum
-A01397	A11032	SAO	Smithsonian Astrophysical Observatory
-A01397	A11033	Whipple Obs Mt Hopkins	Whipple Observatory, Mt Hopkins
 A01397	A01400	CfA	Harvard Smithsonian Center for Astrophysics
-	A00976	U Delaware	University of Delaware
-A00976	A00977	Bartol Res Inst	University of Delaware, Bartol Research Institute

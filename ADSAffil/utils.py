@@ -59,6 +59,13 @@ def normalize_string(s):
         pass
     return unicode(s)
 
+def normalize_dict(d):
+    d_norm = {}
+    for (k,v) in d.items():
+        kn = normalize_string(k)
+        d_norm[kn] = v
+    return d_norm
+
 
 def convert_strings(records):
     recs_converted = []

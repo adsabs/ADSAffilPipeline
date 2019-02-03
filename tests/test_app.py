@@ -3,104 +3,87 @@
 import os
 import unittest
 import filecmp
-import run as app
-from pandas.util.testing import assert_frame_equal
+import run as appx
 import json
-from mock import patch
-import mock, copy
+import copy
 import config_tests as config
-from ADSAffil.models import *
-
-(aff_list,aff_dict,canon_list) = app.tasks.task_load_dicts_from_file(config.PC_INFILE,config.AFFDICT_INFILE)
-
-unmatched = app.tasks.task_read_unmatched_file(config.UNMATCHED_FILE)
-
-class TestLoadData(unittest.TestCase):
-
-    def test_aff_list_io(self):
-        self.assertEqual(type(aff_list),list)
-        self.assertEqual(len(aff_list),44)
-
-    def test_aff_list_dict(self):
-        self.assertEqual(type(aff_dict),dict)
-        self.assertEqual(len(aff_dict.keys()),44)
-        self.assertEqual(len(aff_dict.values()),44)
-        self.assertEqual(len(set(aff_dict.values())),3)
-
-    def test_canon_list_io(self):
-        self.assertEqual(type(canon_list),list)
-
-    def test_make_pickle_file(self):
-        app.tasks.task_make_pickle_file(aff_dict,'tests/outputdata/test.pickle')
-        self.assertTrue(filecmp.cmp(config.PICKLE_FILE,'tests/outputdata/test.pickle'))
-
-
-class TestDirectMatch(unittest.TestCase):
-
-    def setUp(self):
-        unittest.TestCase.setUp(self)
-        self.proj_home = os.path.join(os.path.dirname(__file__), '../..')
-        self._app = app.tasks.app_module
-        self.app = app.tasks.app_module.ADSAffilCelery('test',local_config={
-            'SQLALCHEMY_URL': 'sqlite:///',
-            'SQLALCHEMY_ECHO': False
-            })
-        app.tasks.app = self.app # monkey-patch the app object
-        Base.metadata.bind = self.app._session.get_bind()
-        Base.metadata.create_all()
-
-
-    def tearDown(self):
-        unittest.TestCase.tearDown(self)
-        Base.metadata.drop_all()
-        self.app.close_app()
-        app.tasks.app_module = self._app
-
-    def test_direct_matching(self):
-        with patch('ADSAffil.tasks.task_augment_affiliations_json', return_value=None) as next_task:
-#           global adict
-#           adict = app.utils.load_affil_dict(config.PICKLE_FILE)
-            self.assertFalse(next_task.called) 
-#           in_rec1 = {"bibcode":u"2109zyxwv......12X", "aff":u"Harvard-Smithsonian Center for Astrophysics"}
-#           out_rec1 = self.app.augment_affiliations(in_rec1)
-#           self.assertEqual(in_rec1,out_rec1)
-
-
-class TestMachineLearning(unittest.TestCase):
-
-    def test_machine_learner(self):
-        lmod = app.tasks.task_make_learning_model(aff_dict)
-        app.tasks.task_resolve_unmatched(unmatched.keys(), lmod)
-        self.assertTrue(filecmp.cmp(config.OUTPUT_FILE,'output/ml.out'))
 
 
 
 
+class TestThingerdoo(unittest.TestCase):
+
+    def test_args(self):
+        args = appx.get_arguments()
+        attribs = args.__dict__
+        self.assertTrue(len(attribs.keys())==5)
+        arglist = [u'debug',u'loadfiles',u'makepickle',u'loadpickle',u'input_json_file']
+        for k,v in attribs.items():
+            self.assertTrue(k in arglist)
+            self.assertFalse(v)
+
+    def test_load(self):
+        aff_dict = appx.utils.read_affils_file(config.AFFDICT_INFILE)
+        canon_dict = appx.utils.read_pcfacet_file(config.PC_INFILE)
+        self.assertIsInstance(aff_dict,dict)
+        self.assertIsInstance(canon_dict,dict)
+        aff_dict_norm = appx.utils.normalize_dict(aff_dict)
+        appx.utils.dump_pickle(config.PICKLE_OUTFILE,[aff_dict_norm,canon_dict])
+        self.assertTrue(filecmp.cmp(config.PICKLE_FILE,config.PICKLE_OUTFILE))
+        (aout,cout) = appx.utils.read_pickle(config.PICKLE_OUTFILE)
+        self.assertEqual(aout,aff_dict_norm)
+        self.assertEqual(cout,canon_dict)
+
+# simple test of matching
+    def test_utils(self):
+        (aout,cout) = appx.utils.read_pickle(config.PICKLE_OUTFILE)
+        test_strings = [u'CfA', u'Smithsonian Institution', u'School of hard knocks', u'gibberishjkaghdsfkjygasdf']
+        test_ids = [u'A01400',u'A01397',u'0',u'0']
+        for s,i in zip(test_strings,test_ids):
+            ix = appx.utils.affil_id_match(s,aout)
+            self.assertEqual(i,ix)
+
+    def test_app(self):
+        testapp = appx.app
+        testapp.load_dicts(config.PICKLE_OUTFILE)
+# record 0: no affil data at all
+        rec = {'bibcode':'rec0','aff':[]}
+        recx = copy.deepcopy(rec)
+        u = testapp.augment_affiliations(rec)
+        self.assertEqual(rec['bibcode'],recx['bibcode'])
+        self.assertNotEqual(rec.keys(),recx.keys())
+# record 1: unmatched affil
+        rec = {'bibcode':'rec1','aff':['test1']}
+        recx = copy.deepcopy(rec)
+        u = testapp.augment_affiliations(rec)
+        self.assertEqual(rec['bibcode'],recx['bibcode'])
+        self.assertEqual(rec[u'aff_canonical'],[u'-'])
+# record 2: one author: two affils, one unmatched
+        rec = {'bibcode':'rec1','aff':['test1; CfA']}
+        recx = copy.deepcopy(rec)
+        u = testapp.augment_affiliations(rec)
+        self.assertEqual(rec['bibcode'],recx['bibcode'])
+        self.assertEqual(rec[u'aff_canonical'],[u'-; Harvard Smithsonian Center for Astrophysics'])
+# record 3: one author: two affils, both unmatched
+        rec = {'bibcode':'rec1','aff':['test1; test2']}
+        recx = copy.deepcopy(rec)
+        u = testapp.augment_affiliations(rec)
+        self.assertEqual(rec['bibcode'],recx['bibcode'])
+        self.assertEqual(rec[u'aff_canonical'],[u'-; -'])
+# record 4: two authors: one unmatched affil each
+        rec = {'bibcode':'rec1','aff':['test1','test2']}
+        recx = copy.deepcopy(rec)
+        u = testapp.augment_affiliations(rec)
+        self.assertEqual(rec['bibcode'],recx['bibcode'])
+        self.assertEqual(rec[u'aff_canonical'],[u'-',u'-'])
+# record 4: two authors: one matched affil each
+        rec = {'bibcode':'rec1','aff':['Harvard University, Cambridge, MA 02138 USA','CfA']}
+        recx = copy.deepcopy(rec)
+        u = testapp.augment_affiliations(rec)
+        self.assertEqual(rec['bibcode'],recx['bibcode'])
+        self.assertEqual(rec[u'aff_canonical'],[u'Harvard University, Massachusetts',u'Harvard Smithsonian Center for Astrophysics'])
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#       aff_dict = utils.read_affils_file(config.AFFDICT_INFILE)
+#       canon_dict = utils.read_pcfacet_file(config.PC_INFILE)

@@ -7,16 +7,16 @@ from __future__ import absolute_import, unicode_literals
 from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 import json
-import config
 
-global adict,cdict
-try:
-    (adict,cdict) = utils.read_pickle(config.PICKLE_FILE)
-except:
-    print "No pickle file, unable to do direct matching.\nYou should only ever see this if you're creating a pickle\nfile for the first time with 'run.py -lf -mp'"
+#
+#global adict,cdict
+#try:
+#    (adict,cdict) = utils.read_pickle(config.PICKLE_FILE)
+#except:
+#    print "No pickle file, unable to do direct matching.\nYou should only ever see this if you're creating a pickle\nfile for the first time with 'run.py -lf -mp'"
+#
 
-
-def augmenter(afstring):
+def augmenter(afstring,adict,cdict):
     m_id = utils.affil_id_match(afstring,adict)
     try:
         facet = cdict[m_id]['facet_name']
@@ -47,8 +47,11 @@ def augmenter(afstring):
 
 
 class ADSAffilCelery(ADSCelery):
-#   def __init__(self):
-#       self.adict = {}
+    def load_dicts(self,picklefile):
+        try:
+            (self.adict,self.cdict) = utils.read_pickle(picklefile)
+        except:
+            print "No pickle file, unable to do direct matching.\nYou should only ever see this if you're creating a pickle\nfile for the first time with 'run.py -lf -mp'"
 
     def augment_affiliations(self, rec):
         bibc = rec["bibcode"]
@@ -69,7 +72,7 @@ class ADSAffilCelery(ADSCelery):
                 for v in t:
                     if v.strip() != '':
                         v = utils.reencode_string(utils.back_convert_entities(v)[0])
-                        (aid,can,fac,idcode) = augmenter(v)
+                        (aid,can,fac,idcode) = augmenter(v,self.adict,self.cdict)
                         idl.append(aid)
                         idcl.append(idcode)
                         cl.append(can)
@@ -84,7 +87,7 @@ class ADSAffilCelery(ADSCelery):
                 idc_list.append(u'; '.join(idcl))
                 can_list.append(cl)
             else:
-                (aid,can,fac,idcode) = augmenter(s)
+                (aid,can,fac,idcode) = augmenter(s,self.adict,self.cdict)
                 id_list.append(aid)
                 idc_list.append(idcode)
                 can_list.append(can)
