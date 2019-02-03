@@ -91,6 +91,7 @@ def main():
         print "No records for direct match."
     else:
         logger.info("Starting augments....")
+        app.load_dicts(config.PICKLE_FILE)
         for rec in records:
             tasks.task_augment_affiliations_json.delay(rec)
         logger.info("Finished augments")
