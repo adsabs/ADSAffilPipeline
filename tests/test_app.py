@@ -44,7 +44,7 @@ class TestThingerdoo(unittest.TestCase):
             self.assertEqual(i,ix)
 
     def test_app(self):
-        testapp = appx.app
+        testapp = appx.tasks.app
         testapp.load_dicts(config.PICKLE_OUTFILE)
 # record 0: no affil data at all
         rec = {'bibcode':'rec0','aff':[]}
@@ -82,8 +82,3 @@ class TestThingerdoo(unittest.TestCase):
         u = testapp.augment_affiliations(rec)
         self.assertEqual(rec['bibcode'],recx['bibcode'])
         self.assertEqual(rec[u'aff_canonical'],[u'Harvard University, Massachusetts',u'Harvard Smithsonian Center for Astrophysics'])
-
-
-
-#       aff_dict = utils.read_affils_file(config.AFFDICT_INFILE)
-#       canon_dict = utils.read_pcfacet_file(config.PC_INFILE)
