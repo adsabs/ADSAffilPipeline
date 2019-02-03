@@ -4,6 +4,7 @@ import os
 import unittest
 import filecmp
 import run as appx
+from mock import patch
 import json
 import copy
 import config_tests as config
@@ -11,7 +12,7 @@ import config_tests as config
 
 
 
-class TestThingerdoo(unittest.TestCase):
+class TestAugment(unittest.TestCase):
 
     def test_args(self):
         args = appx.get_arguments()
@@ -82,3 +83,27 @@ class TestThingerdoo(unittest.TestCase):
         u = testapp.augment_affiliations(rec)
         self.assertEqual(rec['bibcode'],recx['bibcode'])
         self.assertEqual(rec[u'aff_canonical'],[u'Harvard University, Massachusetts',u'Harvard Smithsonian Center for Astrophysics'])
+
+
+class TestTaskPipeline(unittest.TestCase):
+
+    def setUp(self):
+        unittest.TestCase.setUp(self)
+        self.proj_home = os.path.join(os.path.dirname(__file__), '../..')
+        self._app = appx.tasks.app_module
+        self.app = appx.tasks.app_module.ADSAffilCelery('test')
+        appx.tasks.app = self.app
+
+    def tearDown(self):
+        unittest.TestCase.tearDown(self)
+        self.app.close_app()
+        appx.tasks.app_module = self._app
+
+    def test_tasks(self):
+        rec = {'bibcode':'rec1','aff':['Harvard University, Cambridge, MA 02138 USA','CfA']}
+        with patch('ADSAffil.tasks.task_augment_affiliations_json', return_value=None) as next_task:
+            self.assertFalse(next_task.called)
+            appx.tasks.task_augment_affiliations_json(rec)
+            self.assertTrue(next_task.called)
+
+
