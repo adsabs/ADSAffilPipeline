@@ -15,6 +15,8 @@ app.conf.CELERY_QUEUES = (
 )
 logger = app.logger
 
+app.load_dicts(config.PICKLE_FILE)
+
 
 
 @app.task(queue='output-record')

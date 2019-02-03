@@ -9,7 +9,6 @@ import ADSAffil.tasks as tasks
 from adsputils import setup_logging
 
 
-app = tasks.app
 logger = setup_logging('run.py')
 
 debug_record = '{"response":{"docs":[{"bibcode":"2002ApJ...576..963T", "aff":[ "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101"]}]}}'
@@ -91,7 +90,6 @@ def main():
         print "No records for direct match."
     else:
         logger.info("Starting augments....")
-        app.load_dicts(config.PICKLE_FILE)
         for rec in records:
             tasks.task_augment_affiliations_json.delay(rec)
         logger.info("Finished augments")
