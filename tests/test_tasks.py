@@ -32,13 +32,14 @@ class TestTasks(unittest.TestCase):
         a = self.app.cdict['A01400']
         self.assertEqual(a['facet_name'],'CfA')
 
-        rec0 = None
-        with self.assertRaises(BaseException):
-            tasks.task_augment_affiliations_json(rec0)
+#       rec0 = None
+# BaseExceptions causing errors in production....
+#       with self.assertRaises(BaseException):
+#           tasks.task_augment_affiliations_json(rec0)
 
-        rec1 = {'bibcode':'rec1','not_aff':['CfA']}
-        with self.assertRaises(BaseException):
-            tasks.task_augment_affiliations_json(rec1)
+#       rec1 = {'bibcode':'rec1','not_aff':['CfA']}
+#       with self.assertRaises(BaseException):
+#           tasks.task_augment_affiliations_json(rec1)
 
      
 #       rec2 = {'bibcode':'rec2','aff':['CfA']}

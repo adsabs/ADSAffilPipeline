@@ -166,14 +166,14 @@ def dump_pickle(outfile,list_of_dicts):
         if isinstance(list_of_dicts,list):
             for x in list_of_dicts:
                 if not isinstance(x,dict):
-                    raise BaseException("util.dump_pickle: one or more list items is not a dict")
+                    raise Exception("util.dump_pickle: one or more list items is not a dict")
             with open(outfile,'wb') as fp:
                 for x in list_of_dicts:
                     pickle.dump(x,fp,pickle.HIGHEST_PROTOCOL)
         else:
-            raise BaseException("util.dump_pickle: must be given a list of dicts")
-    except BaseException as e:
-        raise BaseException("util.dump_pickle failed: {0}".format(e))
+            raise Exception("util.dump_pickle: must be given a list of dicts")
+    except Exception as e:
+        raise Exception("util.dump_pickle failed: {0}".format(e))
 
 
 
@@ -188,8 +188,8 @@ def read_pickle(infile):
                     yield pickle.load(fp)
                 except EOFError:
                     break
-    except BaseException as e:
-        raise BaseException("util.read_pickle failed: {0}".format(e))
+    except Exception as e:
+        raise Exception("util.read_pickle failed: {0}".format(e))
 
 
 
@@ -201,7 +201,5 @@ def output_unmatched(unmatched_file,unmatched_string):
                     fo.write(l+"\n")
         else:
             pass
-    except:
-#   except Exception as e:
-#       raise BaseException("Error writing unmatched strings to file: {0}".format(e))
-        pass
+    except Exception as e:
+        logger.warn("Error writing unmatched strings to file: %s"%e)
