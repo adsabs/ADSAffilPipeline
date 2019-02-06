@@ -3,49 +3,18 @@
 import os
 import unittest
 import filecmp
-import run as appx
-from mock import patch
 import json
 import copy
 import config_tests as config
+from ADSAffil import tasks
 
 
 
 
-class TestAugment(unittest.TestCase):
-
-    def test_args(self):
-        args = appx.get_arguments()
-        attribs = args.__dict__
-        self.assertTrue(len(attribs.keys())==5)
-        arglist = [u'debug',u'loadfiles',u'makepickle',u'loadpickle',u'input_json_file']
-        for k,v in attribs.items():
-            self.assertTrue(k in arglist)
-            self.assertFalse(v)
-
-    def test_load(self):
-        aff_dict = appx.utils.read_affils_file(config.AFFDICT_INFILE)
-        canon_dict = appx.utils.read_pcfacet_file(config.PC_INFILE)
-        self.assertIsInstance(aff_dict,dict)
-        self.assertIsInstance(canon_dict,dict)
-        aff_dict_norm = appx.utils.normalize_dict(aff_dict)
-        appx.utils.dump_pickle(config.PICKLE_OUTFILE,[aff_dict_norm,canon_dict])
-        self.assertTrue(filecmp.cmp(config.PICKLE_FILE,config.PICKLE_OUTFILE))
-        (aout,cout) = appx.utils.read_pickle(config.PICKLE_OUTFILE)
-        self.assertEqual(aout,aff_dict_norm)
-        self.assertEqual(cout,canon_dict)
-
-# simple test of matching
-    def test_utils(self):
-        (aout,cout) = appx.utils.read_pickle(config.PICKLE_OUTFILE)
-        test_strings = [u'CfA', u'Smithsonian Institution', u'School of hard knocks', u'gibberishjkaghdsfkjygasdf']
-        test_ids = [u'A01400',u'A01397',u'0',u'0']
-        for s,i in zip(test_strings,test_ids):
-            ix = appx.utils.affil_id_match(s,aout)
-            self.assertEqual(i,ix)
+class TestApp(unittest.TestCase):
 
     def test_app(self):
-        testapp = appx.tasks.app
+        testapp = tasks.app
         testapp.load_dicts(config.PICKLE_OUTFILE)
 # record 0: no affil data at all
         rec = {'bibcode':'rec0','aff':[]}
@@ -83,27 +52,3 @@ class TestAugment(unittest.TestCase):
         u = testapp.augment_affiliations(rec)
         self.assertEqual(rec['bibcode'],recx['bibcode'])
         self.assertEqual(rec[u'aff_canonical'],[u'Harvard University, Massachusetts',u'Harvard Smithsonian Center for Astrophysics'])
-
-
-class TestTaskPipeline(unittest.TestCase):
-
-    def setUp(self):
-        unittest.TestCase.setUp(self)
-        self.proj_home = os.path.join(os.path.dirname(__file__), '../..')
-        self._app = appx.tasks.app_module
-        self.app = appx.tasks.app_module.ADSAffilCelery('test')
-        appx.tasks.app = self.app
-
-    def tearDown(self):
-        unittest.TestCase.tearDown(self)
-        self.app.close_app()
-        appx.tasks.app_module = self._app
-
-    def test_tasks(self):
-        rec = {'bibcode':'rec1','aff':['Harvard University, Cambridge, MA 02138 USA','CfA']}
-        with patch('ADSAffil.tasks.task_augment_affiliations_json', return_value=None) as next_task:
-            self.assertFalse(next_task.called)
-            appx.tasks.task_augment_affiliations_json(rec)
-            self.assertTrue(next_task.called)
-
-

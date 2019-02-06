@@ -190,3 +190,16 @@ def read_pickle(infile):
                     break
     except BaseException as e:
         raise BaseException("util.read_pickle failed: {0}".format(e))
+
+
+
+def output_unmatched(unmatched_file,unmatched_string):
+    try:
+        if len(unmatched_string) > 0:
+            with open(unmatched_file,'a') as fo:
+                for l in unmatched_string.keys():
+                    fo.write(l+"\n")
+        else:
+            pass
+    except Exception as e:
+        raise BaseException("Error writing unmatched strings to file: {0}".format(e))

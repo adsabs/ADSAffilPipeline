@@ -31,17 +31,20 @@ def task_augment_affiliations_json(rec):
     try:
         if 'aff' in rec:
             u = app.augment_affiliations(rec)
-            task_output_unmatched(u)
+            utils.output_unmatched(config.UNMATCHED_FILE,u)
             task_output_augmented_record(rec)
         else:
+            raise BaseException("Record does not have affil info.")
             logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
             pass
     except Exception as e:
-        logger.warning("Could not augment record: %s", rec['bibcode'])
-        logger.warning("Exception: %s", e)
+        raise BaseException("PROBLEM: {0}".format(e))
+#       if isinstance(rec,dict) and 'bibcode' in rec:
+#           logger.warning("Could not augment record: %s", rec['bibcode'])
+#       else:
+#           logger.warning("Exception: %s", e)
 
 
-@app.task(queue='augment-affiliation')
 def task_augment_affiliations_proto(rec):
     try:
         jrec = rec.toJSON(including_default_value_fields=True)
@@ -49,13 +52,3 @@ def task_augment_affiliations_proto(rec):
         task_augment_affiliations_json(jrec)
     except:
         logger.warning("Error augmenting protobuf record.")
-
-
-def task_output_unmatched(unmatched_string):
-        try:
-            if len(unmatched_string) > 0:
-                with open(config.UNMATCHED_FILE,'a') as fo:
-                    for l in unmatched_string.keys():
-                        fo.write(l+"\n")
-        except:
-            logger.error("Failed to write unmatched strings to file.  No output.")

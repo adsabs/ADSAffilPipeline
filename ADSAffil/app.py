@@ -8,13 +8,6 @@ from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 import json
 
-#
-#global adict,cdict
-#try:
-#    (adict,cdict) = utils.read_pickle(config.PICKLE_FILE)
-#except:
-#    print "No pickle file, unable to do direct matching.\nYou should only ever see this if you're creating a pickle\nfile for the first time with 'run.py -lf -mp'"
-#
 
 def augmenter(afstring,adict,cdict):
     m_id = utils.affil_id_match(afstring,adict)
