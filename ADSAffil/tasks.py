@@ -40,7 +40,7 @@ def task_augment_affiliations_json(rec):
     except Exception as e:
 #       raise BaseException("PROBLEM: {0}".format(e))
         if isinstance(rec,dict) and 'bibcode' in rec:
-            logger.warning("Could not augment record: %s", rec['bibcode'])
+            logger.warning("Could not augment record: %s\n%s", (rec['bibcode'],e))
         else:
             logger.warning("Exception: %s", e)
 
