@@ -89,7 +89,8 @@ def read_affils_file(filename):
             if len(ll.rstrip().split('\t')) == 2:
                 inputrecords.append(ll.rstrip())
             else:
-                logger.warn("Bad line in {0}: line {1}".format(filename,i))
+                pass
+#               logger.warn("Bad line in %s: line %s",(filename,i))
     inputrecords = convert_strings(inputrecords)
     aff_dict = {}
     for l in inputrecords:
@@ -189,7 +190,7 @@ def read_pickle(infile):
                 except EOFError:
                     break
     except Exception as e:
-        raise Exception("util.read_pickle failed: {0}".format(e))
+        raise Exception("util.read_pickle failed: %s".format(e))
 
 
 
@@ -202,4 +203,4 @@ def output_unmatched(unmatched_file,unmatched_string):
         else:
             pass
     except Exception as e:
-        logger.warn("Error writing unmatched strings to file: %s"%e)
+        logger.warn("Error writing unmatched strings to file: %s",e)

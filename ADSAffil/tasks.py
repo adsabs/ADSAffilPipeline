@@ -34,14 +34,15 @@ def task_augment_affiliations_json(rec):
             utils.output_unmatched(config.UNMATCHED_FILE,u)
             task_output_augmented_record(rec)
         else:
-            logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
+            logger.debug("Record does not have affiliation info: %s",rec['bibcode'])
             pass
     except Exception as e:
 #       logger.warning("Could not augment record: %s",e)
         if isinstance(rec,dict) and 'bibcode' in rec:
-            logger.info("Could not augment record: %s\n%s", (rec['bibcode'],e))
+            logger.info("Could not augment record: %s",rec['bibcode'])
         else:
-            logger.info("Exception: %s", e)
+            pass
+        logger.info("Exception: %s",e)
 
 
 def task_augment_affiliations_proto(rec):
