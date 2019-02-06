@@ -34,7 +34,7 @@ def task_augment_affiliations_json(rec):
             utils.output_unmatched(config.UNMATCHED_FILE,u)
             task_output_augmented_record(rec)
         else:
-            raise BaseException("Record does not have affil info.")
+#           raise BaseException("Record does not have affil info.")
             logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
             pass
     except Exception as e:
