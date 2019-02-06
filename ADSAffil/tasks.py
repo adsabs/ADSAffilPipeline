@@ -38,11 +38,12 @@ def task_augment_affiliations_json(rec):
             logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
             pass
     except Exception as e:
+        logger.warning("Could not augment record: %s",e)
 #       raise BaseException("PROBLEM: {0}".format(e))
-        if isinstance(rec,dict) and 'bibcode' in rec:
-            logger.warning("Could not augment record: %s\n%s", (rec['bibcode'],e))
-        else:
-            logger.warning("Exception: %s", e)
+#       if isinstance(rec,dict) and 'bibcode' in rec:
+#           logger.warning("Could not augment record: %s\n%s", (rec['bibcode'],e))
+#       else:
+#           logger.warning("Exception: %s", e)
 
 
 def task_augment_affiliations_proto(rec):

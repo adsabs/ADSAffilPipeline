@@ -201,5 +201,7 @@ def output_unmatched(unmatched_file,unmatched_string):
                     fo.write(l+"\n")
         else:
             pass
-    except Exception as e:
-        raise BaseException("Error writing unmatched strings to file: {0}".format(e))
+    except:
+#   except Exception as e:
+#       raise BaseException("Error writing unmatched strings to file: {0}".format(e))
+        pass
