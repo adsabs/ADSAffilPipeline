@@ -13,7 +13,7 @@ LOGGING_LEVEL = 'DEBUG'
 
 CELERY_INCLUDE = ['ADSAffil.tasks']
 ACKS_LATE=True
-PREFETCH_MULTIPLIER=1
+PREFETCH_MULTIPLIER=10
 CELERYD_TASK_SOFT_TIME_LIMIT = 300
 
 CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
@@ -25,8 +25,8 @@ OUTPUT_CELERY_BROKER = 'pyamqp://user:password@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 
 # Affiliation configuration files
-AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/Affils_v1.0.0'
-PC_INFILE = '/proj/ads_abstracts/config/affils/parent_child.new'
-PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE_DATA/aff.pickle.v1.0.0'
-UNMATCHED_FILE = '/proj/ads_abstracts/config/affils/PIPELINE_OUTPUT/unmatched.out'
-DIRECT_RECORDS = '/proj/ads_abstracts/config/affils/PIPELINE_OUTPUT/direct.json'
+AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/Affils_v1.0.0'
+PC_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/parent_child.new'
+PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/aff.pickle.v1.0.0'
+UNMATCHED_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/unmatched.out'
+DIRECT_RECORDS = '/proj/ads_abstracts/config/affils/PIPELINE/output/direct.json'
