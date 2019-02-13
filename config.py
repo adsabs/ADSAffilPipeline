@@ -25,8 +25,11 @@ OUTPUT_CELERY_BROKER = 'pyamqp://user:password@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 
 # Affiliation configuration files
-AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/Affils_v1.0.0'
-PC_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/parent_child.new'
-PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/aff.pickle.v1.0.0'
+# Note these filenames are symlinks to the current versions located in
+# ./data/versions/current.vN.N.N
+AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/affil_strings.txt'
+PC_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/parent_child.txt'
+PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/aff.pickle'
+
+# output files.  Note these will be appended to.
 UNMATCHED_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/unmatched.out'
-DIRECT_RECORDS = '/proj/ads_abstracts/config/affils/PIPELINE/output/direct.json'
