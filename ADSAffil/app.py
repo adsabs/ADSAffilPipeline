@@ -8,9 +8,6 @@ from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 import json
 
-class FatalException(Exception):
-    pass
-
 
 def augmenter(afstring, adict, cdict):
     """
@@ -65,21 +62,13 @@ class ADSAffilCelery(ADSCelery):
         # in every ADSAffilCelery object you create
         # It's possible you'll get this when you (a)
         # don't have a pickle file, but (b) you're
-        # about to, which is ok to pass.  But you should
-        # then check within augment_affiliations to see
-        # if you have adict & cdict.  If not raise
-        # FatalException
+        # about to, which is ok to pass.
         try:
             (self.adict, self.cdict) = utils.read_pickle(picklefile)
         except:
             pass
 
     def augment_affiliations(self, rec):
-
-        try:
-            self.adict
-        except Exception as e:
-            raise FatalException("The dictionaries adict and cdict have not been loaded.  Cannot augment.")
 
         # aff = affil record: list of all affil strings 
         #       of all authors in record
