@@ -8,6 +8,9 @@ from ADSAffil import utils
 from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 import json
 
+class FatalException(Exception):
+    pass
+
 
 def augmenter(afstring, adict, cdict):
     """
