@@ -61,11 +61,17 @@ def augmenter(afstring, adict, cdict):
 class ADSAffilCelery(ADSCelery):
 
     def load_dicts(self, picklefile):
-        # You need to initialize adict and cdict
-        # in every ADSAffilCelery object you create
-        # It's possible you'll get this when you (a)
-        # don't have a pickle file, but (b) you're
-        # about to, which is ok to pass.
+        """
+        You need to initialize adict and cdict
+        in every ADSAffilCelery object you create,
+        and this is called from within tasks.py
+        It's possible you'll get here when you (a)
+        don't have a pickle file, but (b) you're
+        about to, which is ok to pass without noting.
+        But if you start augmenting and you don't
+        have adict and cdict loaded, augmenting
+        will fail.
+        """
         try:
             (self.adict, self.cdict) = utils.read_pickle(picklefile)
         except:
@@ -160,11 +166,16 @@ class ADSAffilCelery(ADSCelery):
         else:
             aff_facet_hier = []
 
-#       rec['aff_abbrev'] = aff_facet_hier
+      # keeping this here because it's how records in production as 
+      # of 2/20/2019 are augmented.  Delete the following line once
+      # prod is changed over:
+      # rec['aff_abbrev'] = aff_facet_hier
+
         rec['aff_abbrev'] = abbreviation_list
         rec['aff_id'] = id_code_list
         rec['aff_canonical'] = canonical_list
         rec['aff_facet_hier'] = aff_facet_hier
+
         # the augmenter doesn't return data, but if strings aren't matched,
         # the unmatched strings are returned.
         return unmatched
