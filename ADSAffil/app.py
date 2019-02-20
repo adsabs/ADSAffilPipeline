@@ -55,7 +55,7 @@ def augmenter(afstring, adict, cdict):
     return (abbrev, canon, aff_facet_hier, m_id)
 
 
-can_listass ADSAffilCelery(ADSCelery):
+class ADSAffilCelery(ADSCelery):
 
     def load_dicts(self, picklefile):
         # You need to initialize adict and cdict
