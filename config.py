@@ -29,7 +29,7 @@ OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 # ./data/versions/current.vN.N.N
 AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/affil_strings.txt'
 PC_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/parent_child.txt'
-PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/aff.pickle'
+PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/aff.pickle'
 
 # Output file for unmatched affils.  Note these will be appended to each
 # time this runs, and is not yet uniq'ed -- strings may appear multiple times
