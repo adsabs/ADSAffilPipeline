@@ -10,20 +10,20 @@ import json
 
 
 def augmenter(afstring, adict, cdict):
-"""
-Where string matching happens: if a given string (afstring)
-is present in adict, m_id will be the affiliation id
-assigned to that string.  If it isn't present, m_id will
-be "0" (which has no entry in cdict).
+    """
+    Where string matching happens: if a given string (afstring)
+    is present in adict, m_id will be the affiliation id
+    assigned to that string.  If it isn't present, m_id will
+    be "0" (which has no entry in cdict).
 
-The aff_abbrev and aff_facet_hier fields for each afstring
-are being filled here, in addition to finding the canonical
-values.  If the m_id doesn't have a parent (pids[0]=='-'), then
-the facet heirarchy is "0/affil, 1/affil/affil".  Otherwise
-it's "0/parent, 1/parent/affil"; since an affil can have
-multiple parents (e.g. Harvard and SI for CfA), you need to
-treat them as lists.
-"""
+    The aff_abbrev and aff_facet_hier fields for each afstring
+    are being filled here, in addition to finding the canonical
+    values.  If the m_id doesn't have a parent (pids[0]=='-'), then
+    the facet heirarchy is "0/affil, 1/affil/affil".  Otherwise
+    it's "0/parent, 1/parent/affil"; since an affil can have
+    multiple parents (e.g. Harvard and SI for CfA), you need to
+    treat them as lists.
+    """
     m_id = utils.affil_id_match(afstring, adict)
     try:
         facet = cdict[m_id]['facet_name']
