@@ -9,6 +9,9 @@ from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
 import json
 
 
+class FatalException(Exception):
+    pass
+
 def augmenter(afstring, adict, cdict):
     """
     Where string matching happens: if a given string (afstring)
@@ -69,6 +72,10 @@ class ADSAffilCelery(ADSCelery):
             pass
 
     def augment_affiliations(self, rec):
+        try:
+            self.adict
+        except Exception as e:
+            raise FatalException('adict/cdict not loaded, cannot continue.')
 
         # aff = affil record: list of all affil strings 
         #       of all authors in record
