@@ -12,12 +12,12 @@ LOGGING_LEVEL = 'DEBUG'
 # still be there 
 
 CELERY_INCLUDE = ['ADSAffil.tasks']
-ACKS_LATE=True
-PREFETCH_MULTIPLIER=10
+ACKS_LATE = True
+PREFETCH_MULTIPLIER = 1000
 CELERYD_TASK_SOFT_TIME_LIMIT = 300
 
 CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
-CELERY_DEFAULT_EXCHANGE_TYPE = "topic"
+CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
 
 CELERY_BROKER = 'pyamqp://user:password@localhost:6672/augment_pipeline'
 OUTPUT_CELERY_BROKER = 'pyamqp://user:password@localhost:5682/master_pipeline'
@@ -31,5 +31,7 @@ AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/affil_strings.
 PC_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/parent_child.txt'
 PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/aff.pickle'
 
-# output files.  Note these will be appended to.
+# Output file for unmatched affils.  Note these will be appended to each
+# time this runs, and is not yet uniq'ed -- strings may appear multiple times
+
 UNMATCHED_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/unmatched.out'
