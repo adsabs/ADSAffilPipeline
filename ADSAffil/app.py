@@ -1,5 +1,5 @@
 """
-The main application object (it has to be loaded by any 
+The main application object (it has to be loaded by any
 worker/script) in order to initialize the workers
 """
 
@@ -11,6 +11,7 @@ import json
 
 class FatalException(Exception):
     pass
+
 
 def augmenter(afstring, adict, cdict):
     """
@@ -83,7 +84,7 @@ class ADSAffilCelery(ADSCelery):
         except Exception as e:
             raise FatalException('adict/cdict not loaded, cannot continue.')
 
-        # aff = affil record: list of all affil strings 
+        # aff = affil record: list of all affil strings
         #       of all authors in record
         aff = rec['aff']
 
@@ -118,7 +119,7 @@ class ADSAffilCelery(ADSCelery):
                         if fac:
                             facet.append(fac)
                         else:
-                            if v != u'' and v !=u'-':
+                            if v != u'' and v != u'-':
                                 unmatched[v] = u'0'
 #               if not isinstance(can_list, basestring):
                 can_list = u'; '.join(can_list)
@@ -134,10 +135,10 @@ class ADSAffilCelery(ADSCelery):
                 if fac:
                     facet.append(fac)
                 else:
-                    if s != u'' and s !=u'-':
-                    # if there is a real affstring (that isn't
-                    # blank or "-") AND you can't match it,
-                    # add it to unmatched.
+                    if s != u'' and s != u'-':
+                        # if there is a real affstring (that isn't
+                        # blank or "-") AND you can't match it,
+                        # add it to unmatched.
                         unmatched[s] = u'0'
 
         # now create aff_facet_hier using similar logic,
@@ -154,7 +155,7 @@ class ADSAffilCelery(ADSCelery):
             try:
                 f4 = []
                 for f3 in list(set(f2)):
-                    if isinstance(f3,list):
+                    if isinstance(f3, list):
                         for x in list(f3):
                             f4.append(x)
                     else:
@@ -166,10 +167,10 @@ class ADSAffilCelery(ADSCelery):
         else:
             aff_facet_hier = []
 
-      # keeping this here because it's how records in production as 
-      # of 2/20/2019 are augmented.  Delete the following line once
-      # prod is changed over:
-      # rec['aff_abbrev'] = aff_facet_hier
+        # keeping this here because it's how records in production as
+        # of 2/20/2019 are augmented.  Delete the following line once
+        # prod is changed over:
+        # rec['aff_abbrev'] = aff_facet_hier
 
         rec['aff_abbrev'] = abbreviation_list
         rec['aff_id'] = id_code_list

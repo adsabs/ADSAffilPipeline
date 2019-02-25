@@ -25,26 +25,25 @@ class TestTasks(unittest.TestCase):
         tasks.app_module = self._app
 
     def test_tasks(self):
-#       with patch('ADSAffil.tasks.task_augment_affiliations_json', return_value=None) as augment, patch('ADSAffil.tasks.task_output_augmented_record', return_value=None) as update:
-#       self.assertFalse(augment.called)
-#       self.assertFalse(update.called)
+        # with patch('ADSAffil.tasks.task_augment_affiliations_json', return_value=None) as augment, patch('ADSAffil.tasks.task_output_augmented_record', return_value=None) as update:
+        # self.assertFalse(augment.called)
+        # self.assertFalse(update.called)
         self.app.load_dicts(config.PICKLE_FILE)
         a = self.app.cdict['A01400']
-        self.assertEqual(a['facet_name'],'CfA')
+        self.assertEqual(a['facet_name'], 'CfA')
 
-#       rec0 = None
-# BaseExceptions causing errors in production....
-#       with self.assertRaises(BaseException):
-#           tasks.task_augment_affiliations_json(rec0)
+        # rec0 = None
+        #    # BaseExceptions causing errors in production....
+        # with self.assertRaises(BaseException):
+        #     tasks.task_augment_affiliations_json(rec0)
 
-#       rec1 = {'bibcode':'rec1','not_aff':['CfA']}
-#       with self.assertRaises(BaseException):
-#           tasks.task_augment_affiliations_json(rec1)
+        # rec1 = {'bibcode': 'rec1', 'not_aff': ['CfA']}
+        # with self.assertRaises(BaseException):
+        #     tasks.task_augment_affiliations_json(rec1)
 
-     
-#       rec2 = {'bibcode':'rec2','aff':['CfA']}
-#       tasks.task_augment_affiliations_json(rec2)
-#       self.assertEqual(rec2,'lol')
-#       self.assertTrue(augment.called)
-#           self.assertEqual(rec,{'lol':'butts'})
-#           self.assertTrue(update.called)
+        # rec2 = {'bibcode': 'rec2', 'aff': ['CfA']}
+        # tasks.task_augment_affiliations_json(rec2)
+        # self.assertEqual(rec2, 'lol')
+        # self.assertTrue(augment.called)
+        # self.assertEqual(rec, {'lol': 'wut'})
+        # self.assertTrue(update.called)

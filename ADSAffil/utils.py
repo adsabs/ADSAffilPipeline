@@ -4,12 +4,13 @@ import unidecode
 import warnings
 import json
 import cPickle as pickle
-warnings.filterwarnings('ignore', category = UserWarning, module = 'bs4')
-warnings.filterwarnings('ignore', category = RuntimeWarning, module = 'unidecode')
+warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
+warnings.filterwarnings('ignore', category=RuntimeWarning, module='unidecode')
 
 # STRING NORMALIZING FUNCTIONS
 
 srs = re.compile(r'[-!?.,;:/\\]')
+
 
 def convert_unicode(s):
     try:
@@ -27,6 +28,7 @@ def convert_unicode(s):
         s = lo
     return(s)
 
+
 def back_convert_entities(rec):
     outrec = []
     output_block = bs4.BeautifulSoup(rec, 'lxml').find_all('p')
@@ -38,12 +40,14 @@ def back_convert_entities(rec):
         outrec.append(reencode_string(lo))
     return outrec
 
+
 def reencode_string(s):
     try:
         s = unidecode.unidecode(unicode(s))
     except:
         pass
     return s
+
 
 def normalize_string(s):
     # normalizing consists of
@@ -59,6 +63,7 @@ def normalize_string(s):
     except:
         pass
     return unicode(s)
+
 
 def normalize_dict(d):
     d_norm = {}
@@ -161,8 +166,8 @@ def affil_id_match(aff_str, aff_lib):
 # https://stackoverflow.com/questions/20716812/saving-and-loading-multiple-objects-in-pickle-file
 
 def dump_pickle(outfile, list_of_dicts):
-# outfile is the name of the pickle file you're writing to
-# list_of_dicts is a list containing all of the dicts you're pickling
+    # outfile is the name of the pickle file you're writing to
+    # list_of_dicts is a list containing all of the dicts you're pickling
 
     try:
         if isinstance(list_of_dicts, list):
@@ -179,9 +184,9 @@ def dump_pickle(outfile, list_of_dicts):
 
 
 def read_pickle(infile):
-# infile is the name if the pickle file you're reading from
-# this function returns a GENERATOR whose items are the dictionaries you
-# pickled (e.g. canon_dict, aff_dict)
+    # infile is the name if the pickle file you're reading from
+    # this function returns a GENERATOR whose items are the dictionaries you
+    # pickled (e.g. canon_dict, aff_dict)
     try:
         with open(infile, 'rb') as fp:
             while True:
@@ -191,7 +196,6 @@ def read_pickle(infile):
                     break
     except Exception as e:
         raise Exception("util.read_pickle failed: %s".format(e))
-
 
 
 # FILE OUTPUT: unmatched strings

@@ -23,25 +23,25 @@ def get_arguments():
 
     import argparse
 
-    parser=argparse.ArgumentParser(description='Command line options:')
+    parser = argparse.ArgumentParser(description='Command line options:')
 
     parser.add_argument('-d',
                         '--debug',
-                        dest = 'debug',
-                        action = 'store_true',
-                        help = 'Send debug_record through pipeline')
+                        dest='debug',
+                        action='store_true',
+                        help='Send debug_record through pipeline')
 
     parser.add_argument('-mp',
                         '--makepickle',
-                        dest = 'makepickle',
-                        action = 'store_true',
-                        help = 'Pickle INFILEs')
+                        dest='makepickle',
+                        action='store_true',
+                        help='Pickle INFILEs')
 
     parser.add_argument('-f',
                         '--json_file',
-                        dest = 'input_json_file',
-                        action = 'store',
-                        help = 'Input JSON file of solr records to augment')
+                        dest='input_json_file',
+                        action='store',
+                        help='Input JSON file of solr records to augment')
 
     args = parser.parse_args()
     return args
@@ -56,10 +56,10 @@ def main():
             aff_dict = utils.read_affils_file(config.AFFDICT_INFILE)
             canon_dict = utils.read_pcfacet_file(config.PC_INFILE)
             aff_dict_norm = utils.normalize_dict(aff_dict)
-            utils.dump_pickle(config.PICKLE_FILE,[aff_dict_norm,canon_dict])
+            utils.dump_pickle(config.PICKLE_FILE, [aff_dict_norm, canon_dict])
         except Exception as e:
-            logger.error("Could not create affiliation data pickle file: %s"%e)
-            raise FatalException("Could not create affiliation data pickle file: %s"%e)
+            logger.error("Could not create affiliation data pickle file: %s" % e)
+            raise FatalException("Could not create affiliation data pickle file: %s" % e)
 
     # These are the only two sources of records to augment if you
     # run from the command line: debug record, and a JSON file of
@@ -70,10 +70,10 @@ def main():
     elif args.input_json_file:
         if os.path.isfile(args.input_json_file):
             try:
-                with open(args.input_json_file,'rU') as fp:
+                with open(args.input_json_file, 'rU') as fp:
                     jdata = json.load(fp)
             except Exception as e:
-                logger.error("Failed to read JSON file of records to augment. Stopping: %s"%e)
+                logger.error("Failed to read JSON file of records to augment. Stopping: %s" % e)
                 raise FatalException("Error reading input JSON file.")
         else:
             logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
