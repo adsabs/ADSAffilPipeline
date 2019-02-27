@@ -1,126 +1,97 @@
-#!/usr/bin/env python
+import os
+import json
 
-# Celery workers can not use multiprocessing
-# so before: celery -A affilmatch.tasks worker -l info -c 1
-# one must: export JOBLIB_MULTIPROCESSING=0
-
-from affilmatch.affil_match import *
-import pandas as pd
 import config
-from adsmsg.augmentrecord import AugmentAffiliationRequestRecord, AugmentAffiliationRequestRecordList
-from affilmatch.tasks import task_augment_affiliation
+import ADSAffil.utils as utils
+import ADSAffil.tasks as tasks
+
+from adsputils import setup_logging
+
+
+logger = setup_logging('run.py')
+
+debug_record = '{"response": {"docs": [{"bibcode": "2002ApJ...576..963T", "aff": [ "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101"]}]}}'
+
+
+class FatalException(Exception):
+    #   Throw this generic exception wherever a failure should stop
+    #   processing immediately and exit.
+    pass
+
 
 def get_arguments():
 
     import argparse
 
-    parser=argparse.ArgumentParser(description='Command line options.')
-
-    parser.add_argument('-f',
-                        '--filename',
-                        dest='filename',
-                        action='store',
-                        help='Name of file with affil records to be IDed')
-
-    parser.add_argument('-o',
-                        '--outfile',
-                        dest='outfile',
-                        action='store',
-                        help='Name of file to write IDs to')
-
-    parser.add_argument('-l',
-                        '--learner',
-                        dest='learner',
-                        action='store',
-                        help='Name of file with learning model data')
-
-
-    parser.add_argument('-t',
-                        '--family-tree',
-                        dest='parentchild',
-                        action='store',
-                        help='Name of file with parent-children data')
-
-    parser.add_argument('-r',
-                        '--random-seed',
-                        dest='random',
-                        action='store',
-                        help='Integer for classifier random seed (omit to use np.random)')
-
-    parser.add_argument('-n',
-                        '--num-threads',
-                        dest='cpu',
-                        action='store',
-                        help='Integer number of allowed threads (-1 == system maximum)')
+    parser = argparse.ArgumentParser(description='Command line options:')
 
     parser.add_argument('-d',
-                        '--diagnose',
-                        dest='diagnose',
-                        action='store_true', 
-                        help='Queue hard coded request for affiliation')
+                        '--debug',
+                        dest='debug',
+                        action='store_true',
+                        help='Send debug_record through pipeline')
 
-    args=parser.parse_args()
+    parser.add_argument('-mp',
+                        '--makepickle',
+                        dest='makepickle',
+                        action='store_true',
+                        help='Pickle INFILEs')
+
+    parser.add_argument('-f',
+                        '--json_file',
+                        dest='input_json_file',
+                        action='store',
+                        help='Input JSON file of solr records to augment')
+
+    args = parser.parse_args()
     return args
-
-def diagnose():
-    d = {'bibcode': '2003ASPC..295..361M',
-                  'status': 2,
-                  'affiliation': 'University of Deleware',
-                  'author': 'Stephen McDonald',
-                  'sequence': '1/2'}
-    a = AugmentAffiliationRequestRecord(**d)
-    task_augment_affiliation.delay(a)  # use to send just one request
-    #al = AugmentAffiliationRequestRecordList()  # send multiple requests
-    #al.affiliation_requests.add(**d)
-    #al.affiliation_requests.add(**d)
 
 
 def main():
-#   because sklearn is throwing an annoying FutureWarning in python3
-    warnings.filterwarnings("ignore", category=FutureWarning)
 
     args = get_arguments()
-    if args.diagnose:
-        diagnose()
-        return
 
-    if not args.filename:
-        print 'please use --filename'
-        return
-    
-    infile=args.filename
+    if args.makepickle:
+        try:
+            aff_dict = utils.read_affils_file(config.AFFDICT_INFILE)
+            canon_dict = utils.read_pcfacet_file(config.PC_INFILE)
+            aff_dict_norm = utils.normalize_dict(aff_dict)
+            utils.dump_pickle(config.PICKLE_FILE, [aff_dict_norm, canon_dict])
+        except Exception as e:
+            logger.error("Could not create affiliation data pickle file: %s" % e)
+            raise FatalException("Could not create affiliation data pickle file: %s" % e)
 
-    if args.outfile:
-        config.OUTPUT_FILE = args.outfile
+    # These are the only two sources of records to augment if you
+    # run from the command line: debug record, and a JSON file of
+    # records.  Lacking either, jdata will not exist, and this will
+    # generate an information message and the program will end.
+    if args.debug:
+        jdata = json.loads(debug_record)
+    elif args.input_json_file:
+        if os.path.isfile(args.input_json_file):
+            try:
+                with open(args.input_json_file, 'rU') as fp:
+                    jdata = json.load(fp)
+            except Exception as e:
+                logger.error("Failed to read JSON file of records to augment. Stopping: %s" % e)
+                raise FatalException("Error reading input JSON file.")
+        else:
+            logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
+            raise FatalException("The JSON file with the given filename doesn't exist.")
 
-    if args.learner:
-        config.LM_INFILE = args.learner
-
-    if args.parentchild:
-        config.PC_INFILE = args.parentchild
-
-    if args.random:
-        config.SGDC_RANDOM_SEED = args.random
-
-    if args.cpu:
-        config.SGDC_PARAM_CPU = args.cpu
-
-    # read the learning model and target data
-    learning_frame=read_data(config.LM_INFILE,config.LM_COLS)
-    # match_frame=read_data(infile,config.MATCH_COLS)
-    match_frame = pd.DataFrame([{'bibcode': '2017ABCD...17..128D',
-                                 'Affil': 'University Delaware',
-                                 'Author': 'Doe, Jane',
-                                 'sequence': '5/3'}])
-
-    # transform learning model using sklearn
-    (cvec,transf,cveclfitr,affil_list)=learning_model(learning_frame)
-
-    # classify and output
-    matched = match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS)
-    matched = matched.to_dict()
-    print matched['Affcodes'][0]
-    # print_output((1./len(learning_frame)),match_entries(learning_frame,match_frame,cvec,transf,cveclfitr,config.MATCH_COLS))
+    # Does jdata (json object of records to augment) exist?
+    # If so, send each record to task_augment_affiliations_json
+    # If not, nothing to do, *end*
+    try:
+        records = jdata['response']['docs']
+    except Exception as e:
+        print('No records for direct match.  Nothing to do.')
+        logger.info('No records for direct match.  Nothing to do.')
+    else:
+        logger.info('Starting augments....')
+        for rec in records:
+            tasks.task_augment_affiliations_json.delay(rec)
+        logger.info('Finished augments')
 
 
 if __name__ == '__main__':

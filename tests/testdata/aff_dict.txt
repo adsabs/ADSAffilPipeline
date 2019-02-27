@@ -1,0 +1,119 @@
+A01400	Harvard Smithsonian Center Astrophys Cambridge MA
+A01400	Harvard Smithsonian Center for Astrophysics 60 Garden St Cambridge MA 02138 USA
+A01400	60 Garden St., Cambridge, MA 02138, USA
+A01400	CFA HARVARD
+A01400	CXC/SAO Harvard Smithsonian Center Astrophys
+A01400	CXC/SAO Harvard Smithsonian Center for Astrophysics
+A01400	CXC/SAO Harvard-Smithsonian Center for Astrophysics
+A01400	CXC/SAO, Harvard-Smithsonian Center for Astrophysics
+A01400	CXC/SAO/CfA
+A01400	Center for Astrophysics 60 Garden Street Cambridge MA 02138 United States
+A01400	CfA
+A01400	CfA (SAO)
+A01400	CfA 60 Garden St Cambridge MA 02138 USA
+A01400	Chandra X-ray Center Harvard-Smithsonian Center for Astrophysics 60 Garden Street Cambridge MA 02138 USA
+A01400	Department of Astronomy, Harvard University, Harvard-Smithsonian Center for Astrophysics, 60 Garden Street, Cambridge, MA 02138, USA
+A01400	Department of Astronomy, Harvard University, Harvard-Smithsonian CfA, 60 Garden Street MS-6, Cambridge, MA 02138, USA
+A01400	Department of Astronomy, Harvard University, and Science Education Department, Harvard-Smithsonian Center for Astrophysics, 60 Garden St., MS-71, D-315, Cambridge, MA 02138
+A01400	Department of Astronomy, Harvard University, and Smithsonian Astrophysical Observatory, Cambridge, Massachusetts, U.S.A.
+A01400	Department of Astronomy, Harvard-Smithsonian Center for Astrophysics, 60 Garden Street, Cambridge, MA 02138
+A01400	Department of Astronomy, Harvard-Smithsonian Center for Astrophysics, 60 Garden Street, Cambridge, Massachusetts 02138
+A01400	HEAD CfA Cambridge MA
+A01400	Institute for Theoretical Atomic Molecular and Optical Physics Harvard Smithsonian Center for Astrophysics 60 Garden Street Cambridge MA 02138
+A00211	Applied Mathematics, Harvard University, Cambridge, Massachusetts, USA
+A00211	Belfer Center Science International Affairs John F Kennedy School Government Harvard Univ John F Kennedy St Cambridge MA
+A00211	Biological Lab Harvard Univ Cambridge Mass
+A00211	Biophysical Lab Harvard Univ Boston Mass
+A00211	Botanical Museum, Harvard University, Cambridge, Massachusetts, USA
+A00211	Center for Cancer Systems Biology Dana Farber Cancer Institute Harvard University Boston MA USA
+A00211	Committee Appl Mathematics Harvard Univ Cambridge Mass part NSF grants NSF GP b NSF MPS
+A00211	Department of Anthropology Peabody Museum 11 Divinity Avenue Harvard University Cambridge MA 02138 USA
+A00211	Department of Mathematics Harvard University One Oxford Street Cambridge MA 02138 USA
+A00211	Department of Molecular and Cell Biology Harvard University
+A00211	Department of Organismic & Evolutionary Biology Harvard University Cambridge MA 02138 USA
+A00211	Department of Organismic and Evolutionary Biology Harvard University Cambridge MA 02138 United States
+A00211	Department of Organismic and Evolutionary Biology, Harvard University, 16 Divinity Avenue, Cambridge, MA 02138, USA
+A00211	Department of Organismic and Evolutionary Biology, Harvard University, Cambridge, Massachusetts USA
+A00211	Department of Statistics, Harvard University, 1 Oxford Street, Cambridge, MA 02138
+A00211	Dept Anthropology Harvard Univ Cambridge Mass
+A00211	Dept Biomedical Engineering Boston Univ Boston MA USA Cardiovascular Division Harvard Medical School Beth Israel Hospital Boston MA
+A00211	Dept Environmental Science Physiology Harvard Univ School Public Health Huntington Ave Boston MA
+A00211	Dept Math Harvard Univ Cambridge MA
+A00211	Dept Mathematics Harvard Univ Oxford St Cambridge MA
+A00211	Dept Molecular Cellular Biology Harvard Univ Oxford St Cambridge Massachusetts
+A00211	Dept Organismic Evolutionary Biology Dept Mathematics Program Evolutionary Dynamics Harvard Univ One Brattle Square Cambridge Massachusetts
+A00211	Dept Organismic Evolutionary Biology Harvard Univ Cambridge Massachussets
+A00211	Dept Organismic Evolutionary Biology Harvard Univ Oxford St Cambridge Massachusetts
+A00211	Dept Statistics Harvard Univ Cambridge Massachusetts 02138E MToryDept Mathematics Computer Science Mount Allison Univ Sackville New Brunswick Canada
+A00211	Energy Environmental Policy Center Harvard Univ Winthrop St Cambridge MA
+A00211	FAS Center Systems Biology Harvard Univ Oxford St Cambridge Massachusetts
+A00211	Farlow Herbarium of Cryptogamic Botany, Harvard University, Cambridge, MA 02138, USA
+A00211	Gordon McKay Lab Harvard Univ Cambridge Massachusetts Inst Advanced Princeton NJ
+A00211	Gordon McKay Labs Harvard Univ Cambridge MA
+A00211	HARVARD Univ
+A00211	Harvard Center Population Development Studies Harvard Univ
+A00211	Harvard College Cambridge Massachusetts USA
+A00211	Harvard Cyclotron Lab Cambridge MA
+A00211	Harvard Forest Harvard Univ N Main St Petersham MA
+A00211	Harvard Forest Petersham
+A00211	Harvard Graduate School Education Harvard Smithsonian Center Astrophys Cambridge MA
+A00211	Harvard Massachusetts Ave Cambridge
+A00211	Harvard Science Center Oxford St Cambridge MA
+A00211	Harvard Society of Fellows 78 Mount Auburn Street Cambridge MA 02138
+A00211	Harvard Society of Fellows, Harvard University, 78 Mt. Auburn Street, Cambridge, MA 02138, USA
+A00211	Harvard U P Cambridge MA
+A00211	Harvard Univ Biological Labs Divinity Ave Cambridge MA
+A00211	Harvard Univ Cambridge MA
+A00211	Harvard Univ Cambridge Mass Work part USA Dept Energy Contract No EY S
+A00211	Harvard Univ Cambridge Massachusetts Lawrence Radiation Lab Univ California Livermore CA
+A00211	Harvard Univ Dept Mathematics Cambridge Massachusetts UK
+A00211	Harvard Univ Dept Organismic Evolutionary Biology Divinity Ave Cambridge MA
+A00211	Harvard Univ Divinity Ave rm Cambridge MA
+A00211	Harvard Univ Gordon McKay Lab Oxford St Cambridge MA
+A00211	Harvard Univ Harvard John Paulson School Engineering Appl Sciences Cambridge MA
+A00211	Harvard Univ MS Cambridge MA
+A00211	Harvard Univ N Weld Hall Cambridge MA
+A00211	Harvard Univ Oxford St Cambridge Ma
+A00211	Harvard Univ SEAS
+A00211	Harvard Univ Summer School Cambridge MA
+A00211	Harvard Univ USA Xian Jiaotong Univ China
+A00211	Harvard Univ. (United States)
+A00211	Harvard Univeristy Oxford St Cambridge MA
+A00211	Harvard University 436 Eliot House Mail Center 101 Dunster Street Cambridge MA 02138
+A00211	Harvard University Cambridge MA 02138 USA
+A00211	Harvard University Cambridge Mass USA
+A00211	Harvard University Center for the Environment, and Department of History, Harvard University, Cambridge, MA, 02138, USA
+A00211	Harvard University Harvard Mass
+A00211	Harvard University Southboro MA
+A00211	Harvard University, 17 Oxford Street, Cambridge, Massachusetts 02138, USA
+A00211	Harvard University, Cambridge MA 02138, USA
+A00211	Harvard University, Cambridge, MA, 02140, USA
+A00211	Harvard University, Cambridge, Mass., USA
+A00211	Harvard University, Department of Mathematics, One Oxford Street, Cambridge, Massachusetts 02138, USA
+A00211	Harvard University, Pierce Hall, Cambridge, Mass., U.S.A.
+A00211	Harvard University/UT Austin
+A00211	Harvard, University, Cambridge, Massachusetts
+A00211	IACS SEAS Harvard Univ Oxford St Cambrigde
+A00211	Kavli Inst Bionano Science Tech Dept Phys Organismic Evolutionary Biology Harvard Univ Cambridge Massachusetts
+A00211	Mathematics Department, Harvard University
+A00211	Mineralogical Museum Harvard University Cambridge Massachusetts 02138 USA
+A00211	Organismic Evolutionary Biology Dept Harvard Univ Cambridge MA
+A00211	Oxford St Harvard Univ Cambridge MA
+A00211	Pierce Hall, Harvard University, Cambridge, MA 02138 U.S.A.
+A00211	Program for Evolutionary Dynamics Harvard University - Cambridge MA 02138 USA
+A00211	Psychological Laboratory, Harvard University, Cambridge, Massachusetts
+A00211	Research Computing, Harvard University, Cambridge, MA 02138, USA
+A00211	Scholar Dept History Science Harvard Univ Science Center No Oxford St Cambridge MA
+A00211	Society of Fellows, Harvard University, 78 Mt. Auburn Street, Cambridge, MA 02138, USA
+A00211	The Harvard Society of Fellows, 78 Mt. Auburn Street, Cambridge, MA 02138, USA
+A00211	Wyss Inst Biologically Inspired Engineering Harvard Univ Oxford St Cambridge MA
+A01397	Museum Conservation Inst Smithsonian Inst Silver Hill Rd Suitland MD
+A01397	Smithsonian Environmental Research Center, 647 Contees Wharf Rd., Edgewater, MD 21037, USA.
+A01397	Smithsonian Inst Washington DC USA
+A01397	Smithsonian Institution MRC 119 Washington DC 20560 USA
+A01397	Smithsonian Institution
+A01397	Smithsonian Institution USA
+A01397	Smithsonian Institution Washington District of Columbia USA
+A01397	Smithsonian Institution, Washington DC
+A01397	Smithsonian Institution, Washington, DC 20560&#9472;0119, USA
+A01397	the Smithsonian Institution Washington USA
