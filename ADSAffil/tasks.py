@@ -11,6 +11,7 @@ app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(o
 
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
+    Queue('augment-protobuf', app.exchange, routing_key='augment-protobuf'),
     Queue('output-record', app.exchange, routing_key='output-record')
 )
 logger = app.logger
@@ -43,10 +44,10 @@ def task_augment_affiliations_json(rec):
         logger.info("Exception: %s", e)
 
 
+@app.task(queue='augment-protobuf')
 def task_augment_affiliations_proto(rec):
     try:
         jrec = rec.toJSON(including_default_value_fields=True)
-        logger.warning("Here's your jrec: %s", jrec)
         task_augment_affiliations_json(jrec)
     except:
         logger.warning("Error augmenting protobuf record.")
