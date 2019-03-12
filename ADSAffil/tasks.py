@@ -11,7 +11,6 @@ app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(o
 
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
-    Queue('augment-protobuf', app.exchange, routing_key='augment-protobuf'),
     Queue('output-record', app.exchange, routing_key='output-record')
 )
 logger = app.logger
@@ -28,6 +27,14 @@ def task_output_augmented_record(rec):
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
+    if isinstance(rec,AugmentAffiliationRequestRecord):
+        try:
+            xrec = rec.toJSON(including_default_value_fields=True)
+        except Exception as e:
+            logger.info("Could not convert proto to JSON: %s", e)
+            rec = {}
+        else:
+            rec = xrec
     try:
         if 'aff' in rec:
             u = app.augment_affiliations(rec)
@@ -42,12 +49,3 @@ def task_augment_affiliations_json(rec):
         else:
             pass
         logger.info("Exception: %s", e)
-
-
-@app.task(queue='augment-protobuf')
-def task_augment_affiliations_proto(rec):
-    try:
-        jrec = rec.toJSON(including_default_value_fields=True)
-        task_augment_affiliations_json(jrec)
-    except:
-        logger.warning("Error augmenting protobuf record.")
