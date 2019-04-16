@@ -176,6 +176,7 @@ class ADSAffilCelery(ADSCelery):
         rec['aff_id'] = id_code_list
         rec['aff_canonical'] = canonical_list
         rec['aff_facet_hier'] = aff_facet_hier
+        rec['institution'] = rec['aff_abbrev']
 
         # the augmenter doesn't return data, but if strings aren't matched,
         # the unmatched strings are returned.
