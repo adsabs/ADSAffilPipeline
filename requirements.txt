@@ -1,4 +1,4 @@
-git+https://github.com/adsabs/ADSPipelineUtils.git@v1.0.12
+git+https://github.com/adsabs/ADSPipelineUtils.git@v1.1.0
 bs4==0.0.1
 librabbitmq==1.6.1
 lxml==4.1.1
