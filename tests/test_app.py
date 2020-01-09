@@ -32,6 +32,7 @@ class TestApp(unittest.TestCase):
         u = testapp.augment_affiliations(rec)
         self.assertEqual(rec['bibcode'], recx['bibcode'])
         self.assertEqual(rec[u'aff_canonical'], [u'-; Harvard Smithsonian Center for Astrophysics'])
+        self.assertEqual(rec[u'aff'], rec[u'aff_raw'])  # input aff value should be copied to raw field
 # record 3: one author: two affils, both unmatched
         rec = {'bibcode': 'rec1', 'aff': ['test1; test2']}
         recx = copy.deepcopy(rec)
