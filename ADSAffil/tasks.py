@@ -7,17 +7,22 @@ from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationResponseRe
 
 import config
 
-app = app_module.ADSAffilCelery('augment-pipeline', proj_home=os.path.realpath(os.path.join(os.path.dirname(__file__), '../')))
+# ============================= INITIALIZATION ==================================== #
+
+proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
+app = app_module.ADSAffilCelery('augment-pipeline', proj_home=proj_home, local_config=globals().get('local_config', {}))
+logger = app.logger
 
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
     Queue('output-record', app.exchange, routing_key='output-record'),
     Queue('update-record', app.exchange, routing_key='update-record')
 )
-logger = app.logger
 
 app.load_dicts(config.PICKLE_FILE)
 
+
+# ============================= TASKS ============================================= #
 
 @app.task(queue='update-record')
 def task_update_record(msg):
