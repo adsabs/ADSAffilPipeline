@@ -5,7 +5,7 @@ worker/script) in order to initialize the workers
 
 from __future__ import absolute_import, unicode_literals
 from ADSAffil import utils
-from adsputils import ADSCelery, get_date, setup_logging, load_config, u2asc
+from adsputils import ADSCelery
 import json
 
 

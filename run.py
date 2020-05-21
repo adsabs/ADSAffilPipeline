@@ -5,13 +5,19 @@ import config
 import ADSAffil.utils as utils
 import ADSAffil.tasks as tasks
 
-from adsputils import setup_logging
+# ============================= INITIALIZATION ==================================== #
 
-
-logger = setup_logging('run.py')
+from adsputils import setup_logging, load_config
+proj_home = os.path.realpath(os.path.dirname(__file__))
+config = load_config(proj_home=proj_home)
+logger = setup_logging('run.py', proj_home=proj_home,
+                        level=config.get('LOGGING_LEVEL', 'INFO'),
+                        attach_stdout=config.get('LOG_STDOUT', False))
 
 debug_record = '{"response": {"docs": [{"bibcode": "2002ApJ...576..963T", "aff": [ "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101"]}]}}'
 
+
+# =============================== FUNCTIONS ======================================= #
 
 class FatalException(Exception):
     #   Throw this generic exception wherever a failure should stop

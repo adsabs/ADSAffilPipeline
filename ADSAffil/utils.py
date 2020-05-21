@@ -1,9 +1,23 @@
+import os
 import re
 import bs4
 import unidecode
 import warnings
 import json
 import cPickle as pickle
+
+# ============================= INITIALIZATION ==================================== #
+# - Use app logger:
+#import logging
+#logger = logging.getLogger('augment-pipeline')
+# - Or individual logger for this file:
+from adsputils import setup_logging, load_config
+proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
+config = load_config(proj_home=proj_home)
+logger = setup_logging(__name__, proj_home=proj_home,
+                        level=config.get('LOGGING_LEVEL', 'INFO'),
+                        attach_stdout=config.get('LOG_STDOUT', False))
+
 warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
 warnings.filterwarnings('ignore', category=RuntimeWarning, module='unidecode')
 
@@ -11,6 +25,7 @@ warnings.filterwarnings('ignore', category=RuntimeWarning, module='unidecode')
 
 srs = re.compile(r'[-!?.,;:/\\]')
 
+# =============================== FUNCTIONS ======================================= #
 
 def convert_unicode(s):
     try:
@@ -98,8 +113,7 @@ def read_affils_file(filename):
             if len(ll.rstrip().split('\t')) == 2:
                 inputrecords.append(ll.rstrip())
             else:
-                pass
-#               logger.warn("Bad line in %s: line %s", (filename, i))
+                logger.warn("Bad line in %s: line %s", (filename, i))
     inputrecords = convert_strings(inputrecords)
     aff_dict = {}
     for l in inputrecords:
