@@ -26,7 +26,7 @@ app.load_dicts(config.PICKLE_FILE)
 
 @app.task(queue='update-record')
 def task_update_record(msg):
-    logger.warn('in update record with {}'.format(msg))
+    logger.warn('in update record with {}'.format(str(msg.toJSON())))
     task_augment_affiliations_json(msg)
 
 
