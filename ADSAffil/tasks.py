@@ -5,8 +5,6 @@ from ADSAffil import app as app_module
 from ADSAffil import utils
 from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationResponseRecord
 
-import config
-
 # ============================= INITIALIZATION ==================================== #
 
 proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
@@ -37,8 +35,8 @@ def task_output_augmented_record(rec):
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
     if app.adict is None or app.cdict is None:
-        app.load_dicts(config.PICKLE_FILE)
-    if isinstance(rec,AugmentAffiliationRequestRecord):
+        app.load_dicts(app.config.get('PICKLE_FILE'))
+    if isinstance(rec, AugmentAffiliationRequestRecord):
         try:
             xrec = rec.toJSON(including_default_value_fields=True)
         except Exception as e:
@@ -49,7 +47,7 @@ def task_augment_affiliations_json(rec):
     try:
         if 'aff' in rec:
             u = app.augment_affiliations(rec)
-            utils.output_unmatched(config.UNMATCHED_FILE, u)
+            utils.output_unmatched(app.config.get('UNMATCHED_FILE'), u)
             task_output_augmented_record(rec)
         else:
             logger.debug("Record does not have affiliation info: %s", rec['bibcode'])

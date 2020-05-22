@@ -1,15 +1,14 @@
-import os
-
 # possible values: WARN, INFO, DEBUG
-LOGGING_LEVEL = 'DEBUG'
+LOGGING_LEVEL = 'INFO'
+LOG_STDOUT = True
 
 # Celery related configuration
 # All work we do is concentrated into one exchange (the queues are marked
 # by topics, e.g. ads.orcid.claims); The queues will be created automatically
-# based on the workers' definition. If 'durable' = True, it means that the 
+# based on the workers' definition. If 'durable' = True, it means that the
 # queue is created as permanent *AND* the worker will publish 'permanent'
 # messages. Ie. if rabbitmq goes down/restarted, the uncomsumed messages will
-# still be there 
+# still be there
 
 CELERY_INCLUDE = ['ADSAffil.tasks']
 ACKS_LATE = True
