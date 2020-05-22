@@ -19,8 +19,6 @@ app.conf.CELERY_QUEUES = (
     Queue('update-record', app.exchange, routing_key='update-record')
 )
 
-app.load_dicts(config.PICKLE_FILE)
-
 
 # ============================= TASKS ============================================= #
 
@@ -32,13 +30,14 @@ def task_update_record(msg):
 
 @app.task(queue='output-record')
 def task_output_augmented_record(rec):
-
     msg = AugmentAffiliationResponseRecord(**rec)
     app.forward_message(msg)
 
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
+    if app.adict is None or app.cdict is None:
+        app.load_dicts(config.PICKLE_FILE)
     if isinstance(rec,AugmentAffiliationRequestRecord):
         try:
             xrec = rec.toJSON(including_default_value_fields=True)

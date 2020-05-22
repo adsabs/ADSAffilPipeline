@@ -61,6 +61,11 @@ def augmenter(afstring, adict, cdict):
 
 class ADSAffilCelery(ADSCelery):
 
+    def __init__(self, app_name, *args, **kwargs):
+        super(ADSAffilCelery, self).__init__(app_name, *args, **kwargs)
+        self.adict = None
+        self.cdict = None
+
     def load_dicts(self, picklefile):
         """
         You need to initialize adict and cdict
@@ -73,15 +78,14 @@ class ADSAffilCelery(ADSCelery):
         have adict and cdict loaded, augmenting
         will fail.
         """
-        try:
-            (self.adict, self.cdict) = utils.read_pickle(picklefile)
-        except:
-            pass
+        if self.adict is None or self.cdict is None:
+            try:
+                (self.adict, self.cdict) = utils.read_pickle(picklefile)
+            except:
+                self.logger.exception("adict/cdict could not be loaded")
 
     def augment_affiliations(self, rec):
-        try:
-            self.adict
-        except Exception as e:
+        if self.adict is None or self.cdict is None:
             raise FatalException('adict/cdict not loaded, cannot continue.')
 
         # aff = affil record: list of all affil strings
