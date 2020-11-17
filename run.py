@@ -59,10 +59,10 @@ def main():
 
     if args.makepickle:
         try:
-            aff_dict = utils.read_affils_file(config.AFFDICT_INFILE)
-            canon_dict = utils.read_pcfacet_file(config.PC_INFILE)
+            aff_dict = utils.read_affils_file(config['AFFDICT_INFILE'])
+            canon_dict = utils.read_affils_file(config['PC_INFILE'])
             aff_dict_norm = utils.normalize_dict(aff_dict)
-            utils.dump_pickle(config.PICKLE_FILE, [aff_dict_norm, canon_dict])
+            utils.dump_pickle(config['PICKLE_FILE'], [aff_dict_norm, canon_dict])
         except Exception as e:
             logger.error("Could not create affiliation data pickle file: %s" % e)
             raise FatalException("Could not create affiliation data pickle file: %s" % e)
