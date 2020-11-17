@@ -113,7 +113,7 @@ def read_affils_file(filename):
             if len(ll.rstrip().split('\t')) == 2:
                 inputrecords.append(ll.rstrip())
             else:
-                logger.warn("Bad line in %s: line %s", (filename, i))
+                logger.warn("Bad line in %s: line %s" % (filename, i))
     inputrecords = convert_strings(inputrecords)
     aff_dict = {}
     for l in inputrecords:
