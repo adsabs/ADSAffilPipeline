@@ -1,139 +1,129 @@
+import html
 import os
+import pickle
 import re
-import bs4
-import unidecode
-import warnings
-import json
-import cPickle as pickle
 
-# ============================= INITIALIZATION ==================================== #
-# - Use app logger:
-#import logging
-#logger = logging.getLogger('augment-pipeline')
-# - Or individual logger for this file:
-from adsputils import setup_logging, load_config
-proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
-config = load_config(proj_home=proj_home)
-logger = setup_logging(__name__, proj_home=proj_home,
-                        level=config.get('LOGGING_LEVEL', 'INFO'),
-                        attach_stdout=config.get('LOG_STDOUT', False))
 
-warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
-warnings.filterwarnings('ignore', category=RuntimeWarning, module='unidecode')
+class AffilTextFileException(Exception):
+    pass
 
-# STRING NORMALIZING FUNCTIONS
 
-srs = re.compile(r'[-!?.,;:/\\]')
+class CreateClauseDictException(Exception):
+    pass
 
-# =============================== FUNCTIONS ======================================= #
 
-def convert_unicode(s):
-    try:
-        lo = s.decode('utf-8').encode('ascii', 'xmlcharrefreplace')
-    except UnicodeDecodeError:
-        try:
-            lo2 = s.decode('cp1252').encode('ascii', 'xmlcharrefreplace')
-        except UnicodeDecodeError:
-            pass
-        else:
-            s = lo2
-    except AttributeError:
-        pass
+class DumpPickleException(Exception):
+    pass
+
+
+class MakeClausePickleException(Exception):
+    pass
+
+
+class MakeAffilPickleException(Exception):
+    pass
+
+
+class LoadPickleException(Exception):
+    pass
+
+
+regex_norm_semicolon = re.compile(r";\s*;")
+regex_norm_punct = re.compile(r'[-!?.,;:/\\]')
+
+
+def fix_semicolons(string):
+    string_x = regex_norm_semicolon.sub(';', string).strip()
+    if string_x != string:
+        return fix_semicolons(string_x)
     else:
-        s = lo
-    return(s)
+        return string_x
 
-
-def back_convert_entities(rec):
-    outrec = []
-    output_block = bs4.BeautifulSoup(rec, 'lxml').find_all('p')
-    for l in output_block:
-        if l != '':
-            lo = unicode(l).replace('<p>', '').replace('</p>', '').lstrip('[').rstrip(']').replace('&amp;', '&').replace('&gt;', '>').replace('&lt;', '<').lstrip().rstrip()
-        else:
-            lo = u''
-        outrec.append(reencode_string(lo))
-    return outrec
-
-
-def reencode_string(s):
+def clean_string(string):
     try:
-        s = unidecode.unidecode(unicode(s))
-    except:
+        string = html.unescape(string)
+        string = fix_semicolons(string)
+        string = string.strip(';').strip()
+    except Exception as err:
         pass
-    return s
+    return string
 
-
-def normalize_string(s):
+def normalize_string(string):
     # normalizing consists of
     # 3) removing all spaces and other punctuation with re
     # 4) converting all ascii chars to upper-case
     try:
-        s = srs.sub(' ', s)
-        s = ' '.join(s.split())
+        string = regex_norm_punct.sub(' ', string)
+        string = ' '.join(string.split())
     except:
         pass
     try:
-        s = s.upper()
+        string = string.upper()
     except:
         pass
-    return unicode(s)
+    return string
 
-
-def normalize_dict(d):
-    d_norm = {}
-    for (k, v) in d.items():
+def normalize_dict(dictionary):
+    dictionary_norm = {}
+    for (k, v) in dictionary.items():
         kn = normalize_string(k)
-        d_norm[kn] = v
-    return d_norm
+        dictionary_norm[kn] = v
+    return dictionary_norm
 
+def split_clauses(string, separator):
+    try:
+        clauses = string.strip().split(separator)
+        clauses = [x.strip() for x in clauses]
+        return clauses
+    except:
+        pass
 
-def convert_strings(records):
-    recs_converted = []
-    maxlen = 50000
-    while len(records) > 0:
-        block1 = records[0:maxlen]
-        block2 = records[maxlen:]
-        records = block2
-        input_block = '<p>'.join(block1)
-        recs_converted.extend(back_convert_entities(input_block))
-    return recs_converted
+def create_clause_dict(affdict, separator=','):
+    try:
+        clausedict = dict()
+        for k, v in affdict.items():
+            clauses = k.split(separator)
+            for c in clauses:
+                c = normalize_string(clean_string(c.strip()))
+                if c:
+                    if c in clausedict:
+                        clausedict[c].append(v)
+                        clausedict[c] = list(set(clausedict[c]))
+                    else:
+                        clausedict[c] = [v]
+        return clausedict
+    except Exception as err:
+        raise CreateClauseDictException('Error in make_clause_dict: %s' % err)
 
+# file loading & writing utils
 
-# DICTIONARY FILE INPUT
-# Reads the affils and canonical tables from file and creates dicts
+def load_affils_affdict_file(aff_filename):
+    if os.path.exists(aff_filename):
+        affdict = dict()
+        with open(aff_filename,'r') as fa:
+            for l in fa.readlines():
+                try:
+                    (idkey, idstring) = l.strip().split('\t')
+                    affdict[idstring] = idkey
+                except Exception as err:
+                    pass
+        return affdict
+    else:
+        raise AffilTextFileException('No such file: %s' % filename)
 
-def read_affils_file(filename):
-    inputrecords = []
-    with open(filename, 'rU') as fa:
-        i = 0
-        for l in fa.readlines():
-            i = i + 1
-            ll = convert_unicode(l)
-            if len(ll.rstrip().split('\t')) == 2:
-                inputrecords.append(ll.rstrip())
-            else:
-                logger.warn("Bad line in %s: line %s" % (filename, i))
-    inputrecords = convert_strings(inputrecords)
-    aff_dict = {}
-    for l in inputrecords:
-        (k, v) = l.strip().split('\t')
-        aff_dict[v] = k
-    return aff_dict
-
-
-def read_pcfacet_file(filename):
+def load_affils_pcdict_file(pc_filename):
     affil_canonical = {}
     affil_abbrev = {}
     affil_parent = {}
     affil_child = {}
 
-    with open(filename, 'rU') as fpc:
+    with open(pc_filename, 'r') as fpc:
         for l in fpc.readlines():
             try:
                 (parent, child, shortform, longform) = l.rstrip().split('\t')
             except:
-                print ('Line error: ', l)
+                print('lol')
+                # logger.warn('Badly-formatted line in read_pcfacet_file: %s' % l)
             else:
                 if str(child) not in affil_canonical:
                     affil_canonical[str(child)] = longform
@@ -162,67 +152,68 @@ def read_pcfacet_file(filename):
 
     return canon_dict
 
-
-def affil_id_match(aff_str, aff_lib):
-    s = normalize_string(aff_str)
-
+def pickle_clause_dict(clausedict, clause_pickle_file,
+                       protocol=pickle.HIGHEST_PROTOCOL):
     try:
-        x = aff_lib[s]
-    except:
-        return u'0'
-    else:
-        return x
+        with open(clause_pickle_file,'wb') as fp:
+            pickle.dump(clausedict, fp, protocol)
+    except Exception as err:
+        raise DumpPickleException('Error: %s' % err)
 
-
-# PICKLE HANDLING: dump and read
-# The pickle file contains pickled copies of two dictionaries: canon_dict,
-# and aff_dict.  See URL:
-# https://stackoverflow.com/questions/20716812/saving-and-loading-multiple-objects-in-pickle-file
-
-def dump_pickle(outfile, list_of_dicts):
-    # outfile is the name of the pickle file you're writing to
-    # list_of_dicts is a list containing all of the dicts you're pickling
-
+def pickle_affil_dict(affdict_norm, pcdict, affil_pickle_filename,
+                      protocol=pickle.HIGHEST_PROTOCOL):
     try:
-        if isinstance(list_of_dicts, list):
-            for x in list_of_dicts:
-                if not isinstance(x, dict):
-                    raise Exception("util.dump_pickle: one or more list items is not a dict")
-            with open(outfile, 'wb') as fp:
-                for x in list_of_dicts:
-                    pickle.dump(x, fp, pickle.HIGHEST_PROTOCOL)
-        else:
-            raise Exception("util.dump_pickle: must be given a list of dicts")
-    except Exception as e:
-        raise Exception("util.dump_pickle failed: {0}".format(e))
+        with open(affil_pickle_filename,'wb') as fp:
+            pickle.dump(affdict_norm, fp, protocol)
+            pickle.dump(pcdict, fp, protocol)
+    except Exception as err:
+        raise DumpPickleException('Error: %s' % err)
 
 
-def read_pickle(infile):
-    # infile is the name if the pickle file you're reading from
-    # this function returns a GENERATOR whose items are the dictionaries you
-    # pickled (e.g. canon_dict, aff_dict)
+def make_clause_pickle(aff_filename, clause_pickle_filename, separator,
+                       protocol):
     try:
-        with open(infile, 'rb') as fp:
+        affdict = load_affils_affdict_file(aff_filename)
+        clausedict = create_clause_dict(affdict, separator)
+        pickle_clause_dict(clausedict, clause_pickle_filename, protocol)
+    except Exception as err:
+        raise MakeClausePickleException('Error: %s' % err)
+
+
+def make_affil_pickle(aff_filename, pc_filename, affil_pickle_filename,
+                      protocol):
+    try:
+        affdict = load_affils_affdict_file(aff_filename)
+        affdict_norm = normalize_dict(affdict)
+        pcdict = load_affils_pcdict_file(pc_filename)
+        pickle_affil_dict(affdict_norm, pcdict, affil_pickle_filename,
+                          protocol)
+    except Exception as err:
+        raise MakeAffilPickleException('Error: %s' % err)
+
+def load_clause_dict(filename):
+    try:
+        with open(filename,'rb') as fp:
+            data = pickle.load(fp)
+            return data
+    except Exception as err:
+        raise LoadPickleException('Error: %s' % err)
+
+
+def load_affil_dict(filename):
+    try:
+        with open(filename,'rb') as fp:
+            dictionaries = []
             while True:
                 try:
-                    yield pickle.load(fp)
+                    dictionaries.append(pickle.load(fp))
                 except EOFError:
                     break
-    except Exception as e:
-        raise Exception("util.read_pickle failed: %s".format(e))
-
-
-# FILE OUTPUT: unmatched strings
-# The only file output other than logs is the file of affil strings
-# that couldn't be matched.  Output them with this:
-
-def output_unmatched(unmatched_file, unmatched_string):
-    try:
-        if len(unmatched_string) > 0:
-            with open(unmatched_file, 'a') as fo:
-                for l in unmatched_string.keys():
-                    fo.write(l + '\n')
-        else:
-            pass
-    except Exception as e:
-        logger.warn("Error writing unmatched strings to file: %s", e)
+                # except StopIteration:
+                #     return
+        # return (dictionaries[:])
+        return (dictionaries)
+    except Exception as err:
+        raise LoadPickleException('Error: %s' % err)
+           
+            

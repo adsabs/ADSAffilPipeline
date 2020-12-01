@@ -1,103 +1,58 @@
+import adsputils
+import argparse
 import os
-import json
+from adsputils import setup_logging, load_config, get_date
+from ADSAffil import app, utils
 
-import config
-import ADSAffil.utils as utils
-import ADSAffil.tasks as tasks
-
-# ============================= INITIALIZATION ==================================== #
-
-from adsputils import setup_logging, load_config
 proj_home = os.path.realpath(os.path.dirname(__file__))
 config = load_config(proj_home=proj_home)
 logger = setup_logging('run.py', proj_home=proj_home,
                         level=config.get('LOGGING_LEVEL', 'INFO'),
                         attach_stdout=config.get('LOG_STDOUT', False))
 
-debug_record = '{"response": {"docs": [{"bibcode": "2002ApJ...576..963T", "aff": [ "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101", "Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101"]}]}}'
-
-
-# =============================== FUNCTIONS ======================================= #
-
-class FatalException(Exception):
-    #   Throw this generic exception wherever a failure should stop
-    #   processing immediately and exit.
-    pass
-
-
-def get_arguments():
-
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Command line options:')
-
-    parser.add_argument('-d',
-                        '--debug',
-                        dest='debug',
-                        action='store_true',
-                        help='Send debug_record through pipeline')
-
+def getargs():
+    parser = argparse.ArgumentParser()
     parser.add_argument('-mp',
-                        '--makepickle',
-                        dest='makepickle',
-                        action='store_true',
-                        help='Pickle INFILEs')
+                        '--make_pickle',
+                        dest = 'mp',
+                        action = 'store_true',
+                        default = False,
+                        help = 'Create pickle files only')
+    parser.add_argument('-x',
+                        '--exact',
+                        dest = 'exact',
+                        action = 'store_true',
+                        default = False,
+                        help = 'Return exact string matches only (no scoring)')
+    return parser.parse_args()
 
-    parser.add_argument('-f',
-                        '--json_file',
-                        dest='input_json_file',
-                        action='store',
-                        help='Input JSON file of solr records to augment')
-
-    args = parser.parse_args()
-    return args
-
-
+        
 def main():
 
-    args = get_arguments()
-
-    if args.makepickle:
-        try:
-            aff_dict = utils.read_affils_file(config['AFFDICT_INFILE'])
-            canon_dict = utils.read_affils_file(config['PC_INFILE'])
-            aff_dict_norm = utils.normalize_dict(aff_dict)
-            utils.dump_pickle(config['PICKLE_FILE'], [aff_dict_norm, canon_dict])
-        except Exception as e:
-            logger.error("Could not create affiliation data pickle file: %s" % e)
-            raise FatalException("Could not create affiliation data pickle file: %s" % e)
-
-    # These are the only two sources of records to augment if you
-    # run from the command line: debug record, and a JSON file of
-    # records.  Lacking either, jdata will not exist, and this will
-    # generate an information message and the program will end.
-    if args.debug:
-        jdata = json.loads(debug_record)
-    elif args.input_json_file:
-        if os.path.isfile(args.input_json_file):
-            try:
-                with open(args.input_json_file, 'rU') as fp:
-                    jdata = json.load(fp)
-            except Exception as e:
-                logger.error("Failed to read JSON file of records to augment. Stopping: %s" % e)
-                raise FatalException("Error reading input JSON file.")
-        else:
-            logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
-            raise FatalException("The JSON file with the given filename doesn't exist.")
-
-    # Does jdata (json object of records to augment) exist?
-    # If so, send each record to task_augment_affiliations_json
-    # If not, nothing to do, *end*
-    try:
-        records = jdata['response']['docs']
-    except Exception as e:
-        print('No records for direct match.  Nothing to do.')
-        logger.info('No records for direct match.  Nothing to do.')
+    args = getargs()
+    if args.mp:
+        utils.make_affil_pickle(config['TEXT_AFFIL_DICT_FILENAME'],
+                                config['TEXT_PC_DICT_FILENAME'],
+                                config['AFFIL_PICKLE_FILENAME'],
+                                config['MAX_PICKLE_PROTOCOL'])
+        utils.make_clause_pickle(config['TEXT_AFFIL_DICT_FILENAME'],
+                                 config['CLAUSE_PICKLE_FILENAME'],
+                                 config['CLAUSE_SEPARATOR'],
+                                 config['MAX_PICKLE_PROTOCOL'])
     else:
-        logger.info('Starting augments....')
-        for rec in records:
-            tasks.task_augment_affiliations_json.delay(rec)
-        logger.info('Finished augments')
+        (affdict, pcdict) = utils.load_affil_dict(config['AFFIL_PICKLE_FILENAME'])
+        clausedict = utils.load_clause_dict(config['CLAUSE_PICKLE_FILENAME'])
+        matcher = app.ADSAffilCelery(affdict=affdict, clausedict=clausedict,
+                                     pcdict=pcdict, exact=args.exact,
+                                     crit=config['SCORE_THRESHOLD'])
+
+
+        input_test = ["Department of Physics, University of California - Berkeley, Berkeley, CA", "Department of Physics, University of the Witwatersrand, 1 Jan Smuts Avenue, Johannesburg 2000, RSA", "Earth, Planetary, and Space Sciences Department, University of California, 90095, Los Angeles, CA, USA", "Department of Physics & Astronomy, University of Delaware, Newark, DE 19716"]
+
+        for affstring in input_test:
+            matcher.instring = affstring
+            result = matcher._augmenter()
+            print("Input string: %s\nFacet: %s\n\n" % (affstring,result))
 
 
 if __name__ == '__main__':

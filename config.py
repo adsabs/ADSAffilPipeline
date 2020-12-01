@@ -1,36 +1,15 @@
-# possible values: WARN, INFO, DEBUG
-LOGGING_LEVEL = 'INFO'
-LOG_STDOUT = True
+LOGGING_LEVEL = 'debug'
 
-# Celery related configuration
-# All work we do is concentrated into one exchange (the queues are marked
-# by topics, e.g. ads.orcid.claims); The queues will be created automatically
-# based on the workers' definition. If 'durable' = True, it means that the
-# queue is created as permanent *AND* the worker will publish 'permanent'
-# messages. Ie. if rabbitmq goes down/restarted, the uncomsumed messages will
-# still be there
+# Affiliation data files/directories
+AFFIL_DATA_DIR = './data/'
+TEXT_AFFIL_DICT_FILENAME = AFFIL_DATA_DIR + 'Affils_v3.0.1'
+TEXT_PC_DICT_FILENAME = AFFIL_DATA_DIR + 'parent_child.new'
+AFFIL_PICKLE_FILENAME = AFFIL_DATA_DIR + 'aff.pickle'
+CLAUSE_PICKLE_FILENAME = AFFIL_DATA_DIR + 'clause.pickle'
 
-CELERY_INCLUDE = ['ADSAffil.tasks']
-ACKS_LATE = True
-PREFETCH_MULTIPLIER = 1000
-CELERYD_TASK_SOFT_TIME_LIMIT = 300
+# Pickling configuration
+MAX_PICKLE_PROTOCOL = 4 # 4 works for all Py3, 5 for 3.8+ only
 
-CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
-
-CELERY_BROKER = 'pyamqp://user:password@localhost:6672/augment_pipeline'
-OUTPUT_CELERY_BROKER = 'pyamqp://user:password@localhost:5682/master_pipeline'
-
-OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
-
-# Affiliation configuration files
-# Note these filenames are symlinks to the current versions located in
-# ./data/versions/current.vN.N.N
-AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/affil_strings.txt'
-PC_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/parent_child.txt'
-PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/aff.pickle'
-
-# Output file for unmatched affils.  Note these will be appended to each
-# time this runs, and is not yet uniq'ed -- strings may appear multiple times
-
-UNMATCHED_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/unmatched.out'
+# String matching config
+CLAUSE_SEPARATOR = ','
+SCORE_THRESHOLD = 0.8

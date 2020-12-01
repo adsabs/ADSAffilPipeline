@@ -1,11 +1,9 @@
-from kombu import Queue
+import adsputils
 import os
-
+from kombu import Queue
 from ADSAffil import app as app_module
 from ADSAffil import utils
 from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationResponseRecord
-
-# ============================= INITIALIZATION ==================================== #
 
 proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
 app = app_module.ADSAffilCelery('augment-pipeline', proj_home=proj_home, local_config=globals().get('local_config', {}))
@@ -14,12 +12,13 @@ logger = app.logger
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
     Queue('output-record', app.exchange, routing_key='output-record'),
+    # Queue('api-matcher', app.exchange, rounting_key='match-affil'),
     Queue('update-record', app.exchange, routing_key='update-record')
 )
 
+(app.adict, app.cdict) = utils.load_affil_dict(app.conf.AFFIL_PICKLE_FILENAME)
 
-# ============================= TASKS ============================================= #
-
+# ===================================TASKS=================================== #
 @app.task(queue='update-record')
 def task_update_record(msg):
     logger.warn('in update record with {}'.format(str(msg.toJSON())))
@@ -35,26 +34,26 @@ def task_output_augmented_record(rec):
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
     if app.adict is None or app.cdict is None:
-        app.load_dicts(app.conf.get('PICKLE_FILE'))
+        logger.warn("pickled dictionaries not already loaded!")
+        (app.adict, app.cdict) = utils.load_affil_dict(app.conf.get('PICKLE_FILE'))
     if isinstance(rec, AugmentAffiliationRequestRecord):
         try:
             xrec = rec.toJSON(including_default_value_fields=True)
         except Exception as e:
-            logger.info("Could not convert proto to JSON: %s", e)
-            rec = {}
+            logger.warn("Could not convert proto to JSON: %s", e)
+            # rec = {}
         else:
             rec = xrec
     try:
         if 'aff' in rec:
             u = app.augment_affiliations(rec)
-            utils.output_unmatched(app.conf.get('UNMATCHED_FILE'), u)
             task_output_augmented_record(rec)
         else:
             logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
             pass
     except Exception as e:
         if isinstance(rec, dict) and 'bibcode' in rec:
-            logger.info("Could not augment record: %s", rec['bibcode'])
+            logger.debug("Could not augment record: %s", rec['bibcode'])
         else:
             pass
-        logger.info("Exception: %s", e)
+        logger.warn("Exception: %s", e)
