@@ -5,7 +5,7 @@
 language: python
 
 python:
-  - "2.7"
+  - "3.7"
 
 install:
   - "pip install --upgrade setuptools"
@@ -13,7 +13,7 @@ install:
   - "pip install -r dev-requirements.txt"
 
 script:
-  - "py.test"
+  - "python -m pytest"
 
 after_success:
   - "coveralls"

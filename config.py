@@ -1,5 +1,7 @@
-# possible values: WARN, INFO, DEBUG
-LOGGING_LEVEL = 'INFO'
+'''Global configuration file for any environment'''
+
+# Logging: possible levels are DEBUG, INFO, and WARN
+LOGGING_LEVEL = 'DEBUG'
 LOG_STDOUT = True
 
 # Celery related configuration
@@ -14,23 +16,29 @@ CELERY_INCLUDE = ['ADSAffil.tasks']
 ACKS_LATE = True
 PREFETCH_MULTIPLIER = 1000
 CELERYD_TASK_SOFT_TIME_LIMIT = 300
-
 CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
-
 CELERY_BROKER = 'pyamqp://user:password@localhost:6672/augment_pipeline'
-OUTPUT_CELERY_BROKER = 'pyamqp://user:password@localhost:5682/master_pipeline'
 
+# Where to send results (of our processing); since we rely on Celery, we have
+# to specify the task id - which is the worker's module on the remote side
+# that will be handling the message. This is a limitation of the current setup.
+# To do:  find a way to send a queue to the remote queue and let Celery deliver
+# it to the appropriate worker without having to specify it's name
+OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 
-# Affiliation configuration files
-# Note these filenames are symlinks to the current versions located in
-# ./data/versions/current.vN.N.N
-AFFDICT_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/affil_strings.txt'
-PC_INFILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/parent_child.txt'
-PICKLE_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/data/aff.pickle'
+# Affiliation data files/directories
+AFFIL_DATA_DIR = './data/'
+TEXT_AFFIL_DICT_FILENAME = AFFIL_DATA_DIR + 'Affils_v3.0.1'
+TEXT_PC_DICT_FILENAME = AFFIL_DATA_DIR + 'parent_child.new'
+AFFIL_PICKLE_FILENAME = AFFIL_DATA_DIR + 'aff.pickle'
+CLAUSE_PICKLE_FILENAME = AFFIL_DATA_DIR + 'clause.pickle'
 
-# Output file for unmatched affils.  Note these will be appended to each
-# time this runs, and is not yet uniq'ed -- strings may appear multiple times
+# Pickling configuration
+MAX_PICKLE_PROTOCOL = 4  # 4 works for all Py3, 5 for 3.8+ only
 
-UNMATCHED_FILE = '/proj/ads_abstracts/config/affils/PIPELINE/output/unmatched.out'
+# String matching config
+CLAUSE_SEPARATOR = ','
+SCORE_THRESHOLD = 0.75
+EXACT_MATCHES_ONLY = False

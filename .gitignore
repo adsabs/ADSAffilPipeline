@@ -1,7 +1,9 @@
 *pyc
 logs/*
+data/*
 .cache
 .coverage*
 venc
+venv
 *.pyc
 *~
