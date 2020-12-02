@@ -6,14 +6,15 @@ class ADSAffilCelery(ADSCelery):
     def _norm_affil(self):
         if self.instring:
             self.instring = utils.clean_string(self.instring)
-            if not self.exact:
-                self.clauses = utils.split_clauses(self.instring, 
-                                                   self.separator)
-                self.clauses_norm = [utils.normalize_string(clause) for clause
-                                     in self.clauses]
+            self.clauses = utils.split_clauses(self.instring, 
+                                               self.separator)
+            if self.clauses:
+                self.clauses_norm = [utils.normalize_string(clause)
+                                     for clause in self.clauses]
             self.instring_norm = utils.normalize_string(self.instring)
 
-    def __init__(self, instring = '', affdict={}, pcdict={}, clausedict={}, separator=',', exact = False, crit = 0.75, match_id = ''):
+    def __init__(self, instring = '', affdict={}, pcdict={}, clausedict={},
+                 separator=',', exact = False, crit = 0.75, match_id = ''):
         self.affdict = affdict
         self.pcdict = pcdict
         self.clausedict = clausedict
@@ -22,7 +23,8 @@ class ADSAffilCelery(ADSCelery):
         self.clause_crit = crit
         self.match_id = match_id
         if instring:
-            self._norm(self)
+            self.instring = instring
+            self._norm_affil()
 
     def _match_affil(self):
         output = dict()
@@ -41,7 +43,7 @@ class ADSAffilCelery(ADSCelery):
                             else:
                                 test_dict[k] = 1./nc
             for k, v in test_dict.items():
-                if v > self.clause_crit:
+                if v >= self.clause_crit:
                     output[k] = v
         else:
             output[self.exact_id] = 2.
@@ -93,4 +95,14 @@ class ADSAffilCelery(ADSCelery):
 
 
     def augment_affiliations(self, rec):
-        return
+        if rec:
+            self.instring = rec
+            self._norm_affil()
+        return self._augmenter()
+
+
+    def find_matches(self, rec):
+        if rec:
+            self.instring = rec
+            self._norm_affil()
+        return self._match_affil()

@@ -8,6 +8,10 @@ class AffilTextFileException(Exception):
     pass
 
 
+class PCTextFileException(Exception):
+    pass
+
+
 class CreateClauseDictException(Exception):
     pass
 
@@ -59,7 +63,7 @@ def normalize_string(string):
         pass
     try:
         string = string.upper()
-    except:
+    except Exception as err:
         pass
     return string
 
@@ -82,7 +86,7 @@ def create_clause_dict(affdict, separator=','):
     try:
         clausedict = dict()
         for k, v in affdict.items():
-            clauses = k.split(separator)
+            clauses = split_clauses(k, separator)
             for c in clauses:
                 c = normalize_string(clean_string(c.strip()))
                 if c:
@@ -104,12 +108,13 @@ def load_affils_affdict_file(aff_filename):
             for l in fa.readlines():
                 try:
                     (idkey, idstring) = l.strip().split('\t')
+                    idstring = clean_string(idstring)
                     affdict[idstring] = idkey
                 except Exception as err:
                     pass
         return affdict
     else:
-        raise AffilTextFileException('No such file: %s' % filename)
+        raise AffilTextFileException('No such file: %s' % aff_filename)
 
 def load_affils_pcdict_file(pc_filename):
     affil_canonical = {}
@@ -117,40 +122,43 @@ def load_affils_pcdict_file(pc_filename):
     affil_parent = {}
     affil_child = {}
 
-    with open(pc_filename, 'r') as fpc:
-        for l in fpc.readlines():
-            try:
-                (parent, child, shortform, longform) = l.rstrip().split('\t')
-            except:
-                print('lol')
-                # logger.warn('Badly-formatted line in read_pcfacet_file: %s' % l)
-            else:
-                if str(child) not in affil_canonical:
-                    affil_canonical[str(child)] = longform
-                    affil_abbrev[str(child)] = shortform
-
-                if str(parent) != '':
-                    if str(child) not in affil_parent:
-                        affil_parent[str(child)] = [str(parent)]
-                    else:
-                        affil_parent[str(child)].append(str(parent))
-                    if str(parent) not in affil_child:
-                        affil_child[str(parent)] = [str(child)]
-                    else:
-                        affil_child[str(parent)].append(str(child))
-
-    ids = affil_canonical.keys()
-
-    canon_dict = {}
-    for i in ids:
-        if i not in affil_parent:
-            affil_parent[i] = ['-']
-        if i not in affil_child:
-            affil_child[i] = ['-']
-
-        canon_dict[i] = {'canonical_name': affil_canonical[i], 'facet_name': affil_abbrev[i], 'parents': affil_parent[i], 'children': affil_child[i]}
-
-    return canon_dict
+    if os.path.exists(pc_filename):
+        with open(pc_filename, 'r') as fpc:
+            for l in fpc.readlines():
+                try:
+                    (parent, child, shortform, longform) = l.rstrip().split('\t')
+                except:
+                    print('lol')
+                    # logger.warn('Badly-formatted line in read_pcfacet_file: %s' % l)
+                else:
+                    if str(child) not in affil_canonical:
+                        affil_canonical[str(child)] = longform
+                        affil_abbrev[str(child)] = shortform
+    
+                    if str(parent) != '':
+                        if str(child) not in affil_parent:
+                            affil_parent[str(child)] = [str(parent)]
+                        else:
+                            affil_parent[str(child)].append(str(parent))
+                        if str(parent) not in affil_child:
+                            affil_child[str(parent)] = [str(child)]
+                        else:
+                            affil_child[str(parent)].append(str(child))
+    
+        ids = affil_canonical.keys()
+    
+        canon_dict = {}
+        for i in ids:
+            if i not in affil_parent:
+                affil_parent[i] = ['-']
+            if i not in affil_child:
+                affil_child[i] = ['-']
+    
+            canon_dict[i] = {'canonical_name': affil_canonical[i], 'facet_name': affil_abbrev[i], 'parents': affil_parent[i], 'children': affil_child[i]}
+    
+        return canon_dict
+    else:
+        raise PCTextFileException('No such file: %s' % pc_filename)
 
 def pickle_clause_dict(clausedict, clause_pickle_file,
                        protocol=pickle.HIGHEST_PROTOCOL):
@@ -215,5 +223,3 @@ def load_affil_dict(filename):
         return (dictionaries)
     except Exception as err:
         raise LoadPickleException('Error: %s' % err)
-           
-            
