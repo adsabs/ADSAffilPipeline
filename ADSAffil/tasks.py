@@ -12,7 +12,7 @@ logger = app.logger
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
     Queue('output-record', app.exchange, routing_key='output-record'),
-    # Queue('api-matcher', app.exchange, rounting_key='match-affil'),
+    Queue('api-matcher', app.exchange, rounting_key='match-affil'),
     Queue('update-record', app.exchange, routing_key='update-record')
 )
 
@@ -34,7 +34,7 @@ def task_output_augmented_record(rec):
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
     if app.adict is None or app.cdict is None:
-        logger.debug("pickled dictionaries not already loaded!")
+        logger.warn("pickled dictionaries not already loaded!")
         (app.adict, app.cdict) = utils.load_affil_dict(app.conf.get('PICKLE_FILE'))
     if isinstance(rec, AugmentAffiliationRequestRecord):
         try:
@@ -57,3 +57,9 @@ def task_augment_affiliations_json(rec):
         else:
             pass
         logger.warn("Exception: %s", e)
+
+
+@app.task(queue='api-matcher')
+def task_match_input_string(rec):
+    output = app.find_matches(rec)
+    # MAKE A JAZZ NOISE HERE
