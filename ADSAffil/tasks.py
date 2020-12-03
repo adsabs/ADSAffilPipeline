@@ -6,7 +6,7 @@ from ADSAffil import utils
 from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationResponseRecord
 
 proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
-app = app_module.ADSAffilCelery('augment-pipeline', proj_home=proj_home, local_config=globals().get('local_config', {}))
+app = app_module.ADSAffilCelery('augment-pipeline', proj_home=proj_home, config=globals().get('config', {}), local_config=globals().get('local_config', {}))
 logger = app.logger
 
 app.conf.CELERY_QUEUES = (
@@ -21,7 +21,7 @@ app.conf.CELERY_QUEUES = (
 # ===================================TASKS=================================== #
 @app.task(queue='update-record')
 def task_update_record(msg):
-    logger.warn('in update record with {}'.format(str(msg.toJSON())))
+    logger.debug('in update record with {}'.format(str(msg.toJSON())))
     task_augment_affiliations_json(msg)
 
 
@@ -34,7 +34,7 @@ def task_output_augmented_record(rec):
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
     if app.adict is None or app.cdict is None:
-        logger.warn("pickled dictionaries not already loaded!")
+        logger.debug("pickled dictionaries not already loaded!")
         (app.adict, app.cdict) = utils.load_affil_dict(app.conf.get('PICKLE_FILE'))
     if isinstance(rec, AugmentAffiliationRequestRecord):
         try:

@@ -2,7 +2,7 @@ import adsputils
 import argparse
 import os
 from adsputils import setup_logging, load_config, get_date
-from ADSAffil import app, utils
+from ADSAffil import app, tasks, utils
 
 proj_home = os.path.realpath(os.path.dirname(__file__))
 config = load_config(proj_home=proj_home)
@@ -40,19 +40,19 @@ def main():
                                  config['CLAUSE_SEPARATOR'],
                                  config['MAX_PICKLE_PROTOCOL'])
     else:
-        (affdict, pcdict) = utils.load_affil_dict(config['AFFIL_PICKLE_FILENAME'])
+        (adict, cdict) = utils.load_affil_dict(config['AFFIL_PICKLE_FILENAME'])
         clausedict = utils.load_clause_dict(config['CLAUSE_PICKLE_FILENAME'])
-        matcher = app.ADSAffilCelery(affdict=affdict, clausedict=clausedict,
-                                     pcdict=pcdict, exact=args.exact,
-                                     crit=config['SCORE_THRESHOLD'])
+        matcher = app.ADSAffilCelery('run.py')
+        matcher.adict = adict
+        matcher.cdict = cdict
+        matcher.clausedict = clausedict
 
 
         input_test = ["Department of Physics, University of California - Berkeley, Berkeley, CA", "Department of Physics, University of the Witwatersrand, 1 Jan Smuts Avenue, Johannesburg 2000, RSA", "Earth, Planetary, and Space Sciences Department, University of California, 90095, Los Angeles, CA, USA", "Department of Physics & Astronomy, University of Delaware, Newark, DE 19716"]
 
         for affstring in input_test:
-            matcher.instring = affstring
-            result = matcher._augmenter()
-            print("Input string: %s\nFacet: %s\n\n" % (affstring,result))
+            result = matcher.find_matches(affstring)
+            print("Input string: %s\nMatch: %s\n\n" % (affstring,result))
 
 
 if __name__ == '__main__':

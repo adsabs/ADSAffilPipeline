@@ -1,6 +1,7 @@
 import ADSAffil.utils as utils
 from adsputils import ADSCelery
 
+
 class ADSAffilCelery(ADSCelery):
 
     def _norm_affil(self):
@@ -13,24 +14,23 @@ class ADSAffilCelery(ADSCelery):
                                      for clause in self.clauses]
             self.instring_norm = utils.normalize_string(self.instring)
 
-    def __init__(self, instring = '', affdict={}, pcdict={}, clausedict={},
-                 separator=',', exact = False, crit = 0.75, match_id = ''):
-        self.affdict = affdict
-        self.pcdict = pcdict
-        self.clausedict = clausedict
-        self.separator = separator
-        self.exact = exact
-        self.clause_crit = crit
-        self.match_id = match_id
-        if instring:
-            self.instring = instring
-            self._norm_affil()
+#   def __init__(self, instring = '', adict={}, cdict={}, clausedict={},
+#                separator=',', exact = False, crit = 0.75, match_id = ''):
+    def __init__(self, app_name, *args, **kwargs):
+        super(ADSAffilCelery, self).__init__(app_name, *args, **kwargs)
+        self.adict = {}
+        self.cdict = {}
+        self.clausedict = {}
+        self.separator = ','
+        self.crit = 0.75
+        self.match_id = None
+        self.exact = False
 
     def _match_affil(self):
         output = dict()
         self._norm_affil()
         try:
-            self.exact_id = self.affdict[self.instring_norm]
+            exact_id = self.adict[self.instring_norm]
         except Exception as nomatch:
             test_dict = dict()
             if not self.exact:
@@ -43,20 +43,19 @@ class ADSAffilCelery(ADSCelery):
                             else:
                                 test_dict[k] = 1./nc
             for k, v in test_dict.items():
-                if v >= self.clause_crit:
+                if v >= self.crit:
                     output[k] = v
         else:
-            output[self.exact_id] = 2.
+            output[exact_id] = 2.
         return output
 
     def _output_affil(self):
         try:
-            facet = self.pcdict[self.match_id]['facet_name']
-            pids = self.pcdict[self.match_id]['parents']
-            canon = self.pcdict[self.match_id]['canonical_name']
+            facet = self.cdict[self.match_id]['facet_name']
+            pids = self.cdict[self.match_id]['parents']
+            canon = self.cdict[self.match_id]['canonical_name']
         except Exception as notfound:
             # Not found in cdict -- can't ID affil string
-            self.logger.debug('output_affil: %s, returning empty affil' % notfound)
             return ('-', '-', None, '-')
         aff_facet_hier = []
         if pids[0] == '-':
@@ -70,7 +69,7 @@ class ADSAffilCelery(ADSCelery):
             # At least one parent....
             abbrev_list = []
             for x in pids:
-                fp = self.pcdict[x]['facet_name']
+                fp = self.cdict[x]['facet_name']
                 fbase = '0/' + fp
                 fchild = '1/' + fp + '/' + facet
                 abbrev = fp + '/' + facet
