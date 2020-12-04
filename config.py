@@ -1,5 +1,6 @@
 # Logging: possible levels are DEBUG, INFO, and WARN
 LOGGING_LEVEL = 'DEBUG'
+LOG_STDOUT = True
 
 # Celery related configuration
 # All work we do is concentrated into one exchange (the queues are marked
@@ -11,16 +12,18 @@ LOGGING_LEVEL = 'DEBUG'
 
 CELERY_INCLUDE = ['ADSAffil.tasks']
 ACKS_LATE=True
-PREFETCH_MULTIPLIER=1
-CELERYD_TASK_SOFT_TIME_LIMIT = 60
-CELERY_BROKER = 'pyamqp://'
+PREFETCH_MULTIPLIER=1000
+CELERYD_TASK_SOFT_TIME_LIMIT = 300
+CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'	
+CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
+CELERY_BROKER = 'pyamqp://user:password@localhost:6672/augment_pipeline'
 
 # Where to send results (of our processing); since we rely on Celery, we have
 # to specify the task id - which is the worker's module on the remote side
 # that will be handling the message. This is a limitation of the current setup.
 # TODO: find a way to send a queue to the remote queue and let Celery deliver
 # it to the appropriate worker without having to specify it's name
-OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:6672/master_pipeline'
+OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 
 

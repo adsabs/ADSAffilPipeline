@@ -7,3 +7,4 @@ venc
 venv
 *.pyc
 *~
+local*
