@@ -40,4 +40,5 @@ MAX_PICKLE_PROTOCOL = 4 # 4 works for all Py3, 5 for 3.8+ only
 
 # String matching config
 CLAUSE_SEPARATOR = ','
-SCORE_THRESHOLD = 0.25
+SCORE_THRESHOLD = 0.75
+EXACT_MATCHES_ONLY = False

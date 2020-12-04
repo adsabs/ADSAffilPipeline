@@ -14,17 +14,15 @@ class ADSAffilCelery(ADSCelery):
                                      for clause in self.clauses]
             self.instring_norm = utils.normalize_string(self.instring)
 
-#   def __init__(self, instring = '', adict={}, cdict={}, clausedict={},
-#                separator=',', exact = False, crit = 0.75, match_id = ''):
     def __init__(self, app_name, *args, **kwargs):
         super(ADSAffilCelery, self).__init__(app_name, *args, **kwargs)
         self.adict = {}
         self.cdict = {}
         self.clausedict = {}
-        self.separator = ','
-        self.crit = 0.75
         self.match_id = None
-        self.exact = False
+        self.separator = self.conf.CLAUSE_SEPARATOR
+        self.crit = self.conf.SCORE_THRESHOLD
+        self.exact = self.conf.EXACT_MATCHES_ONLY
 
     def _match_affil(self):
         output = dict()

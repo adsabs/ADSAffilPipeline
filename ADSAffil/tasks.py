@@ -17,6 +17,7 @@ app.conf.CELERY_QUEUES = (
 )
 
 (app.adict, app.cdict) = utils.load_affil_dict(app.conf.AFFIL_PICKLE_FILENAME)
+app.clausedict = utils.load_clause_dict(app.conf.CLAUSE_PICKLE_FILENAME)
 
 # ===================================TASKS=================================== #
 @app.task(queue='update-record')
@@ -60,6 +61,8 @@ def task_augment_affiliations_json(rec):
 
 
 @app.task(queue='api-matcher')
-def task_match_input_string(rec):
+def task_match_input_string(rec, exact_matches_only):
+    app.exact = exact_matches_only
     output = app.find_matches(rec)
-    # MAKE A JAZZ NOISE HERE
+    # testing only -- tasks should not have return values
+    return output
