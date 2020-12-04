@@ -33,14 +33,11 @@ def task_output_augmented_record(rec):
 
 @app.task(queue='augment-affiliation')
 def task_augment_affiliations_json(rec):
-    if app.adict is None or app.cdict is None:
-        logger.warn("pickled dictionaries not already loaded!")
-        (app.adict, app.cdict) = utils.load_affil_dict(app.conf.get('PICKLE_FILE'))
     if isinstance(rec, AugmentAffiliationRequestRecord):
         try:
             xrec = rec.toJSON(including_default_value_fields=True)
         except Exception as e:
-            logger.warn("Could not convert proto to JSON: %s", e)
+            logger.warning("Could not convert proto to JSON: %s", e)
             # rec = {}
         else:
             rec = xrec
@@ -56,7 +53,7 @@ def task_augment_affiliations_json(rec):
             logger.debug("Could not augment record: %s", rec['bibcode'])
         else:
             pass
-        logger.warn("Exception: %s", e)
+        logger.warning("Exception: %s", e)
 
 
 @app.task(queue='api-matcher')

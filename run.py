@@ -89,7 +89,7 @@ def main():
     try:
         records = jdata['response']['docs']
     except Exception as error:
-        logger.info('Info: %s\nNo records for direct match.  Nothing to do.', error)
+        logger.info('No records for direct match.  Nothing to do.')
     else:
         logger.info('Starting augments....')
         for rec in records:

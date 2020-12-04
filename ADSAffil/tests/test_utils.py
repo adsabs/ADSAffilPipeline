@@ -86,6 +86,8 @@ class TestUtils(unittest.TestCase):
         test_id = 'A05210'
         expected_output = {'canonical_name': 'University of Tirana, Albania', 'children': ['-'], 'facet_name': 'U Tirana', 'parents': ['-']}
         self.assertEqual(expected_output, pc_dict[test_id])
+        if os.path.isfile(pickle_file):
+            os.remove(pickle_file)
 
 
 
@@ -120,3 +122,5 @@ class TestUtils(unittest.TestCase):
         test_results.sort()
         expected_results = ['A00921', 'A02585', 'A03439', 'A05210', 'A11557']
         self.assertEqual(test_results, expected_results)
+        if os.path.isfile(pickle_file):
+            os.remove(pickle_file)
