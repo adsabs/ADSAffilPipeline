@@ -1,5 +1,5 @@
-import ADSAffil.utils as utils
 from adsputils import ADSCelery
+import ADSAffil.utils as utils
 
 
 class ADSAffilCelery(ADSCelery):
@@ -7,7 +7,7 @@ class ADSAffilCelery(ADSCelery):
     def _norm_affil(self):
         if self.instring:
             self.instring = utils.clean_string(self.instring)
-            self.clauses = utils.split_clauses(self.instring, 
+            self.clauses = utils.split_clauses(self.instring,
                                                self.separator)
             if self.clauses:
                 self.clauses_norm = [utils.normalize_string(clause)
@@ -15,7 +15,7 @@ class ADSAffilCelery(ADSCelery):
             self.instring_norm = utils.normalize_string(self.instring)
 
     def __init__(self, app_name, *args, **kwargs):
-        super(ADSAffilCelery, self).__init__(app_name, *args, **kwargs)
+        super().__init__(app_name, *args, **kwargs)
         self.adict = {}
         self.cdict = {}
         self.clausedict = {}
@@ -77,7 +77,6 @@ class ADSAffilCelery(ADSCelery):
             abbrev = '; '.join(abbrev_list)
         return (abbrev, canon, aff_facet_hier, self.match_id)
 
-
     def _augmenter(self):
         outrec = ('-', '-', None, '-')
         try:
@@ -90,13 +89,11 @@ class ADSAffilCelery(ADSCelery):
             pass
         return outrec
 
-
     def augment_affiliations(self, rec):
         if rec:
             self.instring = rec
             self._norm_affil()
         return self._augmenter()
-
 
     def find_matches(self, rec):
         if rec:

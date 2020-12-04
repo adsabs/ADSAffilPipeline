@@ -1,3 +1,5 @@
+'''Global configuration file for any environment'''
+
 # Logging: possible levels are DEBUG, INFO, and WARN
 LOGGING_LEVEL = 'DEBUG'
 LOG_STDOUT = True
@@ -11,22 +13,20 @@ LOG_STDOUT = True
 # still be there
 
 CELERY_INCLUDE = ['ADSAffil.tasks']
-ACKS_LATE=True
-PREFETCH_MULTIPLIER=1000
+ACKS_LATE = True
+PREFETCH_MULTIPLIER = 1000
 CELERYD_TASK_SOFT_TIME_LIMIT = 300
-CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'	
+CELERY_DEFAULT_EXCHANGE = 'augment_pipeline'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
 CELERY_BROKER = 'pyamqp://user:password@localhost:6672/augment_pipeline'
 
 # Where to send results (of our processing); since we rely on Celery, we have
 # to specify the task id - which is the worker's module on the remote side
 # that will be handling the message. This is a limitation of the current setup.
-# TODO: find a way to send a queue to the remote queue and let Celery deliver
+# To do:  find a way to send a queue to the remote queue and let Celery deliver
 # it to the appropriate worker without having to specify it's name
 OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
-
-
 
 # Affiliation data files/directories
 AFFIL_DATA_DIR = './data/'
@@ -36,7 +36,7 @@ AFFIL_PICKLE_FILENAME = AFFIL_DATA_DIR + 'aff.pickle'
 CLAUSE_PICKLE_FILENAME = AFFIL_DATA_DIR + 'clause.pickle'
 
 # Pickling configuration
-MAX_PICKLE_PROTOCOL = 4 # 4 works for all Py3, 5 for 3.8+ only
+MAX_PICKLE_PROTOCOL = 4  # 4 works for all Py3, 5 for 3.8+ only
 
 # String matching config
 CLAUSE_SEPARATOR = ','

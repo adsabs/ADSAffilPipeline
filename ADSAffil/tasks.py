@@ -1,9 +1,8 @@
-import adsputils
 import os
 from kombu import Queue
+from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationResponseRecord
 from ADSAffil import app as app_module
 from ADSAffil import utils
-from adsmsg import AugmentAffiliationRequestRecord, AugmentAffiliationResponseRecord
 
 proj_home = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
 app = app_module.ADSAffilCelery('augment-pipeline', proj_home=proj_home, config=globals().get('config', {}), local_config=globals().get('local_config', {}))
@@ -12,8 +11,8 @@ logger = app.logger
 app.conf.CELERY_QUEUES = (
     Queue('augment-affiliation', app.exchange, routing_key='augment-affiliation'),
     Queue('output-record', app.exchange, routing_key='output-record'),
-    Queue('api-matcher', app.exchange, rounting_key='match-affil'),
-    Queue('update-record', app.exchange, routing_key='update-record')
+    Queue('update-record', app.exchange, routing_key='update-record'),
+    Queue('api-matcher', app.exchange, rounting_key='match-affil')
 )
 
 (app.adict, app.cdict) = utils.load_affil_dict(app.conf.AFFIL_PICKLE_FILENAME)
@@ -64,5 +63,4 @@ def task_augment_affiliations_json(rec):
 def task_match_input_string(rec, exact_matches_only):
     app.exact = exact_matches_only
     output = app.find_matches(rec)
-    # testing only -- tasks should not have return values
     return output

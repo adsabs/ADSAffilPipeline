@@ -134,7 +134,7 @@ def load_affils_pcdict_file(pc_filename):
                     if str(child) not in affil_canonical:
                         affil_canonical[str(child)] = longform
                         affil_abbrev[str(child)] = shortform
-    
+
                     if str(parent) != '':
                         if str(child) not in affil_parent:
                             affil_parent[str(child)] = [str(parent)]
@@ -144,18 +144,21 @@ def load_affils_pcdict_file(pc_filename):
                             affil_child[str(parent)] = [str(child)]
                         else:
                             affil_child[str(parent)].append(str(child))
-    
+
         ids = affil_canonical.keys()
-    
+
         canon_dict = {}
         for i in ids:
             if i not in affil_parent:
                 affil_parent[i] = ['-']
             if i not in affil_child:
                 affil_child[i] = ['-']
-    
-            canon_dict[i] = {'canonical_name': affil_canonical[i], 'facet_name': affil_abbrev[i], 'parents': affil_parent[i], 'children': affil_child[i]}
-    
+
+            canon_dict[i] = {'canonical_name': affil_canonical[i],
+                             'facet_name': affil_abbrev[i],
+                             'parents': affil_parent[i],
+                             'children': affil_child[i]}
+
         return canon_dict
     else:
         raise PCTextFileException('No such file: %s' % pc_filename)
@@ -217,9 +220,6 @@ def load_affil_dict(filename):
                     dictionaries.append(pickle.load(fp))
                 except EOFError:
                     break
-                # except StopIteration:
-                #     return
-        # return (dictionaries[:])
-        return (dictionaries)
+        return dictionaries
     except Exception as err:
         raise LoadPickleException('Error: %s' % err)
