@@ -38,12 +38,9 @@ def task_output_augmented_record(rec):
 def task_augment_affiliations_json(rec):
     if isinstance(rec, AugmentAffiliationRequestRecord):
         try:
-            xrec = rec.toJSON(including_default_value_fields=True)
+            rec = rec.toJSON(including_default_value_fields=True)
         except Exception as e:
             logger.warning("Could not convert proto to JSON: %s", e)
-            # rec = {}
-        else:
-            rec = xrec
     try:
         if 'aff' in rec:
             u = app.augment_affiliations(rec)

@@ -94,14 +94,14 @@ class TestUtils(unittest.TestCase):
 ## This test isn't working as expected, and I think it's because the function
 ## has a list(set(list())) command in it -- that's not guaranteed to retain
 ## the order of a list.
-#   def test_make_clause_pickle(self):
-#       affil_file = stubdata_dir + '/affil_strings.txt'
-#       pickle_file = 'clause.pickle'
-#       separator = ','
-#       protocol = 4
-#       expected_file = stubdata_dir + '/clause.pickle'
-#       utils.make_clause_pickle(affil_file, pickle_file, separator, protocol)
-#       self.assertTrue(filecmp.cmp(pickle_file, expected_file))
+    def test_make_clause_pickle(self):
+        affil_file = stubdata_dir + '/affil_strings.txt'
+        pickle_file = 'clause.pickle'
+        separator = ','
+        protocol = 4
+        expected_file = stubdata_dir + '/clause.pickle'
+        utils.make_clause_pickle(affil_file, pickle_file, separator, protocol)
+        self.assertTrue(filecmp.cmp(pickle_file, expected_file))
 
 
     def test_clause_pickling(self):

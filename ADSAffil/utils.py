@@ -92,7 +92,8 @@ def create_clause_dict(affdict, separator=','):
                 if c:
                     if c in clausedict:
                         clausedict[c].append(v)
-                        clausedict[c] = list(set(clausedict[c]))
+                        # clausedict[c] = list(set(clausedict[c]))
+                        clausedict[c] = list(dict.fromkeys(clausedict[c]))
                     else:
                         clausedict[c] = [v]
         return clausedict
@@ -128,8 +129,7 @@ def load_affils_pcdict_file(pc_filename):
                 try:
                     (parent, child, shortform, longform) = l.rstrip().split('\t')
                 except:
-                    print('lol')
-                    # logger.warn('Badly-formatted line in read_pcfacet_file: %s' % l)
+                    pass
                 else:
                     if str(child) not in affil_canonical:
                         affil_canonical[str(child)] = longform

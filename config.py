@@ -1,7 +1,7 @@
 '''Global configuration file for any environment'''
 
 # Logging: possible levels are DEBUG, INFO, and WARN
-LOGGING_LEVEL = 'DEBUG'
+LOGGING_LEVEL = 'INFO'
 LOG_STDOUT = True
 
 # Celery related configuration

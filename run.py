@@ -44,6 +44,7 @@ def getargs():
                         '--debug',
                         dest='debug',
                         action='store_true',
+                        default=False,
                         help='Send debug_record through pipeline')
     parser.add_argument('-dm',
                         '-debug_matching',
@@ -80,8 +81,10 @@ def main():
                     jdata = json.load(fp)
             except Exception as error:
                 logger.error("Failed to read JSON file of records to augment. Stopping: %s", error)
+                return
         else:
             logger.error("The JSON filename you supplied for records to augment doesn't exist. Stopping.")
+            return
 
     # Does jdata (json object of records to augment) exist?
     # If so, send each record to task_augment_affiliations_json
