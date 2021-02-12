@@ -1,188 +1,102 @@
-"""
-The main application object (it has to be loaded by any
-worker/script) in order to initialize the workers
-"""
-
-from __future__ import absolute_import, unicode_literals
-from ADSAffil import utils
 from adsputils import ADSCelery
-import json
-
-
-class FatalException(Exception):
-    pass
-
-
-def augmenter(afstring, adict, cdict):
-    """
-    Where string matching happens: if a given string (afstring)
-    is present in adict, m_id will be the affiliation id
-    assigned to that string.  If it isn't present, m_id will
-    be "0" (which has no entry in cdict).
-
-    The aff_abbrev and aff_facet_hier fields for each afstring
-    are being filled here, in addition to finding the canonical
-    values.  If the m_id doesn't have a parent (pids[0]=='-'), then
-    the facet heirarchy is "0/affil, 1/affil/affil".  Otherwise
-    it's "0/parent, 1/parent/affil"; since an affil can have
-    multiple parents (e.g. Harvard and SI for CfA), you need to
-    treat them as lists.
-    """
-    m_id = utils.affil_id_match(afstring, adict)
-    try:
-        facet = cdict[m_id]['facet_name']
-        pids = cdict[m_id]['parents']
-        canon = cdict[m_id]['canonical_name']
-    except:
-        # Not found in cdict -- can't ID affil string
-        return (u'-', u'-', None, u'-')
-    aff_facet_hier = []
-    if pids[0] == u'-':
-        # No parents...
-        fbase = u'0/' + facet
-        fchild = u'1/' + facet + u'/' + facet
-        abbrev = facet + u'/' + facet
-        aff_facet_hier.append(fbase)
-        aff_facet_hier.append(fchild)
-    else:
-        # At least one parent....
-        abbrev_list = []
-        for x in pids:
-            fp = cdict[x]['facet_name']
-            fbase = u'0/' + fp
-            fchild = u'1/' + fp + u'/' + facet
-            abbrev = fp + u'/' + facet
-            abbrev_list.append(abbrev)
-            aff_facet_hier.append(fbase)
-            aff_facet_hier.append(fchild)
-        abbrev = '; '.join(abbrev_list)
-    return (abbrev, canon, aff_facet_hier, m_id)
+import ADSAffil.utils as utils
 
 
 class ADSAffilCelery(ADSCelery):
 
-    def __init__(self, app_name, *args, **kwargs):
-        super(ADSAffilCelery, self).__init__(app_name, *args, **kwargs)
-        self.adict = None
-        self.cdict = None
+    def _norm_affil(self):
+        if self.instring:
+            self.instring = utils.clean_string(self.instring)
+            self.clauses = utils.split_clauses(self.instring,
+                                               self.separator)
+            if self.clauses:
+                self.clauses_norm = [utils.normalize_string(clause)
+                                     for clause in self.clauses]
+            self.instring_norm = utils.normalize_string(self.instring)
 
-    def load_dicts(self, picklefile):
-        """
-        You need to initialize adict and cdict
-        in every ADSAffilCelery object you create,
-        and this is called from within tasks.py
-        It's possible you'll get here when you (a)
-        don't have a pickle file, but (b) you're
-        about to, which is ok to pass without noting.
-        But if you start augmenting and you don't
-        have adict and cdict loaded, augmenting
-        will fail.
-        """
-        if self.adict is None or self.cdict is None:
-            try:
-                (self.adict, self.cdict) = utils.read_pickle(picklefile)
-            except:
-                self.logger.exception("adict/cdict could not be loaded")
+    def __init__(self, app_name, *args, **kwargs):
+        super().__init__(app_name, *args, **kwargs)
+        self.adict = {}
+        self.cdict = {}
+        self.clausedict = {}
+        self.match_id = None
+        self.separator = self.conf.CLAUSE_SEPARATOR
+        self.crit = self.conf.SCORE_THRESHOLD
+        self.exact = self.conf.EXACT_MATCHES_ONLY
+
+    def _match_affil(self):
+        output = dict()
+        self._norm_affil()
+        try:
+            exact_id = self.adict[self.instring_norm]
+        except Exception as nomatch:
+            test_dict = dict()
+            if not self.exact:
+                nc = len(self.clauses_norm)
+                for c in self.clauses_norm:
+                    if c in self.clausedict:
+                        for k in self.clausedict[c]:
+                            if k in test_dict:
+                                test_dict[k] += 1./nc
+                            else:
+                                test_dict[k] = 1./nc
+            for k, v in test_dict.items():
+                if v >= self.crit:
+                    output[k] = v
+        else:
+            output[exact_id] = 2.
+        return output
+
+    def _output_affil(self):
+        try:
+            facet = self.cdict[self.match_id]['facet_name']
+            pids = self.cdict[self.match_id]['parents']
+            canon = self.cdict[self.match_id]['canonical_name']
+        except Exception as notfound:
+            # Not found in cdict -- can't ID affil string
+            return ('-', '-', None, '-')
+        aff_facet_hier = []
+        if pids[0] == '-':
+            # No parents...
+            fbase = '0/' + facet
+            fchild = '1/' + facet + '/' + facet
+            abbrev = facet + '/' + facet
+            aff_facet_hier.append(fbase)
+            aff_facet_hier.append(fchild)
+        else:
+            # At least one parent....
+            abbrev_list = []
+            for x in pids:
+                fp = self.cdict[x]['facet_name']
+                fbase = '0/' + fp
+                fchild = '1/' + fp + '/' + facet
+                abbrev = fp + '/' + facet
+                abbrev_list.append(abbrev)
+                aff_facet_hier.append(fbase)
+                aff_facet_hier.append(fchild)
+            abbrev = '; '.join(abbrev_list)
+        return (abbrev, canon, aff_facet_hier, self.match_id)
+
+    def _augmenter(self):
+        outrec = ('-', '-', None, '-')
+        try:
+            result = self._match_affil()
+            (m_id, m_score) = list(result.items())[0]
+            if m_id and m_score == 2.0:
+                self.match_id = m_id
+                outrec = self._output_affil()
+        except Exception as nomatch:
+            pass
+        return outrec
 
     def augment_affiliations(self, rec):
-        if self.adict is None or self.cdict is None:
-            raise FatalException('adict/cdict not loaded, cannot continue.')
+        if rec:
+            self.instring = rec
+            self._norm_affil()
+        return self._augmenter()
 
-        # aff = affil record: list of all affil strings
-        #       of all authors in record
-        aff = rec['aff']
-
-        # initialize return arrays & unmatched dict
-        abbreviation_list = []
-        id_code_list = []
-        canonical_list = []
-        aff_facet_hier = []
-        facet = []
-        unmatched = {}
-
-        # each s is one author's affil string
-        for s in aff:
-            # normalize the input string
-            s = utils.reencode_string(utils.back_convert_entities(s)[0])
-            if ';' in s:
-                # if record contains ';', there are multiple affils
-                # so split on the semicolon
-                t = s.split(';')
-                abb_list = []
-                id_list = []
-                can_list = []
-                for v in t:
-                    # each v is an affil among multiple for a given author
-                    if v.strip() != '':
-                        v = utils.reencode_string(utils.back_convert_entities(v)[0])
-                        # call augmenter with substring v and the dicts
-                        (aid, can, fac, idcode) = augmenter(v, self.adict, self.cdict)
-                        abb_list.append(aid)
-                        id_list.append(idcode)
-                        can_list.append(can)
-                        if fac:
-                            facet.append(fac)
-                        else:
-                            if v != u'' and v != u'-':
-                                unmatched[v] = u'0'
-#               if not isinstance(can_list, basestring):
-                can_list = u'; '.join(can_list)
-                abbreviation_list.append(u'; '.join(abb_list))
-                id_code_list.append(u'; '.join(id_list))
-                canonical_list.append(can_list)
-            else:
-                # call augmenter with string s and the dicts
-                (aid, can, fac, idcode) = augmenter(s, self.adict, self.cdict)
-                abbreviation_list.append(aid)
-                id_code_list.append(idcode)
-                canonical_list.append(can)
-                if fac:
-                    facet.append(fac)
-                else:
-                    if s != u'' and s != u'-':
-                        # if there is a real affstring (that isn't
-                        # blank or "-") AND you can't match it,
-                        # add it to unmatched.
-                        unmatched[s] = u'0'
-
-        # now create aff_facet_hier using similar logic,
-        # whether single author or many, and whether
-        # each author has one affil or many
-        if len(facet) > 0:
-            f2 = []
-            for f in facet:
-                if len(f) == 1:
-                    f2.append(f[0])
-                else:
-                    for x in f:
-                        f2.append(x)
-            try:
-                f4 = []
-                for f3 in list(set(f2)):
-                    if isinstance(f3, list):
-                        for x in list(f3):
-                            f4.append(x)
-                    else:
-                        f4.append(f3)
-                f2 = f4
-            except:
-                pass
-            aff_facet_hier = f2
-        else:
-            aff_facet_hier = []
-
-        # keeping this here because it's how records in production as
-        # of 2/20/2019 are augmented.  Delete the following line once
-        # prod is changed over:
-        # rec['aff_abbrev'] = aff_facet_hier
-
-        rec['aff_abbrev'] = abbreviation_list
-        rec['aff_id'] = id_code_list
-        rec['aff_canonical'] = canonical_list
-        rec['aff_facet_hier'] = aff_facet_hier
-        rec['aff_raw'] = rec['aff']
-        rec['institution'] = rec['aff_abbrev']
-
-        # the augmenter doesn't return data, but if strings aren't matched,
-        # the unmatched strings are returned.
-        return unmatched
+    def find_matches(self, rec):
+        if rec:
+            self.instring = rec
+            self._norm_affil()
+        return self._match_affil()
