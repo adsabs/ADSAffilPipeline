@@ -29,9 +29,9 @@ OUTPUT_CELERY_BROKER = 'pyamqp://guest:guest@localhost:5682/master_pipeline'
 OUTPUT_TASKNAME = 'adsmp.tasks.task_update_record'
 
 # Affiliation data files/directories
-AFFIL_DATA_DIR = './data/'
-TEXT_AFFIL_DICT_FILENAME = AFFIL_DATA_DIR + 'Affils_v3.0.1'
-TEXT_PC_DICT_FILENAME = AFFIL_DATA_DIR + 'parent_child.new'
+AFFIL_DATA_DIR = '/proj/ads/abstracts/config/affils/PIPELINE/data/'
+TEXT_AFFIL_DICT_FILENAME = AFFIL_DATA_DIR + 'affil_strings.txt'
+TEXT_PC_DICT_FILENAME = AFFIL_DATA_DIR + 'parent_child.txt'
 AFFIL_PICKLE_FILENAME = AFFIL_DATA_DIR + 'aff.pickle'
 CLAUSE_PICKLE_FILENAME = AFFIL_DATA_DIR + 'clause.pickle'
 
