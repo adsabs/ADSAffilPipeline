@@ -22,7 +22,6 @@ class TestTasks(unittest.TestCase):
             self.assertTrue(output.called)
         with patch('ADSAffil.tasks.app.forward_message') as output:
             rec.pop('aff')
-            print("fnord:",rec)
             tasks.task_augment_affiliations_json(rec)
             self.assertFalse(output.called)
         with patch('ADSAffil.tasks.app.forward_message') as output:

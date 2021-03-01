@@ -44,8 +44,8 @@ def task_augment_affiliations_json(rec):
             return
     try:
         if 'aff' in rec:
-            u = app.augment_affiliations(rec)
-            task_output_augmented_record(rec)
+            outrec = app.augment_affiliations(rec)
+            task_output_augmented_record(outrec)
         else:
             logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
     except Exception as e:

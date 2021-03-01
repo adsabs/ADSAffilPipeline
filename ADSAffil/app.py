@@ -158,7 +158,7 @@ class ADSAffilCelery(ADSCelery):
                                 f2.append(x)
                     try:
                         f4 = []
-                        for f3 in list(set(f2)):
+                        for f3 in list(dict.fromkeys(f2)):
                             if isinstance(f3, list):
                                 for x in list(f3):
                                     f4.append(x)
