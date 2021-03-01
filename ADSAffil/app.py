@@ -171,11 +171,7 @@ class ADSAffilCelery(ADSCelery):
                 else:
                     aff_facet_hier = []
 
-                # keeping this here because it's how records in production as
-                # of 2/20/2019 are augmented.  Delete the following line once
-                # prod is changed over:
-                # rec['aff_abbrev'] = aff_facet_hier
-
+                # Now you can write the augmented affil data...
                 rec['aff_abbrev'] = abbreviation_list
                 rec['aff_id'] = id_code_list
                 rec['aff_canonical'] = canonical_list
