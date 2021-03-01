@@ -1,6 +1,7 @@
 *pyc
 logs/*
 data/*
+./clause.pickle
 .cache
 .coverage*
 venc
