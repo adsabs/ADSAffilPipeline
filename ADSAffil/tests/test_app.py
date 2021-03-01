@@ -39,9 +39,46 @@ class TestApp(unittest.TestCase):
             jdata = json.load(fj)
         rec = jdata['response']['docs'][0]
         output_record = matcher.augment_affiliations(rec)
-        print(output_record)
         expected_record = {'bibcode': '2002ApJ...576..963T', 'aff': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101'], 'aff_abbrev': ['Yale U/Dep Ast', 'Yale U/Dep Ast', 'Yale U/Dep Ast'], 'aff_id': ['A00928', 'A00928', 'A00928'], 'aff_canonical': ['Yale University, Department of Astronomy', 'Yale University, Department of Astronomy', 'Yale University, Department of Astronomy'], 'aff_facet_hier': ['0/Yale U', '1/Yale U/Dep Ast'], 'aff_raw': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101'], 'institution': ['Yale U/Dep Ast', 'Yale U/Dep Ast', 'Yale U/Dep Ast']}
         self.assertEqual(output_record, expected_record)
+
+        # third test: try augmenting a record with some unmatched affs:
+        test_json = stubdata_dir + '/record2.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        expected_record = {'bibcode': '2021FOO...576..963T', 'aff': ['University of Unbridled Nonsense', 'University of Irrational Exuberance', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101'], 'aff_abbrev': ['-', '-', 'Yale U/Dep Ast'], 'aff_id': ['-', '-', 'A00928'], 'aff_canonical': ['-', '-', 'Yale University, Department of Astronomy'], 'aff_facet_hier': ['0/Yale U', '1/Yale U/Dep Ast'], 'aff_raw': ['University of Unbridled Nonsense', 'University of Irrational Exuberance', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101'], 'institution': ['-', '-', 'Yale U/Dep Ast']}
+        self.assertEqual(output_record, expected_record)
+
+        # fourth test: try augmenting a record with all unmatched affs:
+        test_json = stubdata_dir + '/record3.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        expected_record = {'bibcode': '2021FUBAR.576..963T', 'aff': ['University of Unbridled Nonsense', 'University of Irrational Exuberance', 'University of Mass Hysteria'], 'aff_abbrev': ['-', '-', '-'], 'aff_id': ['-', '-', '-'], 'aff_canonical': ['-', '-', '-'], 'aff_facet_hier': [], 'aff_raw': ['University of Unbridled Nonsense', 'University of Irrational Exuberance', 'University of Mass Hysteria'], 'institution': ['-', '-', '-']}
+        self.assertEqual(output_record, expected_record)
+ 
+        # fifth test: try augmenting a record with empty affs:
+        test_json = stubdata_dir + '/record4.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        expected_record = {'bibcode': '2021BAZ...576..963T', 'aff': [], 'aff_abbrev': [], 'aff_id': [], 'aff_canonical': [], 'aff_facet_hier': [], 'aff_raw': [], 'institution': []}
+        self.assertEqual(output_record, expected_record)
+ 
+        # sixth test: try augmenting a record with blank affs:
+        test_json = stubdata_dir + '/record5.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        print(output_record)
+        expected_record = {'bibcode': '2021ASDFQ.576..963T', 'aff': ['-'], 'aff_abbrev': ['-'], 'aff_id': ['-'], 'aff_canonical': ['-'], 'aff_facet_hier': [], 'aff_raw': ['-'], 'institution': ['-']}
+        self.assertEqual(output_record, expected_record)
+ 
 
     def test_return_exact_matches(self):
         aff_pickle_filename = stubdata_dir + '/aff.pickle'
