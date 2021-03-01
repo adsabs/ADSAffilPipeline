@@ -74,6 +74,7 @@ def main():
 
     if args.debug:
         jdata = json.loads(DEBUG_RECORD)
+        logger.info("Sending the debugging record: %s" % jdata)
     elif args.input_json_file:
         if os.path.isfile(args.input_json_file):
             try:
