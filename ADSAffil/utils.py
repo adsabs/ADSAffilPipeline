@@ -4,6 +4,26 @@ import pickle
 import re
 
 
+class FixSemicolonsException(Exception):
+    pass
+
+
+class CleanStringException(Exception):
+    pass
+
+
+class NormalizeStringException(Exception):
+    pass
+
+
+class NormalizeDictException(Exception):
+    pass
+
+
+class SplitClausesException(Exception):
+    pass
+
+
 class AffilTextFileException(Exception):
     pass
 
@@ -37,20 +57,23 @@ regex_norm_punct = re.compile(r'[-!?.,;:/\\]')
 
 
 def fix_semicolons(string):
-    string_x = regex_norm_semicolon.sub(';', string).strip()
-    if string_x != string:
-        return fix_semicolons(string_x)
-    else:
-        return string_x
+    try:
+        string_x = regex_norm_semicolon.sub(';', string).strip()
+        if string_x != string:
+            return fix_semicolons(string_x)
+        else:
+            return string_x
+    except Exception as err:
+        raise FixSemicolonsException('Error in fix_semicolons: %s' % err)
 
 def clean_string(string):
     try:
         string = html.unescape(string)
         string = fix_semicolons(string)
         string = string.strip(';').strip()
+        return string
     except Exception as err:
-        pass
-    return string
+        raise CleanStringException('Error in clean_string: %s' % err)
 
 def normalize_string(string):
     # normalizing consists of
@@ -59,28 +82,28 @@ def normalize_string(string):
     try:
         string = regex_norm_punct.sub(' ', string)
         string = ' '.join(string.split())
-    except:
-        pass
-    try:
         string = string.upper()
+        return string
     except Exception as err:
-        pass
-    return string
+        raise NormalizeStringException('Error in normalize_string: %s' % err)
 
 def normalize_dict(dictionary):
     dictionary_norm = {}
-    for (k, v) in dictionary.items():
-        kn = normalize_string(k)
-        dictionary_norm[kn] = v
-    return dictionary_norm
+    try:
+        for (k, v) in dictionary.items():
+            kn = normalize_string(k)
+            dictionary_norm[kn] = v
+        return dictionary_norm
+    except Exception as err:
+        raise NormalizeDictException('Error in normalize_dict: %s' % err)
 
 def split_clauses(string, separator):
     try:
         clauses = string.strip().split(separator)
         clauses = [x.strip() for x in clauses]
         return clauses
-    except:
-        pass
+    except Exception as err:
+        raise SplitClausesException('Error in split_clauses: %s' % err)
 
 def create_clause_dict(affdict, separator=','):
     try:

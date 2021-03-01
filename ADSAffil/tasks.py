@@ -41,19 +41,19 @@ def task_augment_affiliations_json(rec):
             rec = rec.toJSON(including_default_value_fields=True)
         except Exception as e:
             logger.warning("Could not convert proto to JSON: %s", e)
+            return
     try:
         if 'aff' in rec:
             u = app.augment_affiliations(rec)
             task_output_augmented_record(rec)
         else:
             logger.debug("Record does not have affiliation info: %s", rec['bibcode'])
-            pass
     except Exception as e:
         if isinstance(rec, dict) and 'bibcode' in rec:
-            logger.debug("Could not augment record: %s", rec['bibcode'])
+            logger.warning("Exception while augmenting record %s: %s" % (rec['bibcode'], e))
         else:
+            logger.warning("Exception: %s" % e)
             pass
-        logger.warning("Exception: %s", e)
 
 
 @app.task(queue='api-matcher')
