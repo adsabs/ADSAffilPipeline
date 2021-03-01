@@ -102,6 +102,7 @@ class TestUtils(unittest.TestCase):
         expected_file = stubdata_dir + '/clause.pickle'
         utils.make_clause_pickle(affil_file, pickle_file, separator, protocol)
         self.assertTrue(filecmp.cmp(pickle_file, expected_file))
+        os.remove(pickle_file)
 
 
     def test_clause_pickling(self):

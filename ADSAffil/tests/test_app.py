@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 from ADSAffil import app, utils
@@ -26,11 +27,21 @@ class TestApp(unittest.TestCase):
         matcher.cdict = cdict
         matcher.clausedict = clause_dict
 
+        # first test: use augment_affiliations to exactly match a string:
         rec = 'Department of Physics and Institute for the Early Universe, Ewha Womans University, Seodaaemun-gu, Seoul, South Korea'
         output_record = matcher.augment_affiliations(rec)
         expected_record = ('Ewha Wmns U/Inst Early Uni', 'Ewha Womans University, Institute for the Early Universe', ['0/Ewha Wmns U', '1/Ewha Wmns U/Inst Early Uni'], 'A11557')
         self.assertEqual(output_record, expected_record)
 
+        # second test: use augment_affiliations to augment a record
+        test_json = stubdata_dir + '/record.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        print(output_record)
+        expected_record = {'bibcode': '2002ApJ...576..963T', 'aff': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101'], 'aff_abbrev': ['Yale U/Dep Ast', 'Yale U/Dep Ast', 'Yale U/Dep Ast'], 'aff_id': ['A00928', 'A00928', 'A00928'], 'aff_canonical': ['Yale University, Department of Astronomy', 'Yale University, Department of Astronomy', 'Yale University, Department of Astronomy'], 'aff_facet_hier': ['0/Yale U', '1/Yale U/Dep Ast'], 'aff_raw': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101'], 'institution': ['Yale U/Dep Ast', 'Yale U/Dep Ast', 'Yale U/Dep Ast']}
+        self.assertEqual(output_record, expected_record)
 
     def test_return_exact_matches(self):
         aff_pickle_filename = stubdata_dir + '/aff.pickle'
@@ -93,3 +104,5 @@ class TestApp(unittest.TestCase):
         output_record = matcher.find_matches(rec)
         expected_record = {'A11557': 2.0}
         self.assertEqual(output_record, expected_record)
+
+
