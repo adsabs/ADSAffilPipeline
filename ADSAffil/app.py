@@ -180,6 +180,8 @@ class ADSAffilCelery(ADSCelery):
                 rec['institution'] = rec['aff_abbrev']
 
             return rec
+        else:
+            return
 
     def find_matches(self, rec):
         if rec:
