@@ -91,9 +91,97 @@ class ADSAffilCelery(ADSCelery):
 
     def augment_affiliations(self, rec):
         if rec:
-            self.instring = rec
-            self._norm_affil()
-        return self._augmenter()
+            # augment_affiliations can work on strings or json from protobuf
+            # If rec is type str:
+            if isinstance(rec,str):
+                self.instring = rec
+                self._norm_affil()
+                return self._augmenter()
+            # If rec is type dict (json from protobuf):
+            elif isinstance(rec,dict):
+                aff = rec['aff']
+                abbreviation_list = []
+                id_code_list = []
+                canonical_list = []
+                aff_facet_hier = []
+                facet_list = []
+                for s in aff: 
+                    abb_list = []
+                    id_list = []
+                    can_list = []
+                    if ';' in s:
+                        # if record contains ';', there are multiple affils
+                        # so split on the semicolon
+                        t = s.split(';')
+                        abb_list = []
+                        id_list = []
+                        can_list = []
+                        for v in t:
+                            # each v is an affil among multiple for a given author
+                            if v.strip() != '':
+                                # call augmenter with substring v and the dicts
+                                self.instring = v
+                                self._norm_affil()
+                                (aid, can, fac, idcode) = self._augmenter()
+                        abb_list.append(aid)
+                        id_list.append(idcode)
+                        can_list.append(can)
+                        if fac:
+                            facet_list.append(fac)
+                        else:
+                            if v != u'' and v != u'-':
+                                can_list = u'; '.join(can_list)
+                                abbreviation_list.append(u'; '.join(abb_list))
+                                id_code_list.append(u'; '.join(id_list))
+                                canonical_list.append(can_list)
+                    else:
+                        # call augmenter with string s and the dicts
+                        self.instring = s
+                        self._norm_affil()
+                        (aid, can, fac, idcode) = self._augmenter()
+                        abbreviation_list.append(aid)
+                        id_code_list.append(idcode)
+                        canonical_list.append(can)
+                        if fac:
+                            facet_list.append(fac)
+
+                # now create aff_facet_hier using similar logic,
+                # whether single author or many, and whether
+                # each author has one affil or many
+                if len(facet_list) > 0:
+                    f2 = []
+                    for f in facet_list:
+                        if len(f) == 1:
+                            f2.append(f[0])
+                        else:
+                            for x in f:
+                                f2.append(x)
+                    try:
+                        f4 = []
+                        for f3 in list(dict.fromkeys(f2)):
+                            if isinstance(f3, list):
+                                for x in list(f3):
+                                    f4.append(x)
+                            else:
+                                f4.append(f3)
+                        f2 = f4
+                    except:
+                        pass
+                    aff_facet_hier = f2
+                else:
+                    aff_facet_hier = []
+
+                # Now you can write the augmented affil data...
+                rec['aff_abbrev'] = abbreviation_list
+                rec['aff_id'] = id_code_list
+                rec['aff_canonical'] = canonical_list
+                rec['aff_facet_hier'] = aff_facet_hier
+                rec['aff_raw'] = rec['aff']
+                rec['institution'] = rec['aff_abbrev']
+
+            return rec
+        else:
+            return
 
     def find_matches(self, rec):
         if rec:
