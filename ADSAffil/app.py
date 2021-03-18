@@ -123,17 +123,15 @@ class ADSAffilCelery(ADSCelery):
                                 self.instring = v
                                 self._norm_affil()
                                 (aid, can, fac, idcode) = self._augmenter()
-                        abb_list.append(aid)
-                        id_list.append(idcode)
-                        can_list.append(can)
-                        if fac:
-                            facet_list.append(fac)
-                        else:
-                            if v != u'' and v != u'-':
-                                can_list = u'; '.join(can_list)
-                                abbreviation_list.append(u'; '.join(abb_list))
-                                id_code_list.append(u'; '.join(id_list))
-                                canonical_list.append(can_list)
+                            abb_list.append(aid)
+                            id_list.append(idcode)
+                            can_list.append(can)
+                            if fac:
+                                facet_list.append(fac)
+                        can_list = u'; '.join(can_list)
+                        abbreviation_list.append(u'; '.join(abb_list))
+                        id_code_list.append(u'; '.join(id_list))
+                        canonical_list.append(can_list)
                     else:
                         # call augmenter with string s and the dicts
                         self.instring = s
