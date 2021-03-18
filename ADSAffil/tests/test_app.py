@@ -75,10 +75,27 @@ class TestApp(unittest.TestCase):
             jdata = json.load(fj)
         rec = jdata['response']['docs'][0]
         output_record = matcher.augment_affiliations(rec)
-        print(output_record)
         expected_record = {'bibcode': '2021ASDFQ.576..963T', 'aff': ['-'], 'aff_abbrev': ['-'], 'aff_id': ['-'], 'aff_canonical': ['-'], 'aff_facet_hier': [], 'aff_raw': ['-'], 'institution': ['-']}
         self.assertEqual(output_record, expected_record)
  
+        # seventh test: try augmenting a record with some unmatched affs AND a multipart aff (one known ; one unknown):
+        test_json = stubdata_dir + '/record6.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        expected_record = {'bibcode': '2021FOO...576..963T', 'aff': ['University of Unbridled Nonsense', 'University of Irrational Exuberance', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101; University of Unbridled Nonsense'], 'aff_abbrev': ['-', '-', 'Yale U/Dep Ast; -'], 'aff_id': ['-', '-', 'A00928; -'], 'aff_canonical': ['-', '-', 'Yale University, Department of Astronomy; -'], 'aff_facet_hier': ['0/Yale U', '1/Yale U/Dep Ast'], 'aff_raw': ['University of Unbridled Nonsense', 'University of Irrational Exuberance', 'Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101; University of Unbridled Nonsense'], 'institution': ['-', '-', 'Yale U/Dep Ast; -']}
+        self.assertEqual(output_record, expected_record)
+
+        # eighth test: try augmenting a record a multipart affil where both are known strings:
+        test_json = stubdata_dir + '/record7.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        expected_record = {'bibcode': '2021FOO...576..963T', 'aff': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101; Institute of the Early Universe, Ewha Womans University, Seoul, 120-750 Korea'], 'aff_abbrev': ['Yale U/Dep Ast; Ewha Wmns U/Inst Early Uni'], 'aff_id': ['A00928; A11557'], 'aff_canonical': ['Yale University, Department of Astronomy; Ewha Womans University, Institute for the Early Universe'], 'aff_facet_hier': ['0/Yale U', '1/Yale U/Dep Ast', '0/Ewha Wmns U', '1/Ewha Wmns U/Inst Early Uni'], 'aff_raw': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101; Institute of the Early Universe, Ewha Womans University, Seoul, 120-750 Korea'], 'institution': ['Yale U/Dep Ast; Ewha Wmns U/Inst Early Uni']}
+        self.assertEqual(output_record, expected_record)
+
 
     def test_return_exact_matches(self):
         aff_pickle_filename = stubdata_dir + '/aff.pickle'
