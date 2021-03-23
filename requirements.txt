@@ -1,1 +1,1 @@
-adsputils==1.2.8
+adsputils==1.3.0

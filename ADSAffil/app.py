@@ -106,6 +106,7 @@ class ADSAffilCelery(ADSCelery):
                 aff_facet_hier = []
                 facet_list = []
                 for s in aff: 
+                    s = utils.clean_string(s)
                     abb_list = []
                     id_list = []
                     can_list = []
