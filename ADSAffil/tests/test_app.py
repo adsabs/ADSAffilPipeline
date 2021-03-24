@@ -96,6 +96,17 @@ class TestApp(unittest.TestCase):
         expected_record = {'bibcode': '2021FOO...576..963T', 'aff': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101; Institute of the Early Universe, Ewha Womans University, Seoul, 120-750 Korea'], 'aff_abbrev': ['Yale U/Dep Ast; Ewha Wmns U/Inst Early Uni'], 'aff_id': ['A00928; A11557'], 'aff_canonical': ['Yale University, Department of Astronomy; Ewha Womans University, Institute for the Early Universe'], 'aff_facet_hier': ['0/Yale U', '1/Yale U/Dep Ast', '0/Ewha Wmns U', '1/Ewha Wmns U/Inst Early Uni'], 'aff_raw': ['Astronomy Department, Yale University, P.O. Box 208101, New Haven, CT 06520-8101; Institute of the Early Universe, Ewha Womans University, Seoul, 120-750 Korea'], 'institution': ['Yale U/Dep Ast; Ewha Wmns U/Inst Early Uni']}
         self.assertEqual(output_record, expected_record)
 
+        # ninth test: try augmenting a record having an affiliation whose raw text has an HTML entity with semicolon:
+        test_json = stubdata_dir + '/record8.json'
+        with open(test_json,'r') as fj:
+            jdata = json.load(fj)
+        rec = jdata['response']['docs'][0]
+        output_record = matcher.augment_affiliations(rec)
+        expected_record = {'bibcode': '2021FOO...576..963T', 'aff': ['Texas A &amp; M University, College Station; Physics Department, Fisk University, Nashville, Tennessee 37203; University of ABCDEFG'], 'aff_abbrev': ['TX A&M Coll Station/TX A&M Coll Station; Fisk U/Fisk U; -'], 'aff_id': ['A02250; A00921; -'], 'aff_canonical': ['Texas A&M University, College Station; Fisk University, Tennessee; -'], 'aff_facet_hier': ['0/TX A&M Coll Station', '1/TX A&M Coll Station/TX A&M Coll Station', '0/Fisk U', '1/Fisk U/Fisk U'], 'aff_raw': ['Texas A &amp; M University, College Station; Physics Department, Fisk University, Nashville, Tennessee 37203; University of ABCDEFG'], 'institution': ['TX A&M Coll Station/TX A&M Coll Station; Fisk U/Fisk U; -']}
+        self.assertEqual(output_record, expected_record)
+
+
+
 
     def test_return_exact_matches(self):
         aff_pickle_filename = stubdata_dir + '/aff.pickle'
